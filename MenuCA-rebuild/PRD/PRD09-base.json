@@ -1,7 +1,0 @@
-{
-  "title": "Restaurant Partner Portal",
-  "requirement": "Develop an easy-to-use partner portal where restaurants can manage menus, view orders, and access reports across devices.  \n#### Screens:  \nMenu management and order history page, settings configuration interface, and insights dashboard with analytics.  \n#### Personas:  \nRestaurant managers updating menus, accountants reviewing order history, and chefs tracking order trends.",
-  "linkedBRDIds": [
-    "BRD09"
-  ]
-}

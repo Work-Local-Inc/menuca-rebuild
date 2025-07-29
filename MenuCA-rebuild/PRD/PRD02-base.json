@@ -1,7 +1,0 @@
-{
-  "title": "Scalable Multi-Tenant Platform",
-  "requirement": "Design a robust multi-tenant framework that ensures data isolation, supports tenant-specific customizations, and provides efficient resource allocation.  \n#### Screens:  \nAdmin panel for onboarding and managing restaurant partners, settings page for tenant-specific configurations, and resource management dashboard.  \n#### Personas:  \nIT administrators setting up new tenants, operations managers monitoring performance, and developers customizing tenant-specific features.",
-  "linkedBRDIds": [
-    "BRD02"
-  ]
-}
