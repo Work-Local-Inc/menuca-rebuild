@@ -1,0 +1,4 @@
+{
+  "title": "Tenant Isolation Mechanisms",
+  "requirement": "Ensure _logical separation_ of data and processes for each restaurant to maintain privacy and security."
+}

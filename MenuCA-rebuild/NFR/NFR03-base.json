@@ -1,0 +1,4 @@
+{
+  "title": "Data Security Protocols",
+  "requirement": "Implement **strong encryption** measures to protect _customer and order data_, both in transit and at rest."
+}

@@ -1,0 +1,13 @@
+{
+  "type": "technical_decision",
+  "timestamp": "2025-07-24T14:40:46.474121",
+  "data": {
+    "id": "DASHBOARD_TECH_STACK",
+    "title": "Dashboard Technology Stack Selection",
+    "decision": "Streamlit + muscle-mem + Plotly for real-time progress visualization",
+    "reasoning": "Streamlit provides rapid prototyping, muscle-mem handles memory persistence, Plotly creates interactive charts",
+    "impact": "Automated progress tracking reduces manual overhead and provides real-time project visibility",
+    "timestamp": "2025-07-24T14:40:46.474119",
+    "source": "integration_hook"
+  }
+}

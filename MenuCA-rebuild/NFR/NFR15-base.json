@@ -1,0 +1,4 @@
+{
+  "title": "Disaster Recovery Plan",
+  "requirement": "Develop a robust **disaster recovery** plan to ensure a maximum _24-hour recovery window_ in case of major failures."
+}

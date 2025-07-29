@@ -1,0 +1,271 @@
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 80656"}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"HTTP server closed"}
+{"level":"info","message":"Database connections closed"}
+{"level":"info","message":"Redis connection closed"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 83164"}
+{"level":"info","message":"Request 8na02rtvy88: GET /health"}
+{"level":"info","message":"::1 - - [24/Jul/2025:16:12:57 +0000] \"GET /health HTTP/1.1\" 200 129 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request n8ahsoly5qc: GET /api/v1"}
+{"level":"info","message":"::1 - - [24/Jul/2025:16:13:02 +0000] \"GET /api/v1 HTTP/1.1\" 200 92 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request iuti2n74zed: GET /api/v1"}
+{"level":"info","message":"::1 - - [24/Jul/2025:16:13:07 +0000] \"GET /api/v1 HTTP/1.1\" 200 92 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request 9lyldqqutga: GET /status"}
+{"level":"info","message":"::1 - - [24/Jul/2025:16:13:12 +0000] \"GET /status HTTP/1.1\" 200 6157 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"HTTP server closed"}
+{"level":"info","message":"Database connections closed"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 94926"}
+{"level":"info","message":"Request zxx15vt1wde: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:24:16 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 500 60 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request i633trqkowg: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:24:54 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 500 60 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request w54wjezi0in: POST /api/v1/auth/login"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:25:32 +0000] \"POST /api/v1/auth/login HTTP/1.1\" 401 53 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request b84xrsg3uar: GET /health"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:25:36 +0000] \"GET /health HTTP/1.1\" 200 129 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request z1tkayfkzn: POST /api/v1/auth/login"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:28:00 +0000] \"POST /api/v1/auth/login HTTP/1.1\" 200 1184 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request 5v291glw8jc: GET /api/v1/auth/me"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:47:09 +0000] \"GET /api/v1/auth/me HTTP/1.1\" 401 103 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request eeasyg60uzc: POST /api/v1/auth/login"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:48:21 +0000] \"POST /api/v1/auth/login HTTP/1.1\" 200 1184 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request bhyzxs54wd8: GET /api/v1/auth/me"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:49:00 +0000] \"GET /api/v1/auth/me HTTP/1.1\" 200 398 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request bleclpfx9e5: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [24/Jul/2025:19:49:11 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 500 60 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 2128"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 2252"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 2374"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 2579"}
+{"level":"info","message":"Request 9mppxkty2mf: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [24/Jul/2025:20:01:35 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 500 60 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"HTTP server closed"}
+{"level":"info","message":"Database connections closed"}
+{"level":"info","message":"Redis connection closed"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 3322"}
+{"level":"info","message":"Request 8opdc3fg5hx: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [24/Jul/2025:20:04:27 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 500 60 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 4042"}
+{"level":"info","message":"Request 72m5553zn2x: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [24/Jul/2025:20:10:22 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 500 127 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 4453"}
+{"level":"info","message":"Request 80qldvih9z9: POST /api/v1/auth/register"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 44716"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 49163"}
+{"level":"info","message":"Request m1fr02hamg: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [25/Jul/2025:17:55:40 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 201 1147 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request icn7hdx5pi: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [25/Jul/2025:17:55:54 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 409 68 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request 77kg1x6k0cd: POST /api/v1/auth/register"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:00:48 +0000] \"POST /api/v1/auth/register HTTP/1.1\" 201 1153 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 53983"}
+{"level":"info","message":"Request rr0ag1ifztd: GET /api/v1/menu/restaurants"}
+{"error":"syntax error at or near \"$1\"","ip":"::1","level":"error","message":"Unhandled error:","method":"GET","stack":"error: syntax error at or near \"$1\"\n    at /Users/brianlapp/Documents/GitHub/menuca-rebuild/node_modules/pg/lib/client.js:545:17\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MenuService.executeWithTenant (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:411:7)\n    at async Promise.all (index 0)\n    at async MenuService.getRestaurants (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:137:39)\n    at async /Users/brianlapp/Documents/GitHub/menuca-rebuild/src/routes/menu.ts:31:20","tenant":"00000000-0000-0000-0000-000000000000","url":"/api/v1/menu/restaurants"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:43:12 +0000] \"GET /api/v1/menu/restaurants HTTP/1.1\" 500 141 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request qp8fo895lfh: GET /api/v1/menu/restaurants"}
+{"error":"syntax error at or near \"$1\"","ip":"::1","level":"error","message":"Unhandled error:","method":"GET","stack":"error: syntax error at or near \"$1\"\n    at /Users/brianlapp/Documents/GitHub/menuca-rebuild/node_modules/pg/lib/client.js:545:17\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MenuService.executeWithTenant (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:411:7)\n    at async Promise.all (index 1)\n    at async MenuService.getRestaurants (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:137:39)\n    at async /Users/brianlapp/Documents/GitHub/menuca-rebuild/src/routes/menu.ts:31:20","tenant":"00000000-0000-0000-0000-000000000000","url":"/api/v1/menu/restaurants"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:43:17 +0000] \"GET /api/v1/menu/restaurants HTTP/1.1\" 500 141 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 54708"}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"HTTP server closed"}
+{"level":"info","message":"Database connections closed"}
+{"level":"info","message":"Redis connection closed"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 54900"}
+{"level":"info","message":"Request t01bdes870p: GET /api/v1/menu/restaurants"}
+{"error":"syntax error at or near \"$1\"","ip":"::1","level":"error","message":"Unhandled error:","method":"GET","stack":"error: syntax error at or near \"$1\"\n    at /Users/brianlapp/Documents/GitHub/menuca-rebuild/node_modules/pg/lib/client.js:545:17\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MenuService.executeWithTenant (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:411:7)\n    at async Promise.all (index 1)\n    at async MenuService.getRestaurants (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:137:39)\n    at async /Users/brianlapp/Documents/GitHub/menuca-rebuild/src/routes/menu.ts:31:20","tenant":"00000000-0000-0000-0000-000000000000","url":"/api/v1/menu/restaurants"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:46:28 +0000] \"GET /api/v1/menu/restaurants HTTP/1.1\" 500 141 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request mat8nibul4: GET /health"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:46:34 +0000] \"GET /health HTTP/1.1\" 200 129 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 55671"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 55749"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 55825"}
+{"level":"info","message":"Request 0aotj067liw8: GET /api/v1/menu/restaurants"}
+{"error":"syntax error at or near \"$1\"","ip":"::1","level":"error","message":"Unhandled error:","method":"GET","stack":"error: syntax error at or near \"$1\"\n    at /Users/brianlapp/Documents/GitHub/menuca-rebuild/node_modules/pg/lib/client.js:545:17\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MenuService.executeWithTenant (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:411:7)\n    at async Promise.all (index 1)\n    at async MenuService.getRestaurants (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:137:39)\n    at async /Users/brianlapp/Documents/GitHub/menuca-rebuild/src/routes/menu.ts:31:20","tenant":"00000000-0000-0000-0000-000000000000","url":"/api/v1/menu/restaurants"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:48:31 +0000] \"GET /api/v1/menu/restaurants HTTP/1.1\" 500 142 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"HTTP server closed"}
+{"level":"info","message":"Database connections closed"}
+{"level":"info","message":"Redis connection closed"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 56780"}
+{"level":"info","message":"Request waiy1rp1axc: GET /api/v1/menu/restaurants"}
+{"error":"syntax error at or near \"$1\"","ip":"::1","level":"error","message":"Unhandled error:","method":"GET","stack":"error: syntax error at or near \"$1\"\n    at /Users/brianlapp/Documents/GitHub/menuca-rebuild/node_modules/pg/lib/client.js:545:17\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MenuService.executeWithTenant (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:411:7)\n    at async Promise.all (index 0)\n    at async MenuService.getRestaurants (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:137:39)\n    at async /Users/brianlapp/Documents/GitHub/menuca-rebuild/src/routes/menu.ts:31:20","tenant":"00000000-0000-0000-0000-000000000000","url":"/api/v1/menu/restaurants"}
+{"level":"info","message":"::1 - - [25/Jul/2025:18:59:05 +0000] \"GET /api/v1/menu/restaurants HTTP/1.1\" 500 141 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 59196"}
+{"level":"info","message":"Request cjlen3fu8p8: GET /api/v1/menu/restaurants"}
+{"error":"syntax error at or near \"$1\"","ip":"::1","level":"error","message":"Unhandled error:","method":"GET","stack":"error: syntax error at or near \"$1\"\n    at /Users/brianlapp/Documents/GitHub/menuca-rebuild/node_modules/pg/lib/client.js:545:17\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async MenuService.executeWithTenant (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:411:7)\n    at async Promise.all (index 1)\n    at async MenuService.getRestaurants (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/services/MenuService.ts:137:39)\n    at async /Users/brianlapp/Documents/GitHub/menuca-rebuild/src/routes/menu.ts:31:20","tenant":"00000000-0000-0000-0000-000000000000","url":"/api/v1/menu/restaurants"}
+{"level":"info","message":"::1 - - [25/Jul/2025:19:35:53 +0000] \"GET /api/v1/menu/restaurants HTTP/1.1\" 500 141 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 59433"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 59645"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 59790"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 59867"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 59929"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 60007"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 60071"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 60151"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 61102"}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"HTTP server closed"}
+{"level":"info","message":"Database connections closed"}
+{"level":"info","message":"Redis connection closed"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing Redis connection..."}
+{"level":"info","message":"=� MenuCA server started on localhost:3000"}
+{"level":"info","message":"=� Environment: development"}
+{"level":"info","message":"=' Process ID: 63245"}
+{"level":"info","message":"Request 8o0s0pyp21j: GET /api/v1/cart"}
+{"level":"info","message":"::1 - - [25/Jul/2025:20:30:52 +0000] \"GET /api/v1/cart HTTP/1.1\" 401 103 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request di0eiy44bu9: GET /api/v1/cart"}
+{"level":"info","message":"::1 - - [25/Jul/2025:20:31:01 +0000] \"GET /api/v1/cart HTTP/1.1\" 401 56 \"-\" \"curl/8.7.1\""}
+{"level":"info","message":"Request lu1lxt9zn4: GET /admin/index.html"}
+{"level":"info","message":"::1 - - [27/Jul/2025:23:44:43 +0000] \"GET /admin/index.html HTTP/1.1\" 404 69 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0\""}
+{"level":"info","message":"Request 7n4j4awuwav: GET /favicon.ico"}
+{"level":"info","message":"::1 - - [27/Jul/2025:23:44:43 +0000] \"GET /favicon.ico HTTP/1.1\" 404 64 \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0\""}
+{"level":"info","message":"Received SIGTERM. Starting graceful shutdown..."}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:301:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:301:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:309:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:311:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:311:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:322:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:322:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Initializing database connection..."}
+{"level":"error","message":"Failed to start server: Failed to connect to database","stack":"Error: Failed to connect to database\n    at MenuCAServer.start (/Users/brianlapp/Documents/GitHub/menuca-rebuild/src/server/app.ts:322:15)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"}

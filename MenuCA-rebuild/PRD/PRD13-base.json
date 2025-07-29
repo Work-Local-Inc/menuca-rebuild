@@ -1,0 +1,7 @@
+{
+  "title": "24/7 Support Infrastructure",
+  "requirement": "Provide a robust support system with both automated and live options to assist customers and technical queries around the clock.  \n#### Screens:  \nSupport request submission form, automated self-service help page, and live chat interface with support representatives.  \n#### Personas:  \nCustomers needing assistance, technical staff resolving issues, and support agents providing direct help.",
+  "linkedBRDIds": [
+    "BRD13"
+  ]
+}

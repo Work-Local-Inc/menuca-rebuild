@@ -1,0 +1,46 @@
+{
+  "id": "3b49b27f-69fa-421e-800e-873d758cc739",
+  "name": "MenuCA-rebuild",
+  "description": "MENUCA REBUILD - PROJECT OUTLINE\nProject Name:\nMenuca Rebuild - Multi-Tenant Menu Ordering Platform\nProject Description:\nA comprehensive SaaS platform that enables restaurants to offer online ordering while providing Menu.ca owners with commission tracking, CRM capabilities, and automated payment processing through Stripe integration.\nBusiness Goals:\n\nGenerate commission revenue from restaurant orders\nReduce operational overhead through automation\nScale to support hundreds of restaurant partners\nProvide seamless ordering experience for customers",
+  "technicalDetails": "Tech Stack:\n\nBackend: Node.js/Express or similar\nDatabase: PostgreSQL with multi-tenant architecture\nPayment: Stripe integration\nFrontend: React/Next.js (responsive, mobile-first)\nAuthentication: JWT with role-based access\nHosting: Cloud-native (Gcloudl)\nCaching: Redis for sessions/performance\nCore Components:\n1. Customer Ordering Platform (PRD01)\nMulti-device ordering interface with cart, checkout, and payment processing\n2. Restaurant Management Portal (PRD02)\nSelf-service dashboard for menu management, order tracking, and basic analytics\n3. Menu.ca Owner Dashboard/CRM (PRD03)\nCommission tracking, restaurant partner management, platform analytics, and revenue reporting\n4. Payment & Commission System (PRD04)\nStripe integration, automated commission calculation, payout processing, and financial reconciliation\n5. Core Platform Infrastructure (PRD05)\nMulti-tenant database architecture, authentication system, API foundation, and system monitoring\nPriority Order (Working Backwards):\n\nStart: PRD05 (Infrastructure foundation)\nBuild: PRD01 (Customer ordering - revenue generator)\nAdd: PRD04 (Payment system - money flow)\nLayer: PRD02 (Restaurant tools)\nComplete: PRD03 (Command center)\n\nSuccess Metrics:\n\nPlatform uptime: 99.9%+\nOrder completion rate: >95%\nRestaurant partner growth: 50+ in year 1\nCommission revenue: Target $10K+ monthly by month 6\nCustomer satisfaction: 4.5+ stars\n",
+  "createReqt": true,
+  "createdAt": "2025-07-22T19:43:56.087Z",
+  "cleanSolution": false,
+  "BRD": {
+    "enabled": true,
+    "minCount": 15,
+    "count": 15
+  },
+  "PRD": {
+    "enabled": true,
+    "minCount": 15,
+    "count": 15
+  },
+  "UIR": {
+    "enabled": true,
+    "minCount": 15,
+    "count": 15
+  },
+  "NFR": {
+    "enabled": true,
+    "minCount": 15,
+    "count": 15
+  },
+  "mcpSettings": {
+    "mcpServers": {}
+  },
+  "isFailed": false,
+  "failureInfo": null,
+  "BP": {
+    "count": 0
+  },
+  "TC": {
+    "count": 0
+  },
+  "US": {
+    "count": 74
+  },
+  "TASK": {
+    "count": 418
+  }
+}
