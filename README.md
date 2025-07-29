@@ -2,6 +2,8 @@
 
 Multi-tenant SaaS platform for restaurant management with PostgreSQL + Redis + TypeScript.
 
+<!-- CodeRabbit Test: Adding a small documentation update -->
+
 ## 🏗️ Phase 1 Foundation Complete
 
 ✅ **MC-F-DB-001**: Multi-tenant PostgreSQL with Row Level Security  
