@@ -12,7 +12,7 @@
     "build": "next build",
     "build:server": "tsc",
     "build:client": "next build",
-    "start": "next start",
+    "start": "npm run start:server",
     "start:server": "node dist/server/app.js",
     "start:client": "next start -p 3001",
     "db:setup": "node dist/scripts/setup-database.js",
