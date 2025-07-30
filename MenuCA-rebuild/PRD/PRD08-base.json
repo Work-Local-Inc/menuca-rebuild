@@ -1,7 +1,0 @@
-{
-  "title": "Data Security Measures",
-  "requirement": "Implement strong data security protocols to protect sensitive information and ensure compliance with GDPR and PCI DSS regulations.  \n#### Screens:  \nSecurity settings for managing access controls, data encryption status page, and audit trail review interface.  \n#### Personas:  \nSecurity officers ensuring data protection, compliance specialists maintaining regulatory standards, and system administrators managing access.",
-  "linkedBRDIds": [
-    "BRD08"
-  ]
-}

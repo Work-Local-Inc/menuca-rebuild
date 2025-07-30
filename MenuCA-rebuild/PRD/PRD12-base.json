@@ -1,7 +1,0 @@
-{
-  "title": "Marketing Tools Suite",
-  "requirement": "Develop tools for Menu.ca and its partners to create, manage, and analyze marketing campaigns and loyalty programs.  \n#### Screens:  \nCampaign creation and management interface, analytics dashboard for campaign performance, and loyalty program configuration page.  \n#### Personas:  \nMarketing teams planning promotions, restaurant owners reviewing campaign success, and data analysts tracking trends.",
-  "linkedBRDIds": [
-    "BRD12"
-  ]
-}

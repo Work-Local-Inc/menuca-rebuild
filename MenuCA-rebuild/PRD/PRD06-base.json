@@ -1,7 +1,0 @@
-{
-  "title": "Operational Task Automation",
-  "requirement": "Automate repetitive operational tasks like order processing and inventory updates to enhance efficiency and accuracy.  \n#### Screens:  \nAutomation configuration interface, task monitoring dashboard, and reporting tools for tracking efficiency improvements.  \n#### Personas:  \nOperations managers overseeing automation, employees focusing on strategic tasks, and IT staff configuring automation rules.",
-  "linkedBRDIds": [
-    "BRD06"
-  ]
-}

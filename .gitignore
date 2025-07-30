@@ -42,6 +42,15 @@ pids
 *.seed
 *.pid.lock
 
+# Large build/cache files
+*.tsbuildinfo
+dist/
+logs/
+
+# Project-specific large directories
+menuca-dashboard/
+MenuCA-rebuild/
+
 # Coverage directory used by tools like istanbul
 coverage/
 

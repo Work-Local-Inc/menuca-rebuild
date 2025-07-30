@@ -2,7 +2,7 @@
 
 Multi-tenant SaaS platform for restaurant management with PostgreSQL + Redis + TypeScript.
 
-<!-- CodeRabbit Test: Adding a small documentation update -->
+<!-- CodeRabbit Test: Testing AI code review capabilities with restaurant CMS components -->
 
 ## 🏗️ Phase 1 Foundation Complete
 
