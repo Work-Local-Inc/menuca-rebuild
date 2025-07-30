@@ -814,7 +814,7 @@ export class AnalyticsService {
 
       // Cache results
       try {
-        await redis.set(cacheKey, JSON.stringify(metrics), { EX: this.CACHE_TTL });
+        await redis.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(metrics));
       } catch (error) {
         logger.warn('Cache write failed for advanced analytics metrics:', error);
       }
@@ -1424,7 +1424,7 @@ export class AnalyticsService {
 
     // Cache insights
     try {
-      await redis.set(cacheKey, JSON.stringify(insights), { EX: this.INSIGHTS_CACHE_TTL });
+      await redis.setEx(cacheKey, this.INSIGHTS_CACHE_TTL, JSON.stringify(insights));
     } catch (error) {
       logger.warn('Cache write failed for advanced insights:', error);
     }

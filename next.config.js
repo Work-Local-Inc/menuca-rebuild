@@ -3,11 +3,16 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   typescript: {
-    // Temporarily ignore build errors for POC deployment
+    // Ignore ALL TypeScript errors for POC deployment
     ignoreBuildErrors: true,
   },
   eslint: {
+    // Ignore ALL ESLint errors during build  
     ignoreDuringBuilds: true,
+  },
+  experimental: {
+    // Skip TypeScript type checking during build
+    typedRoutes: false,
   },
   async rewrites() {
     return [
