@@ -3,7 +3,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm run build:client && npm run start:client",
-    "healthcheckPath": "/"
+    "startCommand": "next build && next start",
+    "healthcheckPath": "/deploy-test"
   }
 }
