@@ -273,7 +273,7 @@ router.post('/role-templates',
         client.release();
       }
       
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === '23505') { // Unique violation
         res.status(409).json({
           error: 'Role template with this name already exists',
@@ -403,17 +403,17 @@ router.get('/security/events',
   authenticateToken,
   requirePermission(Permission.SECURITY_MANAGE),
   async (req: Request, res: Response, next: NextFunction) => {
+    const { 
+      eventType, 
+      userId, 
+      result, 
+      startDate, 
+      endDate, 
+      limit = 100, 
+      offset = 0 
+    } = req.query;
+    
     try {
-      const { 
-        eventType, 
-        userId, 
-        result, 
-        startDate, 
-        endDate, 
-        limit = 100, 
-        offset = 0 
-      } = req.query;
-      
       const pool = db.getPool();
       const client = await pool.connect();
       

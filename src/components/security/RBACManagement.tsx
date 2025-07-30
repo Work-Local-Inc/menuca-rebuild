@@ -66,7 +66,7 @@ interface RoleTemplate {
   createdAt: string;
 }
 
-const PERMISSION_CATEGORIES = {
+const PERMISSION_CATEGORIES: { [key: string]: string } = {
   'user': 'User Management',
   'order': 'Order Management',
   'restaurant': 'Restaurant Management',

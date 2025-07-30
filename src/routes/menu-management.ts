@@ -495,9 +495,7 @@ router.post('/categories/:categoryId/items',
       const defaultAvailability: ItemAvailability = {
         is_available: true,
         available_days: [1, 2, 3, 4, 5, 6, 7], // All days
-        available_times: [{ start_time: '00:00', end_time: '23:59' }],
-        stock_quantity: null,
-        out_of_stock_message: null
+        available_times: [{ start_time: '00:00', end_time: '23:59' }]
       };
       
       const result = await client.query(`

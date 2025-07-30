@@ -229,7 +229,7 @@ export const EncryptionManagement: React.FC = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants = {
+    const variants: { [key: string]: 'default' | 'destructive' | 'outline' | 'secondary' } = {
       'encrypted': 'default',
       'partially_encrypted': 'outline',
       'not_encrypted': 'destructive',
@@ -244,7 +244,7 @@ export const EncryptionManagement: React.FC = () => {
   };
 
   const getKeyStatusBadge = (status: string) => {
-    const variants = {
+    const variants: { [key: string]: 'default' | 'destructive' | 'outline' | 'secondary' } = {
       'active': 'default',
       'rotating': 'outline',
       'deprecated': 'destructive',
