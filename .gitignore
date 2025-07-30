@@ -1,40 +1,56 @@
-# Dependencies
+# BULLETPROOF .gitignore to prevent future node_modules issues
+
+# Dependencies - CRITICAL: These must never be tracked
 node_modules/
+*/node_modules/
+**/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Environment files
 .env
 .env.local
 .env.*.local
+.env.production
 
-# Build output
+# Build output - Large files that break GitHub
 dist/
 build/
 .next/
 out/
+.output/
 
-# Package manager lock files (keep one, ignore others)
+# Package manager files
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
-# Mac crap
+# Mac system files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# IDE
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
+.vimrc
 
 # Logs
 logs/
 *.log
-
-# Temp files
-*.tmp
-.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
 # Runtime data
 pids
@@ -42,23 +58,26 @@ pids
 *.seed
 *.pid.lock
 
-# Large build/cache files
+# Coverage directory
+coverage/
+*.lcov
+.nyc_output
+
+# TypeScript
 *.tsbuildinfo
 dist/
-logs/
 
-# Project-specific large directories
-menuca-dashboard/
-MenuCA-rebuild/
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
 
-# Coverage directory used by tools like istanbul
-coverage/
-
-# Dependency directories
+# Dependencies
 jspm_packages/
 
 # Optional npm cache directory
 .npm
+.pnpm
 
 # Optional eslint cache
 .eslintcache
@@ -78,15 +97,12 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# parcel-bundler cache (https://parceljs.org/)
-.parcel-cache
-
 # Next.js build output
 .next/
+.vercel/
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Storybook build outputs
 .out
@@ -95,3 +111,14 @@ dist
 # Temporary folders
 tmp/
 temp/
+
+# Project-specific large directories that caused issues
+menuca-dashboard/
+MenuCA-rebuild/
+
+# Prevent any future large binary files
+*.zip
+*.rar
+*.tar.gz
+*.dmg
+*.iso
