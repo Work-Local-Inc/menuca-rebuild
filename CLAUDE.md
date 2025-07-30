@@ -9,7 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Railway & Git Connection Management
 
 ### Railway API Authentication
-- **API Token**: `21a38a60-6f6d-4fff-9c2f-1cf0ee4c1754`
+- **CORRECT API Token**: `c4bf3016-3a7d-454b-9dcf-159906bbeba7`
+- **OLD/WRONG Token**: `21a38a60-6f6d-4fff-9c2f-1cf0ee4c1754`
 - **GraphQL Endpoint**: `https://backboard.railway.com/graphql/v2`
 - **Team ID**: `433071a5-f830-42f0-a259-d4bbff4b46db`
 - **CORRECT Project ID**: `c514f7a8-52d6-459d-8132-55f12ae1d0c0` (menuca-dash - formerly exciting-consideration)
