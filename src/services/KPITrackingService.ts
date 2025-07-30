@@ -259,7 +259,7 @@ export class KPITrackingService {
       
       // Cache results
       try {
-        await redis.setex(cacheKey, this.CACHE_TTL, JSON.stringify(kpis));
+        await redis.set(cacheKey, JSON.stringify(kpis), { EX: this.CACHE_TTL });
       } catch (error) {
         logger.warn('Cache write failed for KPIs:', error);
       }
