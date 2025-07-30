@@ -22,6 +22,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
     "@types/stripe": "^8.0.416",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
