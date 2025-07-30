@@ -12,9 +12,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **API Token**: `21a38a60-6f6d-4fff-9c2f-1cf0ee4c1754`
 - **GraphQL Endpoint**: `https://backboard.railway.com/graphql/v2`
 - **Team ID**: `433071a5-f830-42f0-a259-d4bbff4b46db`
-- **Project ID**: `131e1e50-fced-49f2-8ad7-668828ab33f1` (pacific-light)
-- **Service ID**: `ddafc9ac-0dac-409a-af11-ddaebced486c` (mode)
-- **Production URL**: `https://mode-production.up.railway.app`
+- **CORRECT Project ID**: `c514f7a8-52d6-459d-8132-55f12ae1d0c0` (menuca-dash - formerly exciting-consideration)
+- **Service ID**: `b09e0ee4-8ba0-4177-8452-24367cd0b27e` (menuca-rebuild)
+- **Latest Failed Deploy**: `ac9cd431-97a0-4380-a513-e9dddac28e1a` (2025-07-30T14:55:00.761Z)
+- **Production URL**: TBD (deployments failing)
 
 ### Git Repository Status
 - **Repository**: `Work-Local-Inc/menuca-rebuild`
