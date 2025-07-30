@@ -32,7 +32,7 @@ import {
   MousePointer,
   Move3d,
   Layers,
-  Grid3X3 as Grid3x3,
+  Grid,
   Palette
 } from 'lucide-react';
 import {
