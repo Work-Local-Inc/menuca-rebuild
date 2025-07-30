@@ -406,7 +406,7 @@ router.get('/security/events',
     const { 
       eventType, 
       userId, 
-      result, 
+      result: resultFilter, 
       startDate, 
       endDate, 
       limit = 100, 
@@ -442,9 +442,9 @@ router.get('/security/events',
           paramIndex++;
         }
         
-        if (result) {
+        if (resultFilter) {
           query += ` AND se.result = $${paramIndex}`;
-          params.push(result);
+          params.push(resultFilter);
           paramIndex++;
         }
         
