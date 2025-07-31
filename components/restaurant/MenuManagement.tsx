@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Edit, Trash2, Eye, EyeOff, DollarSign, Clock, Save, X } from 'lucide-react';
 
 interface MenuItem {
@@ -654,13 +655,54 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* Menu Selector */}
+      {menus.length > 1 && (
+        <div className="bg-white p-4 rounded-lg border">
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-medium text-gray-700">Currently managing:</label>
+            <Select value={selectedMenu.id} onValueChange={(menuId) => {
+              const menu = menus.find(m => m.id === menuId);
+              if (menu) setSelectedMenu(menu);
+            }}>
+              <SelectTrigger className="w-64">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {menus.map((menu) => (
+                  <SelectItem key={menu.id} value={menu.id}>
+                    {menu.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white px-4 py-2 rounded-lg border">
+        <nav className="flex text-sm text-gray-600">
+          <span>Restaurant</span>
+          <span className="mx-2">→</span>
+          <span className="font-semibold text-blue-600">{selectedMenu.name}</span>
+          <span className="mx-2">→</span>
+          <span>Categories & Items</span>
+        </nav>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {selectedMenu.name}
+          </h1>
           <p className="text-gray-600 mt-1">
-            Manage your restaurant's menu items, pricing, and availability
+            {selectedMenu.description || 'Manage categories and menu items for this menu'}
           </p>
+          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+            <span>📁 {selectedMenu.categories.length} categories</span>
+            <span>🍽️ {selectedMenu.categories.reduce((total, cat) => total + cat.items.length, 0)} items</span>
+          </div>
         </div>
         
         <div className="flex space-x-2">
@@ -681,23 +723,33 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
       {/* Menu Categories */}
       <div className="space-y-6">
-        {selectedMenu.categories.map((category) => (
-          <Card key={category.id} className="border-l-4 border-l-blue-500">
-            <CardHeader>
+        {selectedMenu.categories.map((category, index) => (
+          <Card key={category.id} className="border-l-4 border-l-blue-500 shadow-sm">
+            <CardHeader className="bg-gray-50">
               <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-xl">{category.name}</CardTitle>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                      Category {index + 1}
+                    </div>
+                    <CardTitle className="text-xl text-gray-900">{category.name}</CardTitle>
+                  </div>
                   {category.description && (
-                    <p className="text-gray-600 mt-1">{category.description}</p>
+                    <p className="text-gray-600 mt-2">{category.description}</p>
                   )}
+                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <span>🍽️ {category.items.length} items</span>
+                    <span>✅ {category.items.filter(item => item.availability.is_available).length} available</span>
+                    <span>❌ {category.items.filter(item => !item.availability.is_available).length} unavailable</span>
+                  </div>
                 </div>
                 <Button
                   onClick={() => setShowNewItemForm(category.id)}
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Item
+                  Add Menu Item
                 </Button>
               </div>
             </CardHeader>
