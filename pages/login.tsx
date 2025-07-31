@@ -25,35 +25,27 @@ export default function Login() {
     setError('');
 
     try {
-      // Check if user exists in our users table
-      const { data: users, error: userError } = await supabase
-        .from('users')
-        .select('*, tenants(*)')
-        .eq('email', email)
-        .eq('status', 'active')
-        .single();
-
-      if (userError || !users) {
-        setError('Invalid email or password');
-        return;
-      }
-
-      // For demo purposes, we'll just check if password is 'password123'
-      // In production, you'd hash and compare properly
-      if (password === 'password123') {
-        // Store user session
+      // Simple demo authentication - bypass database for now
+      if (email === 'admin@menuca.local' && password === 'password123') {
+        // Store demo user session
         localStorage.setItem('menuca_user', JSON.stringify({
-          id: users.id,
-          email: users.email,
-          role: users.role,
-          tenant: users.tenants
+          id: 'demo-user-id',
+          email: 'admin@menuca.local',
+          role: 'admin',
+          tenant: {
+            id: 'demo-tenant',
+            name: 'Demo Restaurant',
+            domain: 'demo.menuca.local'
+          }
         }));
         
+        console.log('Demo login successful, redirecting to dashboard...');
         router.push('/dashboard');
       } else {
         setError('Invalid email or password');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
