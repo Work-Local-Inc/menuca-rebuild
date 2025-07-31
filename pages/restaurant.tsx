@@ -100,12 +100,29 @@ export default function RestaurantPage() {
               <Button 
                 variant="outline"
                 onClick={() => {
+                  if (confirm('This will delete all existing menu data for this restaurant. Continue?')) {
+                    localStorage.removeItem(`menus_${selectedRestaurant}`);
+                    alert('Menu data cleared! Reload the page to see the change.');
+                    window.location.reload();
+                  }
+                }}
+                className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700"
+                size="sm"
+              >
+                🗑️ Clear Data
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => {
                   const wasAdded = seedPizzaRestaurantData(selectedRestaurant);
                   if (wasAdded) {
-                    alert('Pizza demo data loaded! Refresh the page to see the new menu.');
-                    window.location.reload();
+                    alert('Pizza demo data loaded! The page will refresh to show the new menu.');
+                    // Force a hard refresh to ensure the MenuManagement component reloads
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
                   } else {
-                    alert('Demo data already exists for this restaurant.');
+                    alert('Demo data already exists for this restaurant. Clear data first if you want to reload.');
                   }
                 }}
                 className="flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700"
