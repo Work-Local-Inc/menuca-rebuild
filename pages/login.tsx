@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 
-console.log('Login component version: v4 - using fixed lib/supabase');
+console.log('Login component version: v5 - direct Supabase client');
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -17,6 +17,14 @@ export default function Login() {
     setError('');
 
     try {
+      // Create Supabase client directly in component
+      console.log('Creating Supabase client directly...');
+      const supabase = createClient(
+        'https://fsjodpnptdbwaigzkmfl.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzam9kcG5wdGRid2FpZ3prbWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MDM2MDQsImV4cCI6MjA2OTQ3OTYwNH0.lcy6gDS58IhiWOTPhNOH6EiUTFmSDvIbX-uiZmCDqjQ'
+      );
+      console.log('Supabase client created successfully');
+      
       // Query the users table directly for authentication
       const { data: users, error } = await supabase
         .from('users')
