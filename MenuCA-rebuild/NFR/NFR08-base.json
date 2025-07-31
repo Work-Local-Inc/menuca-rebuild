@@ -1,0 +1,4 @@
+{
+  "title": "Maintenance Downtime Limits",
+  "requirement": "Schedule maintenance windows during **off-peak hours** with a goal to minimize _downtime to under two hours monthly_."
+}

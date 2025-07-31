@@ -1,0 +1,7 @@
+{
+  "title": "Real-Time Analytics Dashboard",
+  "requirement": "Provide a customizable real-time analytics dashboard for monitoring platform performance, sales, and trends.  \n#### Screens:  \nDashboard with configurable widgets, export and reporting tools for detailed analysis, and trend visualization interface.  \n#### Personas:  \nMenu.ca owners analyzing business performance, data analysts generating reports, and stakeholders making strategic decisions.",
+  "linkedBRDIds": [
+    "BRD10"
+  ]
+}

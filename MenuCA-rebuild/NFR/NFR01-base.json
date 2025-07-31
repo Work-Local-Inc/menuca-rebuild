@@ -1,0 +1,4 @@
+{
+  "title": "High Performance Standards",
+  "requirement": "The platform should ensure **high performance** by processing transactions within _two seconds_ during peak times."
+}

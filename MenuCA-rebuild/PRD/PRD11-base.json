@@ -1,0 +1,7 @@
+{
+  "title": "Customer Feedback System",
+  "requirement": "Implement a feedback collection system post-order to analyze customer insights and address service pain points.  \n#### Screens:  \nFeedback submission page, feedback analysis dashboard, and insights interface for service improvement.  \n#### Personas:  \nCustomers providing feedback, product managers analyzing insights, and customer service representatives addressing issues.",
+  "linkedBRDIds": [
+    "BRD11"
+  ]
+}

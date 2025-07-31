@@ -15,7 +15,9 @@ import { serverConfig, validateServerConfig } from '@/config/server';
 import db from '@/database/connection';
 import cache from '@/cache/memory';
 import authRoutes from '@/routes/auth';
+import rbacRoutes from '@/routes/rbac';
 import menuRoutes from '@/routes/menu';
+import menuManagementRoutes from '@/routes/menu-management';
 import cartRoutes from '@/routes/cart';
 import orderRoutes from '@/routes/orders';
 import paymentRoutes from '@/routes/payment';
@@ -165,8 +167,14 @@ class MenuCAServer {
     // Authentication routes
     this.app.use('/api/v1/auth', authRoutes);
 
+    // Role-based access control routes
+    this.app.use('/api/v1/rbac', rbacRoutes);
+
     // Menu management routes
     this.app.use('/api/v1/menu', menuRoutes);
+    
+    // Restaurant menu management routes
+    this.app.use('/api/v1/menu-management', menuManagementRoutes);
 
     // Shopping cart routes
     this.app.use('/api/v1/cart', cartRoutes);
