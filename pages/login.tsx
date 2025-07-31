@@ -51,8 +51,8 @@ export default function Login() {
           }
         }));
         
-        console.log('Login successful, redirecting to dashboard...');
-        router.push('/dashboard');
+        console.log('Login successful, redirecting to restaurant management...');
+        router.push('/restaurant');
       } else {
         setError('Invalid email or password');
       }
