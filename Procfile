@@ -1,1 +1,1 @@
-web: npm run build:server && npm start
+web: node simple-server.js
