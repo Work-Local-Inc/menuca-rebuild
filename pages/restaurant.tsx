@@ -74,20 +74,36 @@ export default function RestaurantPage() {
     <div className="space-y-6">
       {/* Restaurant Selection */}
       <div className="p-6 bg-white border-b">
-        <div className="max-w-sm">
-          <label className="block text-sm font-medium mb-2">Select Restaurant:</label>
-          <Select value={selectedRestaurant} onValueChange={setSelectedRestaurant}>
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a restaurant" />
-            </SelectTrigger>
-            <SelectContent>
-              {restaurants.map((restaurant) => (
-                <SelectItem key={restaurant.id} value={restaurant.id}>
-                  {restaurant.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex justify-between items-center">
+          <div className="max-w-sm">
+            <label className="block text-sm font-medium mb-2">Select Restaurant:</label>
+            <Select value={selectedRestaurant} onValueChange={setSelectedRestaurant}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a restaurant" />
+              </SelectTrigger>
+              <SelectContent>
+                {restaurants.map((restaurant) => (
+                  <SelectItem key={restaurant.id} value={restaurant.id}>
+                    {restaurant.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {selectedRestaurant && (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  window.open(`/menu/${selectedRestaurant}`, '_blank');
+                }}
+                className="flex items-center gap-2"
+              >
+                👁️ Preview Customer Menu
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
