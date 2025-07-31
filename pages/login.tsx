@@ -9,6 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sbp_a77f07
 console.log('Direct client - URL:', supabaseUrl);
 console.log('Direct client - Key exists:', !!supabaseAnonKey);
 console.log('Direct client - Key length:', supabaseAnonKey?.length || 0);
+console.log('Login component version: v2 - demo auth only');
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
