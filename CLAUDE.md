@@ -6,35 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **IMPORTANT**: Always refer to the MCP muscle memory bank for project context, previous decisions, and ongoing work status. The memory bank contains our comprehensive project history and should be consulted before making any significant decisions or recommendations.
 
-## Railway & Git Connection Management
+## Deployment Architecture - SUPABASE + VERCEL STACK
 
-### Railway API Authentication
-- **WORKING Project Token**: `60e08de0-8419-43d0-84bb-05c1c251741f` 
-- **Connection Method**: Use `Project-Access-Token` header, not `Authorization: Bearer`
-- **GraphQL Endpoint**: `https://backboard.railway.com/graphql/v2`
-- **Team ID**: `433071a5-f830-42f0-a259-d4bbff4b46db`
-- **CORRECT Project ID**: `c514f7a8-52d6-459d-8132-55f12ae1d0c0` (menuca-dash - formerly exciting-consideration)
-- **Service ID**: `b09e0ee4-8ba0-4177-8452-24367cd0b27e` (menuca-rebuild)
-- **Latest Failed Deploy**: `ac9cd431-97a0-4380-a513-e9dddac28e1a` (2025-07-30T14:55:00.761Z)
-- **Production URL**: TBD (deployments failing)
+**CRITICAL WARNING**: This project uses SUPABASE + VERCEL deployment stack ONLY. Railway is NOT used in this project and should never be configured.
+
+### Deployment Stack
+- **Database**: Supabase PostgreSQL (https://fsjodpnptdbwaigzkmfl.supabase.co)
+- **Frontend/Backend**: Vercel with Next.js
+- **Configuration Files**: 
+  - `vercel.json` - Vercel deployment configuration
+  - `next.config.js` - Next.js configuration
+  - `lib/supabase.ts` - Supabase client configuration
 
 ### Git Repository Status
 - **Repository**: `Work-Local-Inc/menuca-rebuild`
 - **Main Branch**: `main` 
-- **Issue**: Railway auto-deploy may not be configured - commits don't trigger new deployments
-- **Last Successful Deploy**: `e046cf99-2faf-40b2-bfcd-553528b4232d` (2025-07-30T03:18:03.159Z)
+- **Deployment**: Automatic deployment to Vercel on push to main branch
+- **Database**: Supabase handles database hosting and management
 
-### Connection Commands
+### Deployment Commands
 ```bash
-# Railway API Check
-curl -H "Authorization: Bearer 21a38a60-6f6d-4fff-9c2f-1cf0ee4c1754" https://backboard.railway.com/graphql/v2 -d '{"query":"query { me { name email } }"}' -H "Content-Type: application/json"
-
-# Check Latest Deployments
-curl -H "Authorization: Bearer 21a38a60-6f6d-4fff-9c2f-1cf0ee4c1754" https://backboard.railway.com/graphql/v2 -d '{"query":"query { project(id: \"131e1e50-fced-49f2-8ad7-668828ab33f1\") { services { edges { node { name deployments(first: 3) { edges { node { id status createdAt } } } } } } } }"}' -H "Content-Type: application/json"
-
-# Git Status and Clean Push
+# Deploy to Vercel (automatic on git push)
 git status && git add . && git commit -m "Deploy update" && git push origin main
+
+# Manual Vercel deployment (if needed)
+vercel --prod
+
+# Check Supabase connection
+npx supabase status
 ```
+
+### Common Deployment Issues
+- Ensure environment variables are set in Vercel dashboard
+- Verify Supabase connection string in environment variables
+- Check build logs in Vercel dashboard for deployment failures
 
 ## Project Overview
 
