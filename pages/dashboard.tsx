@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 interface User {
   id: string;
@@ -33,6 +33,12 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
+      // Create Supabase client directly
+      const supabase = createClient(
+        'https://fsjodpnptdbwaigzkmfl.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzam9kcG5wdGRid2FpZ3prbWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MDM2MDQsImV4cCI6MjA2OTQ3OTYwNH0.lcy6gDS58IhiWOTPhNOH6EiUTFmSDvIbX-uiZmCDqjQ'
+      );
+      
       const [tenantsResult, usersResult] = await Promise.all([
         supabase.from('tenants').select('*', { count: 'exact', head: true }),
         supabase.from('users').select('*', { count: 'exact', head: true })
