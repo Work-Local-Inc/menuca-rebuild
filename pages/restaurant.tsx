@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MenuManagement } from '@/components/restaurant/MenuManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { seedPizzaRestaurantData } from '@/utils/seedData';
 import { TempNavigation } from '@/components/TempNavigation';
