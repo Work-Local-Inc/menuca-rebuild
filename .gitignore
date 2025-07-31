@@ -122,3 +122,4 @@ MenuCA-rebuild/
 *.tar.gz
 *.dmg
 *.iso
+.vercel
