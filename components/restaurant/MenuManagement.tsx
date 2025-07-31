@@ -121,66 +121,138 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
   const toggleItemAvailability = async (item: MenuItem) => {
     try {
-      const token = localStorage.getItem('jwt_token');
-      const response = await fetch(`/api/v1/menu-management/items/${item.id}/availability`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
-        },
-        body: JSON.stringify({
-          is_available: !item.availability.is_available
-        })
-      });
+      if (!selectedMenu) return;
 
-      if (response.ok) {
-        fetchMenus();
+      const updatedMenu = {
+        ...selectedMenu,
+        categories: selectedMenu.categories.map(category => ({
+          ...category,
+          items: category.items.map(menuItem => 
+            menuItem.id === item.id 
+              ? {
+                  ...menuItem,
+                  availability: {
+                    ...menuItem.availability,
+                    is_available: !menuItem.availability.is_available
+                  }
+                }
+              : menuItem
+          )
+        }))
+      };
+
+      // Update localStorage
+      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+      const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
+      if (menuIndex !== -1) {
+        existingMenus[menuIndex] = updatedMenu;
+        localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
       }
+
+      setSelectedMenu(updatedMenu);
+      setMenus(existingMenus);
+      
+      const newStatus = !item.availability.is_available ? 'available' : 'unavailable';
+      alert(`Menu item marked as ${newStatus}!`);
     } catch (error) {
       console.error('Error updating item availability:', error);
+      alert(`Error updating availability: ${error.message}`);
     }
   };
 
   const saveMenuItem = async (categoryId: string, itemData: Partial<MenuItem>) => {
     try {
-      const token = localStorage.getItem('jwt_token');
-      
+      if (!selectedMenu) return;
+
       if (editingItem) {
         // Update existing item
-        const response = await fetch(`/api/v1/menu-management/items/${editingItem.id}`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'x-tenant-id': 'default-tenant'
-          },
-          body: JSON.stringify(itemData)
-        });
+        const updatedMenu = {
+          ...selectedMenu,
+          categories: selectedMenu.categories.map(category => {
+            if (category.id === categoryId) {
+              return {
+                ...category,
+                items: category.items.map(item => 
+                  item.id === editingItem.id 
+                    ? { ...item, ...itemData, updated_at: new Date() }
+                    : item
+                )
+              };
+            }
+            return category;
+          })
+        };
 
-        if (response.ok) {
-          setEditingItem(null);
-          fetchMenus();
+        // Update localStorage
+        const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+        const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
+        if (menuIndex !== -1) {
+          existingMenus[menuIndex] = updatedMenu;
+          localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
         }
+
+        setSelectedMenu(updatedMenu);
+        setMenus(existingMenus);
+        setEditingItem(null);
+        alert('Menu item updated successfully!');
       } else {
         // Create new item
-        const response = await fetch(`/api/v1/menu-management/categories/${categoryId}/items`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'x-tenant-id': 'default-tenant'
+        const newItem = {
+          id: `item-${Date.now()}`,
+          categoryId: categoryId,
+          name: itemData.name || '',
+          description: itemData.description || '',
+          price: itemData.price || 0,
+          cost: itemData.cost || 0,
+          images: [],
+          options: [],
+          nutritional_info: {},
+          allergens: itemData.allergens || [],
+          tags: itemData.tags || [],
+          availability: {
+            is_available: true,
+            available_days: [1, 2, 3, 4, 5, 6, 7],
+            available_times: [{ start_time: '09:00', end_time: '22:00' }],
+            stock_quantity: null,
+            out_of_stock_message: ''
           },
-          body: JSON.stringify(itemData)
-        });
+          display_order: 1,
+          is_active: itemData.is_active !== false,
+          is_featured: itemData.is_featured || false,
+          preparation_time: itemData.preparation_time || 15,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
 
-        if (response.ok) {
-          setShowNewItemForm(null);
-          fetchMenus();
+        const updatedMenu = {
+          ...selectedMenu,
+          categories: selectedMenu.categories.map(category => {
+            if (category.id === categoryId) {
+              return {
+                ...category,
+                items: [...category.items, newItem]
+              };
+            }
+            return category;
+          })
+        };
+
+        // Update localStorage
+        const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+        const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
+        if (menuIndex !== -1) {
+          existingMenus[menuIndex] = updatedMenu;
+          localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
         }
+
+        setSelectedMenu(updatedMenu);
+        setMenus(existingMenus);
+        setShowNewItemForm(null);
+        alert('Menu item created successfully!');
       }
     } catch (error) {
       console.error('Error saving menu item:', error);
+      alert(`Error saving menu item: ${error.message}`);
     }
   };
 
@@ -188,21 +260,30 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     if (!confirm('Are you sure you want to delete this menu item?')) return;
 
     try {
-      const token = localStorage.getItem('jwt_token');
-      const response = await fetch(`/api/v1/menu-management/items/${itemId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
-        }
-      });
+      if (!selectedMenu) return;
 
-      if (response.ok) {
-        fetchMenus();
+      const updatedMenu = {
+        ...selectedMenu,
+        categories: selectedMenu.categories.map(category => ({
+          ...category,
+          items: category.items.filter(item => item.id !== itemId)
+        }))
+      };
+
+      // Update localStorage
+      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+      const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
+      if (menuIndex !== -1) {
+        existingMenus[menuIndex] = updatedMenu;
+        localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
       }
+
+      setSelectedMenu(updatedMenu);
+      setMenus(existingMenus);
+      alert('Menu item deleted successfully!');
     } catch (error) {
       console.error('Error deleting menu item:', error);
+      alert(`Error deleting menu item: ${error.message}`);
     }
   };
 
@@ -248,6 +329,44 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     } catch (error) {
       console.error('Error creating menu:', error);
       alert(`Error creating menu: ${error.message}`);
+    }
+  };
+
+  const createCategory = async (categoryData: { name: string; description?: string }) => {
+    try {
+      if (!selectedMenu) return;
+
+      const newCategory = {
+        id: `category-${Date.now()}`,
+        name: categoryData.name,
+        description: categoryData.description,
+        display_order: selectedMenu.categories.length + 1,
+        is_active: true,
+        items: []
+      };
+
+      // Update the selected menu with new category
+      const updatedMenu = {
+        ...selectedMenu,
+        categories: [...selectedMenu.categories, newCategory]
+      };
+
+      // Update localStorage
+      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+      const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
+      if (menuIndex !== -1) {
+        existingMenus[menuIndex] = updatedMenu;
+        localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+      }
+
+      setSelectedMenu(updatedMenu);
+      setMenus(existingMenus);
+      setShowNewCategoryForm(false);
+      
+      alert('Category created successfully!');
+    } catch (error) {
+      console.error('Error creating category:', error);
+      alert(`Error creating category: ${error.message}`);
     }
   };
 
@@ -446,6 +565,60 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     );
   };
 
+  const CategoryCreationForm: React.FC<{ 
+    onSave: (data: { name: string; description?: string }) => void; 
+    onCancel: () => void; 
+  }> = ({ onSave, onCancel }) => {
+    const [formData, setFormData] = useState({
+      name: '',
+      description: ''
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      onSave(formData);
+    };
+
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Create New Category</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Category Name</label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g., Appetizers, Main Courses, Desserts"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+              <Input
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Brief description of this category"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button type="submit" className="flex items-center gap-2">
+                <Save className="h-4 w-4" />
+                Create Category
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4" />
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -497,6 +670,14 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
           </Button>
         </div>
       </div>
+
+      {/* Category Creation Form */}
+      {showNewCategoryForm && (
+        <CategoryCreationForm
+          onSave={createCategory}
+          onCancel={() => setShowNewCategoryForm(false)}
+        />
+      )}
 
       {/* Menu Categories */}
       <div className="space-y-6">
