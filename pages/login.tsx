@@ -1,15 +1,8 @@
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { useRouter } from 'next/router';
 
-console.log('Login component version: v3 - NO SUPABASE CLIENT');
-
-// Mock supabase object to catch any accidental usage
-const supabase = {
-  from: (table: string) => {
-    console.error('BLOCKED: Attempted to query table:', table);
-    throw new Error(`Blocked database query to ${table} - login should be demo only!`);
-  }
-};
+console.log('Login component version: v4 - using fixed lib/supabase');
 
 export default function Login() {
   const [email, setEmail] = useState('');

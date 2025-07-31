@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fsjodpnptdbwaigzkmfl.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sbp_a77f0756fae7fc428f5ccdc68fa518d2ed4a7289'
+// Use the EXACT same approach that worked in login component
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fsjodpnptdbwaigzkmfl.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sbp_a77f0756fae7fc428f5ccdc68fa518d2ed4a7289';
 
-// Simple client creation that matches working version
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+console.log('lib/supabase - URL:', supabaseUrl);
+console.log('lib/supabase - Key exists:', !!supabaseAnonKey);
+console.log('lib/supabase - Key length:', supabaseAnonKey?.length);
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Server-side client with service role for admin operations
 export const supabaseAdmin = createClient(
