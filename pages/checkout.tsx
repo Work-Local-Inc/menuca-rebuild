@@ -1,0 +1,354 @@
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { TempNavigation } from '@/components/TempNavigation';
+import { ArrowLeft, CreditCard, MapPin, Phone, User, Clock } from 'lucide-react';
+
+interface CartItem {
+  menuItem: {
+    id: string;
+    name: string;
+    description?: string;
+    price: number;
+    preparation_time: number;
+    allergens: string[];
+  };
+  quantity: number;
+}
+
+interface CustomerInfo {
+  name: string;
+  phone: string;
+  email: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  deliveryInstructions: string;
+}
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { restaurantId } = router.query;
+  
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+    name: '',
+    phone: '',
+    email: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zipCode: ''
+    },
+    deliveryInstructions: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Get cart data from sessionStorage (passed from menu page)
+    const cartData = sessionStorage.getItem('checkout_cart');
+    const restaurantIdFromSession = sessionStorage.getItem('checkout_restaurant');
+    
+    if (cartData && restaurantIdFromSession) {
+      setCart(JSON.parse(cartData));
+      if (!restaurantId) {
+        router.replace(`/checkout?restaurantId=${restaurantIdFromSession}`);
+      }
+    } else {
+      // No cart data, redirect back to ordering
+      alert('No items in cart. Redirecting to menu...');
+      router.push('/order');
+    }
+  }, [router, restaurantId]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const getCartTotal = (): number => {
+    return cart.reduce((total, cartItem) => {
+      return total + (cartItem.menuItem.price * cartItem.quantity);
+    }, 0);
+  };
+
+  const getTotalPrepTime = (): number => {
+    return Math.max(...cart.map(item => item.menuItem.preparation_time));
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setCustomerInfo(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent as keyof CustomerInfo],
+          [child]: value
+        }
+      }));
+    } else {
+      setCustomerInfo(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  const handleSubmitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Generate order ID
+      const orderId = `ORD-${Date.now()}`;
+      
+      // Create order object
+      const order = {
+        id: orderId,
+        restaurantId: restaurantId,
+        customer: customerInfo,
+        items: cart,
+        subtotal: getCartTotal(),
+        tax: getCartTotal() * 0.08, // 8% tax
+        deliveryFee: 2.99,
+        total: getCartTotal() + (getCartTotal() * 0.08) + 2.99,
+        status: 'pending',
+        estimatedPrepTime: getTotalPrepTime(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Store order in localStorage (temporary until backend is ready)
+      const existingOrders = JSON.parse(localStorage.getItem(`orders_${restaurantId}`) || '[]');
+      existingOrders.push(order);
+      localStorage.setItem(`orders_${restaurantId}`, JSON.stringify(existingOrders));
+
+      // Clear cart
+      sessionStorage.removeItem('checkout_cart');
+      sessionStorage.removeItem('checkout_restaurant');
+
+      // Redirect to confirmation
+      router.push(`/order-confirmation?orderId=${orderId}&restaurantId=${restaurantId}`);
+      
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      alert('Error submitting order. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (cart.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <TempNavigation />
+        <div className="max-w-md mx-auto text-center py-16">
+          <h2 className="text-xl font-semibold mb-4">Loading cart...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto p-6">
+        <TempNavigation />
+        
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Menu
+          </Button>
+          <h1 className="text-2xl font-bold">Checkout</h1>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Order Summary */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🛒 Order Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {cart.map((cartItem, index) => (
+                <div key={index} className="flex justify-between items-start p-3 bg-gray-50 rounded">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{cartItem.menuItem.name}</h4>
+                    {cartItem.menuItem.description && (
+                      <p className="text-sm text-gray-600">{cartItem.menuItem.description}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-sm text-gray-500">Qty: {cartItem.quantity}</span>
+                      <span className="text-sm text-gray-500">•</span>
+                      <span className="text-sm text-gray-500">{cartItem.menuItem.preparation_time} min</span>
+                    </div>
+                    {cartItem.menuItem.allergens.length > 0 && (
+                      <p className="text-xs text-orange-600 mt-1">
+                        Contains: {cartItem.menuItem.allergens.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{formatCurrency(cartItem.menuItem.price * cartItem.quantity)}</p>
+                    <p className="text-sm text-gray-500">{formatCurrency(cartItem.menuItem.price)} each</p>
+                  </div>
+                </div>
+              ))}
+
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>{formatCurrency(getCartTotal())}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tax (8%)</span>
+                  <span>{formatCurrency(getCartTotal() * 0.08)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery Fee</span>
+                  <span>{formatCurrency(2.99)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-lg border-t pt-2">
+                  <span>Total</span>
+                  <span>{formatCurrency(getCartTotal() + (getCartTotal() * 0.08) + 2.99)}</span>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded flex items-center gap-2">
+                <Clock className="h-4 w-4 text-blue-600" />
+                <span className="text-sm text-blue-800">
+                  Estimated prep time: {getTotalPrepTime()} minutes
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Customer Information Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Delivery Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitOrder} className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Full Name</label>
+                    <Input
+                      value={customerInfo.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      required
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Phone Number</label>
+                    <Input
+                      type="tel"
+                      value={customerInfo.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      required
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Email Address</label>
+                  <Input
+                    type="email"
+                    value={customerInfo.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    required
+                    placeholder="john@example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Street Address</label>
+                  <Input
+                    value={customerInfo.address.street}
+                    onChange={(e) => handleInputChange('address.street', e.target.value)}
+                    required
+                    placeholder="123 Main Street"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">City</label>
+                    <Input
+                      value={customerInfo.address.city}
+                      onChange={(e) => handleInputChange('address.city', e.target.value)}
+                      required
+                      placeholder="San Francisco"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">State</label>
+                    <Input
+                      value={customerInfo.address.state}
+                      onChange={(e) => handleInputChange('address.state', e.target.value)}
+                      required
+                      placeholder="CA"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Zip Code</label>
+                    <Input
+                      value={customerInfo.address.zipCode}
+                      onChange={(e) => handleInputChange('address.zipCode', e.target.value)}
+                      required
+                      placeholder="94102"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Delivery Instructions (Optional)</label>
+                  <Input
+                    value={customerInfo.deliveryInstructions}
+                    onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
+                    placeholder="Ring doorbell, leave at door, etc."
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    'Processing Order...'
+                  ) : (
+                    <>
+                      <CreditCard className="h-5 w-5 mr-2" />
+                      Place Order - {formatCurrency(getCartTotal() + (getCartTotal() * 0.08) + 2.99)}
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

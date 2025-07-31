@@ -175,8 +175,14 @@ export default function CustomerMenuPage() {
               <Button
                 className="flex items-center gap-2"
                 onClick={() => {
-                  // TODO: Implement checkout flow
-                  alert(`Cart total: ${formatCurrency(getCartTotal())}\nItems: ${cart.length}\n\nCheckout coming soon!`);
+                  if (cart.length === 0) return;
+                  
+                  // Store cart data in sessionStorage for checkout page
+                  sessionStorage.setItem('checkout_cart', JSON.stringify(cart));
+                  sessionStorage.setItem('checkout_restaurant', restaurantId as string);
+                  
+                  // Redirect to checkout
+                  window.location.href = `/checkout?restaurantId=${restaurantId}`;
                 }}
                 disabled={cart.length === 0}
               >
