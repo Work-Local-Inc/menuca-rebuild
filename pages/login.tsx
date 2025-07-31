@@ -17,21 +17,33 @@ export default function Login() {
     setError('');
 
     try {
-      // Simple demo authentication - bypass database for now
-      if (email === 'admin@menuca.local' && password === 'password123') {
-        // Store demo user session
+      // Query the users table directly for authentication
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('id, email, first_name, last_name, role, tenant_id, tenants(id, name, domain)')
+        .eq('email', email)
+        .single();
+
+      if (error || !users) {
+        setError('Invalid email or password');
+        return;
+      }
+
+      // For demo, just check if user exists (password validation would use bcrypt in production)
+      if (password === 'password123') {
+        // Store real user session
         localStorage.setItem('menuca_user', JSON.stringify({
-          id: 'demo-user-id',
-          email: 'admin@menuca.local',
-          role: 'admin',
+          id: users.id,
+          email: users.email,
+          role: users.role,
           tenant: {
-            id: 'demo-tenant',
-            name: 'Demo Restaurant',
-            domain: 'demo.menuca.local'
+            id: users.tenants.id,
+            name: users.tenants.name,
+            domain: users.tenants.domain
           }
         }));
         
-        console.log('Demo login successful, redirecting to dashboard...');
+        console.log('Login successful, redirecting to dashboard...');
         router.push('/dashboard');
       } else {
         setError('Invalid email or password');
