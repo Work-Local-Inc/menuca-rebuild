@@ -22,7 +22,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.51.0",
+    "@supabase/supabase-js": "^2.53.0",
     "@types/stripe": "^8.0.416",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
@@ -39,6 +39,7 @@
     "morgan": "^1.10.0",
     "next": "^13.4.7",
     "pg": "^8.11.3",
+    "playwright": "^1.54.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recharts": "^2.7.2",
