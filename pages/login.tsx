@@ -1,17 +1,15 @@
 import { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
 
-// Create client directly to bypass lib/supabase.ts issue
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fsjodpnptdbwaigzkmfl.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sbp_a77f0756fae7fc428f5ccdc68fa518d2ed4a7289';
+console.log('Login component version: v3 - NO SUPABASE CLIENT');
 
-console.log('Direct client - URL:', supabaseUrl);
-console.log('Direct client - Key exists:', !!supabaseAnonKey);
-console.log('Direct client - Key length:', supabaseAnonKey?.length || 0);
-console.log('Login component version: v2 - demo auth only');
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Mock supabase object to catch any accidental usage
+const supabase = {
+  from: (table: string) => {
+    console.error('BLOCKED: Attempted to query table:', table);
+    throw new Error(`Blocked database query to ${table} - login should be demo only!`);
+  }
+};
 
 export default function Login() {
   const [email, setEmail] = useState('');
