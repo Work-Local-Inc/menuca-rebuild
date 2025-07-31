@@ -72,6 +72,16 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
   const fetchMenus = async () => {
     setLoading(true);
     try {
+      // Get menus from localStorage temporarily until auth is fixed
+      const localMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+      console.log('Loading menus from localStorage:', localMenus);
+      
+      setMenus(localMenus);
+      if (localMenus.length > 0 && !selectedMenu) {
+        setSelectedMenu(localMenus[0]);
+      }
+      
+      /* Original API call - commented out until auth is fixed
       const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/menu-management/restaurant/${restaurantId}`, {
         headers: {
@@ -90,6 +100,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
       } else {
         console.error('Failed to fetch menus');
       }
+      */
     } catch (error) {
       console.error('Error fetching menus:', error);
     } finally {
@@ -197,25 +208,46 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
   const createMenu = async (menuData: { name: string; description?: string }) => {
     try {
-      const token = localStorage.getItem('jwt_token');
-      const response = await fetch(`/api/v1/menu-management/restaurant/${restaurantId}/menus`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
-        },
-        body: JSON.stringify(menuData)
-      });
-
-      if (response.ok) {
-        setShowNewMenuForm(false);
-        fetchMenus();
-      } else {
-        console.error('Failed to create menu');
-      }
+      // Get user data for tenant info
+      const userData = localStorage.getItem('menuca_user');
+      const user = userData ? JSON.parse(userData) : null;
+      const tenantId = user?.tenant?.id || 'default-tenant';
+      
+      console.log('Creating menu with data:', menuData);
+      console.log('Restaurant ID:', restaurantId);
+      console.log('User:', user);
+      
+      // Create menu locally for now since auth system needs fixing
+      // TODO: This should use proper JWT auth once that's implemented
+      const mockMenu = {
+        id: `menu-${Date.now()}`,
+        restaurantId: restaurantId,
+        tenantId: tenantId,
+        name: menuData.name,
+        description: menuData.description,
+        categories: [],
+        is_active: true,
+        display_order: 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+        created_by: user?.id || 'unknown'
+      };
+      
+      // Store locally until backend is properly connected
+      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
+      existingMenus.push(mockMenu);
+      localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+      
+      setShowNewMenuForm(false);
+      fetchMenus();
+      alert('Menu created successfully! (Stored locally until backend auth is fixed)');
+      
+      return;
+      
+      /* Original API call - commented out until auth is fixed */
     } catch (error) {
       console.error('Error creating menu:', error);
+      alert(`Error creating menu: ${error.message}`);
     }
   };
 

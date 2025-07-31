@@ -18,35 +18,28 @@ export default function RestaurantPage() {
       try {
         const token = localStorage.getItem('jwt_token');
         
-        // Fetch actual restaurants from API
-        const response = await fetch('/api/v1/restaurants', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'x-tenant-id': 'default-tenant'
-          }
-        });
+        // Get current user info 
+        const userData = localStorage.getItem('menuca_user');
+        if (!userData) {
+          console.error('No user data found - redirecting to login');
+          window.location.href = '/login';
+          return;
+        }
 
-        let fetchedRestaurants: Restaurant[] = [];
+        const user = JSON.parse(userData);
+        console.log('Current user:', user);
+
+        // For now, create a single restaurant per user (proper onboarding needed)
+        // This prevents the security flaw of accessing other restaurants
+        const userRestaurant = {
+          id: `user-restaurant-${user.id}`,
+          name: `${user.email}'s Restaurant`
+        };
         
-        if (response.ok) {
-          const data = await response.json();
-          fetchedRestaurants = data.data || [];
-          setRestaurants(fetchedRestaurants);
-        } else {
-          console.error('Failed to fetch restaurants:', response.statusText);
-          // Fallback to demo restaurants if API fails
-          fetchedRestaurants = [
-            { id: 'demo-restaurant-1', name: "Demo Restaurant - Mario's Italian" },
-            { id: 'demo-restaurant-2', name: 'Demo Restaurant - Taco Loco' }
-          ];
-          setRestaurants(fetchedRestaurants);
-        }
+        setRestaurants([userRestaurant]);
         
-        // Auto-select first restaurant
-        if (fetchedRestaurants.length > 0) {
-          setSelectedRestaurant(fetchedRestaurants[0].id);
-        }
+        // Auto-select the user's restaurant
+        setSelectedRestaurant(userRestaurant.id);
       } catch (error) {
         console.error('Failed to fetch restaurants:', error);
       } finally {
