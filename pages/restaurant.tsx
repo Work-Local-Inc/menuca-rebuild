@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { OrderManagement } from '@/components/restaurant/OrderManagement';
+import { MenuManagement } from '@/components/restaurant/MenuManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -84,9 +84,9 @@ export default function RestaurantPage() {
         </div>
       </div>
 
-      {/* Order Management Component */}
+      {/* Menu Management Component */}
       {selectedRestaurant && (
-        <OrderManagement restaurantId={selectedRestaurant} />
+        <MenuManagement restaurantId={selectedRestaurant} />
       )}
     </div>
   );

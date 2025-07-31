@@ -1,0 +1,509 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit, Trash2, Eye, EyeOff, DollarSign, Clock, Save, X } from 'lucide-react';
+
+interface MenuItem {
+  id: string;
+  categoryId: string;
+  name: string;
+  description?: string;
+  price: number;
+  cost: number;
+  images: any[];
+  options: any[];
+  nutritional_info?: any;
+  allergens: string[];
+  tags: string[];
+  availability: {
+    is_available: boolean;
+    available_days: number[];
+    available_times: Array<{ start_time: string; end_time: string; }>;
+    stock_quantity?: number;
+    out_of_stock_message?: string;
+  };
+  display_order: number;
+  is_active: boolean;
+  is_featured: boolean;
+  preparation_time: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MenuCategory {
+  id: string;
+  name: string;
+  description?: string;
+  display_order: number;
+  is_active: boolean;
+  items: MenuItem[];
+}
+
+interface RestaurantMenu {
+  id: string;
+  restaurantId: string;
+  tenantId: string;
+  name: string;
+  description?: string;
+  categories: MenuCategory[];
+  is_active: boolean;
+  display_order: number;
+  created_at: Date;
+  updated_at: Date;
+  created_by: string;
+}
+
+interface MenuManagementProps {
+  restaurantId: string;
+}
+
+export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) => {
+  const [menus, setMenus] = useState<RestaurantMenu[]>([]);
+  const [selectedMenu, setSelectedMenu] = useState<RestaurantMenu | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
+  const [showNewItemForm, setShowNewItemForm] = useState<string | null>(null);
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+
+  const fetchMenus = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('jwt_token');
+      const response = await fetch(`/api/menu-management/restaurant/${restaurantId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'x-tenant-id': 'default-tenant'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMenus(data.data);
+        if (data.data.length > 0 && !selectedMenu) {
+          setSelectedMenu(data.data[0]);
+        }
+      } else {
+        console.error('Failed to fetch menus');
+      }
+    } catch (error) {
+      console.error('Error fetching menus:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenus();
+  }, [restaurantId]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const toggleItemAvailability = async (item: MenuItem) => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      const response = await fetch(`/api/menu-management/items/${item.id}/availability`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'x-tenant-id': 'default-tenant'
+        },
+        body: JSON.stringify({
+          is_available: !item.availability.is_available
+        })
+      });
+
+      if (response.ok) {
+        fetchMenus();
+      }
+    } catch (error) {
+      console.error('Error updating item availability:', error);
+    }
+  };
+
+  const saveMenuItem = async (categoryId: string, itemData: Partial<MenuItem>) => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      
+      if (editingItem) {
+        // Update existing item
+        const response = await fetch(`/api/menu-management/items/${editingItem.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'x-tenant-id': 'default-tenant'
+          },
+          body: JSON.stringify(itemData)
+        });
+
+        if (response.ok) {
+          setEditingItem(null);
+          fetchMenus();
+        }
+      } else {
+        // Create new item
+        const response = await fetch(`/api/menu-management/categories/${categoryId}/items`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'x-tenant-id': 'default-tenant'
+          },
+          body: JSON.stringify(itemData)
+        });
+
+        if (response.ok) {
+          setShowNewItemForm(null);
+          fetchMenus();
+        }
+      }
+    } catch (error) {
+      console.error('Error saving menu item:', error);
+    }
+  };
+
+  const deleteMenuItem = async (itemId: string) => {
+    if (!confirm('Are you sure you want to delete this menu item?')) return;
+
+    try {
+      const token = localStorage.getItem('jwt_token');
+      const response = await fetch(`/api/menu-management/items/${itemId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'x-tenant-id': 'default-tenant'
+        }
+      });
+
+      if (response.ok) {
+        fetchMenus();
+      }
+    } catch (error) {
+      console.error('Error deleting menu item:', error);
+    }
+  };
+
+  const MenuItemForm: React.FC<{ 
+    categoryId: string; 
+    item?: MenuItem; 
+    onSave: (categoryId: string, data: Partial<MenuItem>) => void; 
+    onCancel: () => void; 
+  }> = ({ categoryId, item, onSave, onCancel }) => {
+    const [formData, setFormData] = useState({
+      name: item?.name || '',
+      description: item?.description || '',
+      price: item?.price || 0,
+      cost: item?.cost || 0,
+      preparation_time: item?.preparation_time || 15,
+      allergens: item?.allergens?.join(', ') || '',
+      tags: item?.tags?.join(', ') || '',
+      is_featured: item?.is_featured || false,
+      is_active: item?.is_active !== false
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      onSave(categoryId, {
+        ...formData,
+        allergens: formData.allergens.split(',').map(s => s.trim()).filter(Boolean),
+        tags: formData.tags.split(',').map(s => s.trim()).filter(Boolean)
+      });
+    };
+
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>{item ? 'Edit Menu Item' : 'Add New Menu Item'}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Item Name</label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Price</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Description</label>
+              <Input
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Cost</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.cost}
+                  onChange={(e) => setFormData({ ...formData, cost: parseFloat(e.target.value) })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Prep Time (min)</label>
+                <Input
+                  type="number"
+                  value={formData.preparation_time}
+                  onChange={(e) => setFormData({ ...formData, preparation_time: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Options</label>
+                <div className="flex space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_featured}
+                      onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                      className="mr-2"
+                    />
+                    Featured
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="mr-2"
+                    />
+                    Active
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Allergens (comma-separated)</label>
+                <Input
+                  value={formData.allergens}
+                  onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
+                  placeholder="nuts, dairy, gluten"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Tags (comma-separated)</label>
+                <Input
+                  value={formData.tags}
+                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  placeholder="spicy, vegetarian, popular"
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-2">
+              <Button type="submit" className="flex items-center gap-2">
+                <Save className="h-4 w-4" />
+                Save Item
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4" />
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!selectedMenu) {
+    return (
+      <div className="p-6">
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64">
+            <p className="text-gray-500">No menus found. Create your first menu to get started.</p>
+            <Button className="mt-4">Create Menu</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
+          <p className="text-gray-600 mt-1">
+            Manage your restaurant's menu items, pricing, and availability
+          </p>
+        </div>
+        
+        <div className="flex space-x-2">
+          <Button onClick={() => setShowNewCategoryForm(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Category
+          </Button>
+        </div>
+      </div>
+
+      {/* Menu Categories */}
+      <div className="space-y-6">
+        {selectedMenu.categories.map((category) => (
+          <Card key={category.id} className="border-l-4 border-l-blue-500">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-xl">{category.name}</CardTitle>
+                  {category.description && (
+                    <p className="text-gray-600 mt-1">{category.description}</p>
+                  )}
+                </div>
+                <Button
+                  onClick={() => setShowNewItemForm(category.id)}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Item
+                </Button>
+              </div>
+            </CardHeader>
+
+            <CardContent>
+              {category.items.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">No items in this category</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {category.items.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <h3 className="text-lg font-semibold">{item.name}</h3>
+                          {item.is_featured && (
+                            <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>
+                          )}
+                          {!item.availability.is_available && (
+                            <Badge className="bg-red-100 text-red-800">Unavailable</Badge>
+                          )}
+                        </div>
+                        
+                        {item.description && (
+                          <p className="text-gray-600 mt-1">{item.description}</p>
+                        )}
+                        
+                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                          <span className="flex items-center">
+                            <DollarSign className="h-4 w-4 mr-1" />
+                            {formatCurrency(item.price)}
+                          </span>
+                          <span className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {item.preparation_time} min
+                          </span>
+                          {item.allergens.length > 0 && (
+                            <span>Allergens: {item.allergens.join(', ')}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => toggleItemAvailability(item)}
+                        >
+                          {item.availability.is_available ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingItem(item)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteMenuItem(item.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* New Item Form */}
+              {showNewItemForm === category.id && (
+                <MenuItemForm
+                  categoryId={category.id}
+                  onSave={saveMenuItem}
+                  onCancel={() => setShowNewItemForm(null)}
+                />
+              )}
+
+              {/* Edit Item Form */}
+              {editingItem && editingItem.categoryId === category.id && (
+                <MenuItemForm
+                  categoryId={category.id}
+                  item={editingItem}
+                  onSave={saveMenuItem}
+                  onCancel={() => setEditingItem(null)}
+                />
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {selectedMenu.categories.length === 0 && (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center h-64">
+            <p className="text-gray-500">No categories found. Add your first category to get started.</p>
+            <Button className="mt-4" onClick={() => setShowNewCategoryForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Category
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
