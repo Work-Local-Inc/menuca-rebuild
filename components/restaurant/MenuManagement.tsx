@@ -67,6 +67,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null);
   const [showNewItemForm, setShowNewItemForm] = useState<string | null>(null);
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+  const [showNewMenuForm, setShowNewMenuForm] = useState(false);
 
   const fetchMenus = async () => {
     setLoading(true);
@@ -191,6 +192,30 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
       }
     } catch (error) {
       console.error('Error deleting menu item:', error);
+    }
+  };
+
+  const createMenu = async (menuData: { name: string; description?: string }) => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      const response = await fetch(`/api/v1/menu-management/restaurant/${restaurantId}/menus`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'x-tenant-id': 'default-tenant'
+        },
+        body: JSON.stringify(menuData)
+      });
+
+      if (response.ok) {
+        setShowNewMenuForm(false);
+        fetchMenus();
+      } else {
+        console.error('Failed to create menu');
+      }
+    } catch (error) {
+      console.error('Error creating menu:', error);
     }
   };
 
@@ -335,6 +360,60 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     );
   };
 
+  const MenuCreationForm: React.FC<{ 
+    onSave: (data: { name: string; description?: string }) => void; 
+    onCancel: () => void; 
+  }> = ({ onSave, onCancel }) => {
+    const [formData, setFormData] = useState({
+      name: '',
+      description: ''
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      onSave(formData);
+    };
+
+    return (
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Create New Menu</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Menu Name</label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="e.g., Dinner Menu, Lunch Specials"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Description (Optional)</label>
+              <Input
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Brief description of this menu"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button type="submit" className="flex items-center gap-2">
+                <Save className="h-4 w-4" />
+                Create Menu
+              </Button>
+              <Button type="button" variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4" />
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -345,13 +424,25 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
   if (!selectedMenu) {
     return (
-      <div className="p-6">
+      <div className="p-6 space-y-6">
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <p className="text-gray-500">No menus found. Create your first menu to get started.</p>
-            <Button className="mt-4">Create Menu</Button>
+            <Button 
+              className="mt-4" 
+              onClick={() => setShowNewMenuForm(true)}
+            >
+              Create Menu
+            </Button>
           </CardContent>
         </Card>
+        
+        {showNewMenuForm && (
+          <MenuCreationForm
+            onSave={createMenu}
+            onCancel={() => setShowNewMenuForm(false)}
+          />
+        )}
       </div>
     );
   }
