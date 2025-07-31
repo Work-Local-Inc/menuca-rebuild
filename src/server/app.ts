@@ -13,7 +13,7 @@ import { createServer } from 'http';
 
 import { serverConfig, validateServerConfig } from '@/config/server';
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import authRoutes from '@/routes/auth';
 import menuRoutes from '@/routes/menu';
 import cartRoutes from '@/routes/cart';
@@ -227,7 +227,7 @@ class MenuCAServer {
       // Test connections but don't fail if they're down
       try {
         const dbHealthy = await db.testConnection();
-        const redisHealthy = await redis.testConnection();
+        const redisHealthy = await cache.testConnection();
         health.services = {
           database: dbHealthy ? 'healthy' : 'unhealthy',
           redis: redisHealthy ? 'healthy' : 'unhealthy',
@@ -271,8 +271,8 @@ class MenuCAServer {
           pool: db.getPoolStatus(),
         },
         redis: {
-          status: redis.isReady() ? 'connected' : 'disconnected',
-          info: redis.isReady() ? await redis.getInfo() : 'Not available',
+          status: cache.isReady() ? 'connected' : 'disconnected',
+          info: cache.isReady() ? await cache.getInfo() : 'Not available',
         },
       };
 
@@ -345,8 +345,8 @@ class MenuCAServer {
       // Initialize Redis connection (non-blocking)
       logger.info('Initializing Redis connection...');
       try {
-        await redis.connect();
-        const redisConnected = await redis.testConnection();
+        await cache.connect();
+        const redisConnected = await cache.testConnection();
         if (redisConnected) {
           logger.info('Redis connected successfully');
         } else {
@@ -400,7 +400,7 @@ class MenuCAServer {
           logger.info('Database connections closed');
 
           // Close Redis connection
-          await redis.close();
+          await cache.close();
           logger.info('Redis connection closed');
 
           logger.info('Graceful shutdown completed');

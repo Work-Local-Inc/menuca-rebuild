@@ -4,7 +4,7 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import { UserRole } from '@/types/auth';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import db from '@/database/connection';
 import winston from 'winston';
 
@@ -134,7 +134,7 @@ export class RBACService {
     
     try {
       // Try Redis cache first
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -197,7 +197,7 @@ export class RBACService {
       
       // Cache the result
       try {
-        await redis.set(cacheKey, JSON.stringify(userPermissions), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(userPermissions), this.CACHE_TTL);
       } catch (error) {
         logger.warn('Failed to cache user permissions:', error);
       }
@@ -294,7 +294,7 @@ export class RBACService {
   private async invalidateUserCache(userId: string, tenantId: string): Promise<void> {
     const cacheKey = `${this.CACHE_PREFIX}${tenantId}:${userId}`;
     try {
-      await redis.del(cacheKey);
+      await cache.del(cacheKey);
     } catch (error) {
       logger.warn('Failed to invalidate user permissions cache:', error);
     }

@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import db from '../src/database/connection';
-import redis from '../src/cache/redis';
+import cache from '../src/cache/memory';
 import { authService } from '../src/services/AuthService';
 
 async function testRegistration() {
@@ -16,8 +16,8 @@ async function testRegistration() {
     const connected = await db.testConnection();
     if (!connected) throw new Error('Database connection failed');
     
-    await redis.connect();
-    const redisConnected = await redis.testConnection();
+    await cache.connect();
+    const redisConnected = await cache.testConnection();
     if (!redisConnected) throw new Error('Redis connection failed');
     
     console.log('✅ Connections established');
@@ -59,7 +59,7 @@ async function testRegistration() {
   } catch (error) {
     console.error('❌ Registration test failed:', error);
   } finally {
-    await redis.close();
+    await cache.close();
     await db.close();
     process.exit(0);
   }

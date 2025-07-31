@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import db from '../src/database/connection';
-import redis from '../src/cache/redis';
+import cache from '../src/cache/memory';
 import { authService } from '../src/services/AuthService';
 
 async function testAuth() {
@@ -20,8 +20,8 @@ async function testAuth() {
     console.log('✅ Database connection successful');
 
     // Initialize Redis connection
-    await redis.connect();
-    const redisConnected = await redis.testConnection();
+    await cache.connect();
+    const redisConnected = await cache.testConnection();
     if (!redisConnected) {
       throw new Error('Redis connection failed');
     }
@@ -121,7 +121,7 @@ async function testAuth() {
   } catch (error) {
     console.error('❌ Authentication test failed:', error);
   } finally {
-    await redis.close();
+    await cache.close();
     await db.close();
     process.exit(0);
   }

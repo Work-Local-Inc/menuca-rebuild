@@ -1,5 +1,5 @@
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import { Pool } from 'pg';
 
 export interface HelpArticle {
@@ -60,7 +60,7 @@ export class SearchService {
 
     try {
       // Try to get cached results
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         const result = JSON.parse(cached) as SearchResponse;
         result.search_time_ms = Date.now() - startTime;
@@ -81,7 +81,7 @@ export class SearchService {
       };
 
       // Cache the results
-      await redis.set(cacheKey, JSON.stringify(response), this.CACHE_TTL);
+      await cache.set(cacheKey, JSON.stringify(response), this.CACHE_TTL);
 
       return response;
     } catch (error) {
@@ -262,7 +262,7 @@ export class SearchService {
     const cacheKey = `${this.SUGGESTION_CACHE_PREFIX}${tenantId}:${query.toLowerCase()}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -283,7 +283,7 @@ export class SearchService {
         const result = await client.query(suggestionsQuery, [`%${query}%`]);
         const suggestions = result.rows.map(row => row.title);
 
-        await redis.set(cacheKey, JSON.stringify(suggestions), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(suggestions), this.CACHE_TTL);
 
         return suggestions;
       } finally {
@@ -303,7 +303,7 @@ export class SearchService {
     const cacheKey = `${this.ARTICLE_CACHE_PREFIX}${tenantId}:${articleId}`;
 
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         // Increment view count asynchronously
         this.incrementViewCount(tenantId, articleId);
@@ -340,7 +340,7 @@ export class SearchService {
         };
 
         // Cache the article
-        await redis.set(cacheKey, JSON.stringify(article), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(article), this.CACHE_TTL);
 
         // Increment view count asynchronously
         this.incrementViewCount(tenantId, articleId);
@@ -368,7 +368,7 @@ export class SearchService {
 
         // Invalidate cache
         const cacheKey = `${this.ARTICLE_CACHE_PREFIX}${tenantId}:${articleId}`;
-        await redis.del(cacheKey);
+        await cache.del(cacheKey);
       } finally {
         client.release();
       }
@@ -421,7 +421,7 @@ export class SearchService {
 
       // Invalidate caches
       const articleCacheKey = `${this.ARTICLE_CACHE_PREFIX}${tenantId}:${articleId}`;
-      await redis.del(articleCacheKey);
+      await cache.del(articleCacheKey);
 
       return true;
     } catch (error) {
@@ -441,7 +441,7 @@ export class SearchService {
     const cacheKey = `popular_articles:${tenantId}:${limit}`;
 
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -472,7 +472,7 @@ export class SearchService {
           updated_at: row.updated_at
         }));
 
-        await redis.set(cacheKey, JSON.stringify(articles), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(articles), this.CACHE_TTL);
 
         return articles;
       } finally {
@@ -488,7 +488,7 @@ export class SearchService {
     const cacheKey = `categories:${tenantId}`;
 
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -508,7 +508,7 @@ export class SearchService {
         const result = await client.query(query);
         const categories = result.rows.map(row => row.category);
 
-        await redis.set(cacheKey, JSON.stringify(categories), this.CACHE_TTL * 2); // Cache longer
+        await cache.set(cacheKey, JSON.stringify(categories), this.CACHE_TTL * 2); // Cache longer
 
         return categories;
       } finally {

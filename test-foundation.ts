@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import db from './src/database/connection';
-import redis from './src/cache/redis';
+import cache from './src/cache/memory';
 
 async function testFoundation() {
   console.log('🧪 Testing MenuCA Foundation Services...\n');
@@ -45,15 +45,15 @@ async function testFoundation() {
   // Test 2: Redis Connection
   console.log('2️⃣ Testing Redis Connection...');
   try {
-    await redis.connect();
-    const redisHealthy = await redis.testConnection();
+    await cache.connect();
+    const redisHealthy = await cache.testConnection();
     if (redisHealthy) {
       console.log('✅ Redis connection successful');
       
       // Test basic Redis operations
       console.log('💾 Testing Redis operations...');
-      await redis.set('test:key', 'test-value', 60);
-      const value = await redis.get('test:key');
+      await cache.set('test:key', 'test-value', 60);
+      const value = await cache.get('test:key');
       if (value === 'test-value') {
         console.log('✅ Redis set/get operations working');
       } else {
@@ -63,8 +63,8 @@ async function testFoundation() {
       
       // Test session management
       console.log('🔑 Testing session management...');
-      await redis.setSession('test-session', { userId: '123', tenantId: 'default' });
-      const session = await redis.getSession('test-session');
+      await cache.setSession('test-session', { userId: '123', tenantId: 'default' });
+      const session = await cache.getSession('test-session');
       if (session && (session as any).userId === '123') {
         console.log('✅ Session management working');
       } else {
@@ -73,8 +73,8 @@ async function testFoundation() {
       }
       
       // Cleanup
-      await redis.del('test:key');
-      await redis.deleteSession('test-session');
+      await cache.del('test:key');
+      await cache.deleteSession('test-session');
       
     } else {
       console.log('❌ Redis connection failed');
@@ -151,7 +151,7 @@ async function testFoundation() {
 
   // Cleanup
   await db.close();
-  await redis.close();
+  await cache.close();
 }
 
 // Handle errors gracefully

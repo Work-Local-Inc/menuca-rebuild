@@ -1,6 +1,6 @@
 import { beforeAll, afterAll, beforeEach } from '@jest/globals';
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import { v4 as uuidv4 } from 'uuid';
 
 // Test environment setup
@@ -49,8 +49,8 @@ beforeAll(async () => {
   }
 
   // Ensure Redis connection  
-  await redis.connect();
-  const redisConnected = await redis.testConnection();
+  await cache.connect();
+  const redisConnected = await cache.testConnection();
   if (!redisConnected) {
     throw new Error('Redis connection failed');
   }
@@ -65,7 +65,7 @@ afterAll(async () => {
 
   // Close connections
   await db.close();
-  await redis.close();
+  await cache.close();
 });
 
 beforeEach(async () => {

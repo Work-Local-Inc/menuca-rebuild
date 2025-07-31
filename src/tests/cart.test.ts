@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
 import { CartService } from '@/services/CartService';
 import { testData } from './setup';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 
 describe('Shopping Cart Service', () => {
   let cartService: CartService;
@@ -297,7 +297,7 @@ describe('Shopping Cart Service', () => {
 
       // Check if cart exists in Redis
       const cartKey = `cart:${testData.tenantId}:${testData.userId}`;
-      const redisData = await redis.get(cartKey);
+      const redisData = await cache.get(cartKey);
 
       expect(redisData).toBeDefined();
       
@@ -334,7 +334,7 @@ describe('Shopping Cart Service', () => {
       await cartService.addToCart(testData.tenantId, testData.userId, addRequest);
 
       // Clear Redis to force database retrieval
-      await redis.flushAll();
+      await cache.flushAll();
 
       // Should retrieve from database backup
       const cart = await cartService.getCart(testData.tenantId, testData.userId);

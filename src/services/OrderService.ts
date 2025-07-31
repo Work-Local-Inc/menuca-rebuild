@@ -1,5 +1,5 @@
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -177,7 +177,7 @@ export class OrderService {
     const cacheKey = `${this.CACHE_PREFIX}${tenantId}:${orderId}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -203,7 +203,7 @@ export class OrderService {
       
       // Cache the result
       try {
-        await redis.set(cacheKey, JSON.stringify(order), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(order), this.CACHE_TTL);
       } catch (error) {
         console.warn('Failed to cache order:', error);
       }

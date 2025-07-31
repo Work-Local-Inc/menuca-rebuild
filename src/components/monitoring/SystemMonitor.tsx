@@ -550,25 +550,25 @@ export const SystemMonitor: React.FC<SystemMonitorProps> = ({ userToken, tenantI
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <BarChart3 className="h-5 w-5" />
-                      <span>Redis Cache</span>
+                      <span>Memory Cache</span>
                     </div>
-                    <Badge className={getStatusColor(metrics.redis.status)}>
-                      {metrics.redis.status}
+                    <Badge className={getStatusColor(metrics.cache.status)}>
+                      {metrics.cache.status}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Response Time:</span>
-                    <span className="text-sm font-medium">{metrics.redis.response_time}ms</span>
+                    <span className="text-sm font-medium">{metrics.cache.response_time}ms</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Memory Used:</span>
-                    <span className="text-sm font-medium">{formatBytes(metrics.redis.used_memory)}</span>
+                    <span className="text-sm font-medium">{formatBytes(metrics.cache.used_memory)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Hit Rate:</span>
-                    <span className="text-sm font-medium">{metrics.redis.hit_rate.toFixed(1)}%</span>
+                    <span className="text-sm font-medium">{metrics.cache.hit_rate.toFixed(1)}%</span>
                   </div>
                 </CardContent>
               </Card>
