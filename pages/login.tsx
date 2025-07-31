@@ -1,6 +1,16 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/router';
+
+// Create client directly to bypass lib/supabase.ts issue
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://fsjodpnptdbwaigzkmfl.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sbp_a77f0756fae7fc428f5ccdc68fa518d2ed4a7289';
+
+console.log('Direct client - URL:', supabaseUrl);
+console.log('Direct client - Key exists:', !!supabaseAnonKey);
+console.log('Direct client - Key length:', supabaseAnonKey?.length || 0);
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Login() {
   const [email, setEmail] = useState('');
