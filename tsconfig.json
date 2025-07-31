@@ -27,10 +27,13 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "exactOptionalPropertyTypes": false,
-    "baseUrl": "./src",
+    "baseUrl": "./",
     "paths": {
       "@/*": [
-        "*"
+        "./*"
+      ],
+      "@/components/*": [
+        "components/*"
       ],
       "@/database/*": [
         "database/*"
