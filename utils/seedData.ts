@@ -1,4 +1,5 @@
 export const seedPizzaRestaurantData = (restaurantId: string) => {
+  console.log('seedPizzaRestaurantData called with restaurantId:', restaurantId);
   const now = Date.now();
   
   const pizzaMenu = {
