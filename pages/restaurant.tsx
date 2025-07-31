@@ -18,20 +18,34 @@ export default function RestaurantPage() {
       try {
         const token = localStorage.getItem('jwt_token');
         
-        // Mock restaurants for demo - in production this would fetch from API
-        const mockRestaurants: Restaurant[] = [
-          { id: 'restaurant-0', name: "Mario's Italian Kitchen" },
-          { id: 'restaurant-1', name: 'Taco Loco' },
-          { id: 'restaurant-2', name: 'Dragon Palace' },
-          { id: 'restaurant-3', name: 'The Burger Joint' },
-          { id: 'restaurant-4', name: 'Cafe Mediterranean' }
-        ];
+        // Fetch actual restaurants from API
+        const response = await fetch('/api/v1/restaurants', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'x-tenant-id': 'default-tenant'
+          }
+        });
+
+        let fetchedRestaurants: Restaurant[] = [];
         
-        setRestaurants(mockRestaurants);
+        if (response.ok) {
+          const data = await response.json();
+          fetchedRestaurants = data.data || [];
+          setRestaurants(fetchedRestaurants);
+        } else {
+          console.error('Failed to fetch restaurants:', response.statusText);
+          // Fallback to demo restaurants if API fails
+          fetchedRestaurants = [
+            { id: 'demo-restaurant-1', name: "Demo Restaurant - Mario's Italian" },
+            { id: 'demo-restaurant-2', name: 'Demo Restaurant - Taco Loco' }
+          ];
+          setRestaurants(fetchedRestaurants);
+        }
         
         // Auto-select first restaurant
-        if (mockRestaurants.length > 0) {
-          setSelectedRestaurant(mockRestaurants[0].id);
+        if (fetchedRestaurants.length > 0) {
+          setSelectedRestaurant(fetchedRestaurants[0].id);
         }
       } catch (error) {
         console.error('Failed to fetch restaurants:', error);

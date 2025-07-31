@@ -72,7 +72,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     setLoading(true);
     try {
       const token = localStorage.getItem('jwt_token');
-      const response = await fetch(`/api/menu-management/restaurant/${restaurantId}`, {
+      const response = await fetch(`/api/v1/menu-management/restaurant/${restaurantId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
   const toggleItemAvailability = async (item: MenuItem) => {
     try {
       const token = localStorage.getItem('jwt_token');
-      const response = await fetch(`/api/menu-management/items/${item.id}/availability`, {
+      const response = await fetch(`/api/v1/menu-management/items/${item.id}/availability`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -136,7 +136,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
       
       if (editingItem) {
         // Update existing item
-        const response = await fetch(`/api/menu-management/items/${editingItem.id}`, {
+        const response = await fetch(`/api/v1/menu-management/items/${editingItem.id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -152,7 +152,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         }
       } else {
         // Create new item
-        const response = await fetch(`/api/menu-management/categories/${categoryId}/items`, {
+        const response = await fetch(`/api/v1/menu-management/categories/${categoryId}/items`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -177,7 +177,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
     try {
       const token = localStorage.getItem('jwt_token');
-      const response = await fetch(`/api/menu-management/items/${itemId}`, {
+      const response = await fetch(`/api/v1/menu-management/items/${itemId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
