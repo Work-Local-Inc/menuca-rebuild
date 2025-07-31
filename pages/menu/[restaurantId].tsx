@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, ShoppingCart, Clock, DollarSign } from 'lucide-react';
+import { TempNavigation } from '@/components/TempNavigation';
 
 interface MenuItem {
   id: string;
@@ -188,6 +189,8 @@ export default function CustomerMenuPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <TempNavigation />
+        
         {/* Menu Categories */}
         <div className="space-y-8">
           {selectedMenu.categories.map((category) => (

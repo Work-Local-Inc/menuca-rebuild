@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { MenuManagement } from '@/components/restaurant/MenuManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { seedPizzaRestaurantData } from '@/utils/seedData';
+import { TempNavigation } from '@/components/TempNavigation';
 
 interface Restaurant {
   id: string;
@@ -71,7 +73,8 @@ export default function RestaurantPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      <TempNavigation />
       {/* Restaurant Selection */}
       <div className="p-6 bg-white border-b">
         <div className="flex justify-between items-center">
@@ -93,6 +96,21 @@ export default function RestaurantPage() {
           
           {selectedRestaurant && (
             <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  const wasAdded = seedPizzaRestaurantData(selectedRestaurant);
+                  if (wasAdded) {
+                    alert('Pizza demo data loaded! Refresh the page to see the new menu.');
+                    window.location.reload();
+                  } else {
+                    alert('Demo data already exists for this restaurant.');
+                  }
+                }}
+                className="flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700"
+              >
+                🍕 Load Pizza Demo Data
+              </Button>
               <Button 
                 variant="outline"
                 onClick={() => {

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChefHat, Clock, Star } from 'lucide-react';
+import { TempNavigation } from '@/components/TempNavigation';
 
 interface Restaurant {
   id: string;
@@ -86,6 +87,8 @@ export default function OrderPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <TempNavigation />
+        
         {restaurants.length > 0 ? (
           <>
             <div className="mb-8">
