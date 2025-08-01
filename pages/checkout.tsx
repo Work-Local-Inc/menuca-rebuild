@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TempNavigation } from '@/components/TempNavigation';
 import { ArrowLeft, CreditCard, MapPin, Phone, User, Clock } from 'lucide-react';
+
+// TypeScript declaration for Canada Post Address Complete
+declare global {
+  interface Window {
+    pca: any;
+  }
+}
 
 interface CartItem {
   menuItem: {
@@ -26,8 +34,8 @@ interface CustomerInfo {
   address: {
     street: string;
     city: string;
-    state: string;
-    zipCode: string;
+    province: string;
+    postalCode: string;
   };
   deliveryInstructions: string;
 }
@@ -44,12 +52,13 @@ export default function CheckoutPage() {
     address: {
       street: '',
       city: '',
-      state: '',
-      zipCode: ''
+      province: '',
+      postalCode: ''
     },
     deliveryInstructions: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return; // Ensure localStorage is only accessed on client-side
@@ -70,10 +79,52 @@ export default function CheckoutPage() {
     }
   }, [router, restaurantId]);
 
+  // Initialize Canada Post Address Complete
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const initializeAddressComplete = () => {
+      if (window.pca && addressInputRef.current) {
+        const options = {
+          key: process.env.NEXT_PUBLIC_CANADA_POST_API_KEY || 'YOUR_API_KEY_HERE',
+          container: addressInputRef.current,
+          countries: {
+            codesList: 'CAN'
+          },
+          style: {
+            cssClass: 'border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
+          }
+        };
+
+        const control = new window.pca.Address(options);
+        
+        control.listen('populate', (address: any) => {
+          setCustomerInfo(prev => ({
+            ...prev,
+            address: {
+              street: `${address.Line1}${address.Line2 ? ', ' + address.Line2 : ''}`,
+              city: address.City,
+              province: address.Province,
+              postalCode: address.PostalCode
+            }
+          }));
+        });
+      }
+    };
+
+    // Wait for the script to load
+    if (window.pca) {
+      initializeAddressComplete();
+    } else {
+      window.addEventListener('pcaLoad', initializeAddressComplete);
+      return () => window.removeEventListener('pcaLoad', initializeAddressComplete);
+    }
+  }, []);
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-CA', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'CAD'
     }).format(amount);
   };
 
@@ -120,9 +171,9 @@ export default function CheckoutPage() {
         customer: customerInfo,
         items: cart,
         subtotal: getCartTotal(),
-        tax: getCartTotal() * 0.08, // 8% tax
+        tax: getCartTotal() * 0.13, // 13% HST (Ontario rate)
         deliveryFee: 2.99,
-        total: getCartTotal() + (getCartTotal() * 0.08) + 2.99,
+        total: getCartTotal() + (getCartTotal() * 0.13) + 2.99,
         status: 'pending',
         estimatedPrepTime: getTotalPrepTime(),
         createdAt: new Date().toISOString(),
@@ -161,8 +212,21 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto p-6">
+    <>
+      <Head>
+        <title>Checkout - MenuCA</title>
+        <script 
+          src="https://ws1.postescanada-canadapost.ca/AddressComplete/Interactive/Find/v2.10/js/addresscomplete-2.10.min.js"
+          onLoad={() => {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('pcaLoad'));
+            }
+          }}
+        />
+      </Head>
+      
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto p-6">
         <TempNavigation />
         
         {/* Header */}
@@ -218,8 +282,8 @@ export default function CheckoutPage() {
                   <span>{formatCurrency(getCartTotal())}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax (8%)</span>
-                  <span>{formatCurrency(getCartTotal() * 0.08)}</span>
+                  <span>HST (13%)</span>
+                  <span>{formatCurrency(getCartTotal() * 0.13)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Fee</span>
@@ -227,7 +291,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total</span>
-                  <span>{formatCurrency(getCartTotal() + (getCartTotal() * 0.08) + 2.99)}</span>
+                  <span>{formatCurrency(getCartTotal() + (getCartTotal() * 0.13) + 2.99)}</span>
                 </div>
               </div>
 
@@ -257,7 +321,7 @@ export default function CheckoutPage() {
                       value={customerInfo.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       required
-                      placeholder="John Doe"
+                      placeholder="John Smith"
                     />
                   </div>
                   <div>
@@ -267,7 +331,7 @@ export default function CheckoutPage() {
                       value={customerInfo.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       required
-                      placeholder="(555) 123-4567"
+                      placeholder="(416) 555-0123"
                     />
                   </div>
                 </div>
@@ -279,18 +343,22 @@ export default function CheckoutPage() {
                     value={customerInfo.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     required
-                    placeholder="john@example.com"
+                    placeholder="john@example.ca"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Street Address</label>
                   <Input
+                    ref={addressInputRef}
                     value={customerInfo.address.street}
                     onChange={(e) => handleInputChange('address.street', e.target.value)}
                     required
-                    placeholder="123 Main Street"
+                    placeholder="Start typing your address for suggestions..."
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    🍁 Start typing for Canada Post address suggestions
+                  </p>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-4">
@@ -300,25 +368,25 @@ export default function CheckoutPage() {
                       value={customerInfo.address.city}
                       onChange={(e) => handleInputChange('address.city', e.target.value)}
                       required
-                      placeholder="San Francisco"
+                      placeholder="Toronto"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">State</label>
+                    <label className="block text-sm font-medium mb-2">Province</label>
                     <Input
-                      value={customerInfo.address.state}
-                      onChange={(e) => handleInputChange('address.state', e.target.value)}
+                      value={customerInfo.address.province}
+                      onChange={(e) => handleInputChange('address.province', e.target.value)}
                       required
-                      placeholder="CA"
+                      placeholder="ON"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-2">Zip Code</label>
+                    <label className="block text-sm font-medium mb-2">Postal Code</label>
                     <Input
-                      value={customerInfo.address.zipCode}
-                      onChange={(e) => handleInputChange('address.zipCode', e.target.value)}
+                      value={customerInfo.address.postalCode}
+                      onChange={(e) => handleInputChange('address.postalCode', e.target.value)}
                       required
-                      placeholder="94102"
+                      placeholder="M5V 3A8"
                     />
                   </div>
                 </div>
@@ -328,7 +396,7 @@ export default function CheckoutPage() {
                   <Input
                     value={customerInfo.deliveryInstructions}
                     onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
-                    placeholder="Ring doorbell, leave at door, etc."
+                    placeholder="Buzzer #123, leave with concierge, etc."
                   />
                 </div>
 
@@ -342,7 +410,7 @@ export default function CheckoutPage() {
                   ) : (
                     <>
                       <CreditCard className="h-5 w-5 mr-2" />
-                      Place Order - {formatCurrency(getCartTotal() + (getCartTotal() * 0.08) + 2.99)}
+                      Place Order - {formatCurrency(getCartTotal() + (getCartTotal() * 0.13) + 2.99)}
                     </>
                   )}
                 </Button>
@@ -352,5 +420,6 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
