@@ -62,6 +62,7 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'info' | 'payment'>('info');
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [addressApiError, setAddressApiError] = useState<string | null>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -89,30 +90,57 @@ export default function CheckoutPage() {
     
     const initializeAddressComplete = () => {
       if (window.pca && addressInputRef.current) {
-        const options = {
-          key: process.env.NEXT_PUBLIC_CANADA_POST_API_KEY || 'YOUR_API_KEY_HERE',
-          container: addressInputRef.current,
-          countries: {
-            codesList: 'CAN'
-          },
-          style: {
-            cssClass: 'border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
+        try {
+          const apiKey = process.env.NEXT_PUBLIC_CANADA_POST_API_KEY;
+          
+          if (!apiKey) {
+            console.warn('Canada Post API key not configured');
+            setAddressApiError('Address suggestions temporarily unavailable. Please enter your address manually.');
+            return;
           }
-        };
-
-        const control = new window.pca.Address(options);
-        
-        control.listen('populate', (address: any) => {
-          setCustomerInfo(prev => ({
-            ...prev,
-            address: {
-              street: `${address.Line1}${address.Line2 ? ', ' + address.Line2 : ''}`,
-              city: address.City,
-              province: address.Province,
-              postalCode: address.PostalCode
+          
+          const options = {
+            key: apiKey,
+            container: addressInputRef.current,
+            countries: {
+              codesList: 'CAN'
+            },
+            style: {
+              cssClass: 'border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500'
             }
-          }));
-        });
+          };
+
+          const control = new window.pca.Address(options);
+          
+          // Success callback - address selected
+          control.listen('populate', (address: any) => {
+            console.log('Canada Post address selected:', address);
+            setAddressApiError(null); // Clear any previous errors
+            setCustomerInfo(prev => ({
+              ...prev,
+              address: {
+                street: `${address.Line1}${address.Line2 ? ', ' + address.Line2 : ''}`,
+                city: address.City,
+                province: address.ProvinceCode || address.Province,
+                postalCode: address.PostalCode
+              }
+            }));
+          });
+
+          // Error handling
+          control.listen('error', (error: any) => {
+            console.error('Canada Post API error:', error);
+            setAddressApiError('Address suggestions temporarily unavailable. Please enter your address manually.');
+          });
+
+          console.log('Canada Post Address Complete initialized successfully');
+          
+        } catch (error) {
+          console.error('Failed to initialize Canada Post Address Complete:', error);
+          setAddressApiError('Address suggestions temporarily unavailable. Please enter your address manually.');
+        }
+      } else {
+        setAddressApiError('Address suggestions temporarily unavailable. Please enter your address manually.');
       }
     };
 
@@ -408,6 +436,57 @@ export default function CheckoutPage() {
                     <p className="text-xs text-gray-500 mt-1">
                       🍁 Start typing for Canada Post address suggestions
                     </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">City</label>
+                      <Input
+                        value={customerInfo.address.city}
+                        onChange={(e) => handleInputChange('address.city', e.target.value)}
+                        required
+                        placeholder="Toronto"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Province</label>
+                      <Input
+                        value={customerInfo.address.province}
+                        onChange={(e) => handleInputChange('address.province', e.target.value)}
+                        required
+                        placeholder="ON"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Postal Code</label>
+                      <Input
+                        value={customerInfo.address.postalCode}
+                        onChange={(e) => handleInputChange('address.postalCode', e.target.value)}
+                        required
+                        placeholder="M5V 3A8"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Street Address</label>
+                    <Input
+                      ref={addressInputRef}
+                      value={customerInfo.address.street}
+                      onChange={(e) => handleInputChange('address.street', e.target.value)}
+                      required
+                      placeholder={addressApiError ? "Enter your address manually" : "Start typing your address for suggestions..."}
+                      className={addressApiError ? "border-yellow-300" : ""}
+                    />
+                    {addressApiError ? (
+                      <p className="text-xs text-yellow-600 mt-1 flex items-center gap-1">
+                        ⚠️ {addressApiError}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-500 mt-1">
+                        🍁 Start typing for Canada Post address suggestions
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-4">
