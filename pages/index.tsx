@@ -1,19 +1,21 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useAuth } from '@/contexts/AuthContext';
 import Head from 'next/head';
 
 export default function Home() {
   const router = useRouter();
+  const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const userData = localStorage.getItem('menuca_user');
-    if (userData) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
+    if (!loading) {
+      if (isAuthenticated) {
+        router.push('/restaurant');
+      } else {
+        router.push('/login');
+      }
     }
-  }, [router]);
+  }, [isAuthenticated, loading, router]);
 
   // Show loading while redirecting
 

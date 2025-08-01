@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Users, ShoppingCart, Star } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AnalyticsSummary {
   summary: {
@@ -77,6 +78,7 @@ interface MenuItemPerformance {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 export const AnalyticsDashboard: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [orderTrends, setOrderTrends] = useState<OrderTrendData[]>([]);
   const [menuPerformance, setMenuPerformance] = useState<MenuItemPerformance[]>([]);
@@ -89,20 +91,33 @@ export const AnalyticsDashboard: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const fetchAnalyticsData = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping analytics fetch');
+      return;
+    }
+
     setLoading(true);
     try {
-      const token = localStorage.getItem('jwt_token');
       const headers = {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'x-tenant-id': 'default-tenant'
+        'x-tenant-id': user.tenant_id
       };
 
       // Fetch dashboard summary
-      const summaryResponse = await fetch('/api/v1/analytics/dashboard/summary', { headers });
+      const summaryResponse = await fetch('/api/v1/analytics/dashboard/summary', {
+        method: 'GET',
+        credentials: 'include',
+        headers
+      });
+      
       if (summaryResponse.ok) {
         const summaryData = await summaryResponse.json();
-        setSummary(summaryData.data);
+        if (summaryData.data) {
+          setSummary(summaryData.data);
+        }
+      } else if (summaryResponse.status === 401) {
+        console.error('Authentication failed for analytics summary');
+        return;
       }
 
       // Fetch order trends
@@ -112,10 +127,19 @@ export const AnalyticsDashboard: React.FC = () => {
         ...(selectedRestaurant !== 'all' && { restaurantId: selectedRestaurant })
       });
       
-      const trendsResponse = await fetch(`/api/v1/analytics/orders/trends?${trendsParams}`, { headers });
+      const trendsResponse = await fetch(`/api/v1/analytics/orders/trends?${trendsParams}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers
+      });
+      
       if (trendsResponse.ok) {
         const trendsData = await trendsResponse.json();
-        setOrderTrends(trendsData.data.trends);
+        if (trendsData.data?.trends) {
+          setOrderTrends(trendsData.data.trends);
+        }
+      } else if (trendsResponse.status === 401) {
+        console.error('Authentication failed for order trends');
       }
 
       // Fetch menu performance (if restaurant selected)
@@ -127,11 +151,20 @@ export const AnalyticsDashboard: React.FC = () => {
         
         const menuResponse = await fetch(
           `/api/v1/analytics/restaurants/${selectedRestaurant}/menu/performance?${menuParams}`,
-          { headers }
+          {
+            method: 'GET',
+            credentials: 'include',
+            headers
+          }
         );
+        
         if (menuResponse.ok) {
           const menuData = await menuResponse.json();
-          setMenuPerformance(menuData.data.items);
+          if (menuData.data?.items) {
+            setMenuPerformance(menuData.data.items);
+          }
+        } else if (menuResponse.status === 401) {
+          console.error('Authentication failed for menu performance');
         }
       }
 
@@ -145,7 +178,7 @@ export const AnalyticsDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchAnalyticsData();
-  }, [dateRange, selectedRestaurant]);
+  }, [dateRange, selectedRestaurant, isAuthenticated, user]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -160,6 +193,17 @@ export const AnalyticsDashboard: React.FC = () => {
       day: 'numeric'
     });
   };
+
+  // Show authentication required state
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">Please log in to view analytics</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!summary) {
     return (

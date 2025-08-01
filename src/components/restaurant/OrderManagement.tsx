@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Clock, CheckCircle, Truck, Package, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface OrderItem {
   id: string;
@@ -92,30 +93,40 @@ interface OrderManagementProps {
 }
 
 export const OrderManagement: React.FC<OrderManagementProps> = ({ restaurantId }) => {
+  const { user, isAuthenticated } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [summary, setSummary] = useState<OrderSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const fetchActiveOrders = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping order fetch');
+      return;
+    }
+
     setLoading(true);
     try {
-      const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/orders/restaurant/${restaurantId}/active`, {
+        method: 'GET',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setOrders(data.data.orders);
-        setSummary(data.data.summary);
-        setLastUpdated(new Date());
+        if (data.data) {
+          setOrders(data.data.orders || []);
+          setSummary(data.data.summary || null);
+          setLastUpdated(new Date());
+        }
+      } else if (response.status === 401) {
+        console.error('Authentication failed for active orders');
       } else {
-        console.error('Failed to fetch active orders');
+        console.error('Failed to fetch active orders:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching active orders:', error);
@@ -125,14 +136,18 @@ export const OrderManagement: React.FC<OrderManagementProps> = ({ restaurantId }
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    if (!isAuthenticated || !user) {
+      alert('You must be logged in to update order status');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/orders/${orderId}/status`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         },
         body: JSON.stringify({ status: newStatus })
       });
@@ -156,21 +171,34 @@ export const OrderManagement: React.FC<OrderManagementProps> = ({ restaurantId }
 
         // Refresh summary
         fetchActiveOrders();
+      } else if (response.status === 401) {
+        alert('Authentication failed. Please log in again.');
       } else {
-        console.error('Failed to update order status');
+        const errorData = await response.json();
+        console.error('Failed to update order status:', errorData);
+        alert('Failed to update order status. Please try again.');
       }
     } catch (error) {
       console.error('Error updating order status:', error);
+      alert('Error updating order status. Please try again.');
     }
   };
 
   useEffect(() => {
     fetchActiveOrders();
     
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchActiveOrders, 30000);
-    return () => clearInterval(interval);
-  }, [restaurantId]);
+    // Auto-refresh every 30 seconds if authenticated
+    let interval: NodeJS.Timeout;
+    if (isAuthenticated && user) {
+      interval = setInterval(fetchActiveOrders, 30000);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [restaurantId, isAuthenticated, user]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -199,6 +227,18 @@ export const OrderManagement: React.FC<OrderManagementProps> = ({ restaurantId }
       return `${hours}h ${minutes}m ago`;
     }
   };
+
+  // Show authentication required state
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 mb-4">Please log in to manage orders</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">

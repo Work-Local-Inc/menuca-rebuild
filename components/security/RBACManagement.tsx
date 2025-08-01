@@ -17,6 +17,7 @@ import {
   Eye,
   Lock
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Permission {
   name: string;
@@ -80,6 +81,7 @@ const PERMISSION_CATEGORIES: { [key: string]: string } = {
 };
 
 export const RBACManagement: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('users');
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -96,16 +98,19 @@ export const RBACManagement: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [activeTab]);
+  }, [activeTab, isAuthenticated, user]);
 
   const loadData = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping RBAC data load');
+      return;
+    }
+
     setLoading(true);
     try {
-      const token = localStorage.getItem('jwt_token');
       const headers = {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'x-tenant-id': 'default-tenant'
+        'x-tenant-id': user.tenant_id
       };
 
       switch (activeTab) {
@@ -130,44 +135,80 @@ export const RBACManagement: React.FC = () => {
   };
 
   const loadRoleTemplates = async (headers: any) => {
-    const response = await fetch('/api/v1/rbac/role-templates', { headers });
+    const response = await fetch('/api/v1/rbac/role-templates', {
+      method: 'GET',
+      credentials: 'include',
+      headers
+    });
+    
     if (response.ok) {
       const data = await response.json();
-      setRoleTemplates(data.data);
+      if (data.data) {
+        setRoleTemplates(data.data);
+      }
+    } else if (response.status === 401) {
+      console.error('Authentication failed for role templates');
     }
   };
 
   const loadAuditLogs = async (headers: any) => {
-    const response = await fetch('/api/v1/rbac/audit/permissions', { headers });
+    const response = await fetch('/api/v1/rbac/audit/permissions', {
+      method: 'GET',
+      credentials: 'include',
+      headers
+    });
+    
     if (response.ok) {
       const data = await response.json();
-      setAuditLogs(data.data.logs);
+      if (data.data?.logs) {
+        setAuditLogs(data.data.logs);
+      }
+    } else if (response.status === 401) {
+      console.error('Authentication failed for audit logs');
     }
   };
 
   const loadSecurityEvents = async (headers: any) => {
-    const response = await fetch('/api/v1/rbac/security/events', { headers });
+    const response = await fetch('/api/v1/rbac/security/events', {
+      method: 'GET',
+      credentials: 'include',
+      headers
+    });
+    
     if (response.ok) {
       const data = await response.json();
-      setSecurityEvents(data.data.events);
+      if (data.data?.events) {
+        setSecurityEvents(data.data.events);
+      }
+    } else if (response.status === 401) {
+      console.error('Authentication failed for security events');
     }
   };
 
   const grantPermission = async (userId: string, permission: string, reason?: string) => {
+    if (!isAuthenticated || !user) {
+      alert('You must be logged in to manage permissions');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/rbac/users/${userId}/permissions/${permission}`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         },
         body: JSON.stringify({ reason })
       });
 
       if (response.ok) {
         await loadData();
+      } else if (response.status === 401) {
+        alert('Authentication failed. Please log in again.');
+      } else {
+        const errorData = await response.json();
+        console.error('Error granting permission:', errorData);
       }
     } catch (error) {
       console.error('Error granting permission:', error);
@@ -175,20 +216,29 @@ export const RBACManagement: React.FC = () => {
   };
 
   const revokePermission = async (userId: string, permission: string, reason?: string) => {
+    if (!isAuthenticated || !user) {
+      alert('You must be logged in to manage permissions');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/rbac/users/${userId}/permissions/${permission}`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         },
         body: JSON.stringify({ reason })
       });
 
       if (response.ok) {
         await loadData();
+      } else if (response.status === 401) {
+        alert('Authentication failed. Please log in again.');
+      } else {
+        const errorData = await response.json();
+        console.error('Error revoking permission:', errorData);
       }
     } catch (error) {
       console.error('Error revoking permission:', error);
@@ -215,6 +265,18 @@ export const RBACManagement: React.FC = () => {
     if (result === 'allowed') return <CheckCircle className="h-4 w-4 text-green-500" />;
     return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
   };
+
+  // Show authentication required state
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500 mb-4">Please log in to access security management</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">

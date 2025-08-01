@@ -1,66 +1,27 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@/contexts/AuthContext';
 
-console.log('Login component version: v6 - centralized Supabase client');
+console.log('Login component version: v7 - JWT authentication with HTTP-only cookies');
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { login, loading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
     try {
-      // Create Supabase client directly
-      console.log('Creating Supabase client directly...');
-      const supabase = createClient(
-        'https://fsjodpnptdbwaigzkmfl.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzam9kcG5wdGRid2FpZ3prbWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MDM2MDQsImV4cCI6MjA2OTQ3OTYwNH0.lcy6gDS58IhiWOTPhNOH6EiUTFmSDvIbX-uiZmCDqjQ'
-      );
-      console.log('Supabase client created successfully');
-      
-      // Query the users table directly for authentication
-      const { data: users, error } = await supabase
-        .from('users')
-        .select('id, email, first_name, last_name, role, tenant_id, tenants(id, name, domain)')
-        .eq('email', email)
-        .single();
-
-      if (error || !users) {
-        setError('Invalid email or password');
-        return;
-      }
-
-      // For demo, just check if user exists (password validation would use bcrypt in production)
-      if (password === 'password123') {
-        // Store real user session
-        localStorage.setItem('menuca_user', JSON.stringify({
-          id: users.id,
-          email: users.email,
-          role: users.role,
-          tenant: {
-            id: users.tenants.id,
-            name: users.tenants.name,
-            domain: users.tenants.domain
-          }
-        }));
-        
-        console.log('Login successful, redirecting to restaurant management...');
-        router.push('/restaurant');
-      } else {
-        setError('Invalid email or password');
-      }
+      await login(email, password);
+      console.log('Login successful, redirecting to restaurant management...');
+      router.push('/restaurant');
     } catch (err) {
       console.error('Login error:', err);
-      setError('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
     }
   };
 

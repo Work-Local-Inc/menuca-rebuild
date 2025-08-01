@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HelpArticle {
   id: string;
@@ -38,6 +39,7 @@ interface SearchFilters {
 }
 
 export const SearchInterface: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -87,23 +89,27 @@ export const SearchInterface: React.FC = () => {
 
   const loadPopularArticles = async () => {
     try {
-      const token = localStorage.getItem('jwt_token');
       const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'x-tenant-id': 'default-tenant'
+        'Content-Type': 'application/json'
       };
       
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      if (user?.tenant_id) {
+        headers['x-tenant-id'] = user.tenant_id;
       }
 
       const response = await fetch('/api/v1/search/help/popular/top?limit=5', {
+        method: 'GET',
+        credentials: 'include',
         headers
       });
 
       if (response.ok) {
         const data = await response.json();
-        setPopularArticles(data.data);
+        if (data.data) {
+          setPopularArticles(data.data);
+        }
+      } else if (response.status === 401) {
+        console.error('Authentication failed for popular articles');
       }
     } catch (error) {
       console.error('Failed to load popular articles:', error);
@@ -112,23 +118,27 @@ export const SearchInterface: React.FC = () => {
 
   const loadCategories = async () => {
     try {
-      const token = localStorage.getItem('jwt_token');
       const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'x-tenant-id': 'default-tenant'
+        'Content-Type': 'application/json'
       };
       
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      if (user?.tenant_id) {
+        headers['x-tenant-id'] = user.tenant_id;
       }
 
       const response = await fetch('/api/v1/search/help/categories', {
+        method: 'GET',
+        credentials: 'include',
         headers
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCategories(data.data);
+        if (data.data) {
+          setCategories(data.data);
+        }
+      } else if (response.status === 401) {
+        console.error('Authentication failed for categories');
       }
     } catch (error) {
       console.error('Failed to load categories:', error);
@@ -141,14 +151,12 @@ export const SearchInterface: React.FC = () => {
     setLoading(true);
     
     try {
-      const token = localStorage.getItem('jwt_token');
       const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'x-tenant-id': 'default-tenant'
+        'Content-Type': 'application/json'
       };
       
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      if (user?.tenant_id) {
+        headers['x-tenant-id'] = user.tenant_id;
       }
 
       const params = new URLSearchParams({
@@ -171,17 +179,23 @@ export const SearchInterface: React.FC = () => {
       }
 
       const response = await fetch(`/api/v1/search/help?${params}`, {
+        method: 'GET',
+        credentials: 'include',
         headers
       });
 
       if (response.ok) {
         const data = await response.json();
-        const searchData: SearchResponse = data.data;
-        
-        setResults(searchData.results);
-        setTotalCount(searchData.total_count);
-        setSearchTime(searchData.search_time_ms);
-        setSuggestions(searchData.suggestions);
+        if (data.data) {
+          const searchData: SearchResponse = data.data;
+          
+          setResults(searchData.results || []);
+          setTotalCount(searchData.total_count || 0);
+          setSearchTime(searchData.search_time_ms || 0);
+          setSuggestions(searchData.suggestions || []);
+        }
+      } else if (response.status === 401) {
+        console.error('Authentication failed for search');
       } else {
         console.error('Search failed:', response.statusText);
       }
@@ -193,20 +207,18 @@ export const SearchInterface: React.FC = () => {
   };
 
   const submitFeedback = async (articleId: string, rating: number, comment: string) => {
-    try {
-      const token = localStorage.getItem('jwt_token');
-      
-      if (!token) {
-        alert('Please log in to submit feedback');
-        return;
-      }
+    if (!isAuthenticated || !user) {
+      alert('Please log in to submit feedback');
+      return;
+    }
 
+    try {
       const response = await fetch(`/api/v1/search/help/${articleId}/feedback`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         },
         body: JSON.stringify({ rating, comment })
       });
@@ -216,9 +228,11 @@ export const SearchInterface: React.FC = () => {
         setFeedbackArticleId('');
         setFeedbackRating(0);
         setFeedbackComment('');
+      } else if (response.status === 401) {
+        alert('Authentication failed. Please log in again.');
       } else {
-        const error = await response.json();
-        alert(`Failed to submit feedback: ${error.error}`);
+        const errorData = await response.json();
+        alert(`Failed to submit feedback: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to submit feedback:', error);
