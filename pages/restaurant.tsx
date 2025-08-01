@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '@/contexts/AuthContext';
 import { MenuManagement } from '@/components/restaurant/MenuManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,21 +17,24 @@ export default function RestaurantPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
     const fetchRestaurants = async () => {
       try {
-        const token = localStorage.getItem('jwt_token');
-        
-        // Get current user info 
-        const userData = localStorage.getItem('menuca_user');
-        if (!userData) {
+        if (!user) {
           console.error('No user data found - redirecting to login');
-          window.location.href = '/login';
+          router.push('/login');
           return;
         }
 
-        const user = JSON.parse(userData);
         console.log('Current user:', user);
 
         // For now, create a single restaurant per user (proper onboarding needed)
@@ -50,8 +55,10 @@ export default function RestaurantPage() {
       }
     };
 
-    fetchRestaurants();
-  }, []);
+    if (!authLoading && isAuthenticated && user) {
+      fetchRestaurants();
+    }
+  }, [user, isAuthenticated, authLoading, router]);
 
   if (loading) {
     return (

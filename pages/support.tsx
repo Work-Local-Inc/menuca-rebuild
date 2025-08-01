@@ -1,11 +1,14 @@
 import React from 'react';
 import { LiveChat } from '@/components/chat/LiveChat';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function SupportPage() {
-  // In a real app, these would come from authentication context
-  const userId = 'customer-123';
-  const userToken = 'mock-jwt-token';
-  const tenantId = 'default-tenant';
+  const { user, isAuthenticated } = useAuth();
+
+  // Support page can be accessed without authentication, but chat requires login
+  const userId = user?.id || 'anonymous';
+  const userToken = user?.id || 'anonymous';
+  const tenantId = user?.tenant_id || 'default-tenant';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -103,12 +106,14 @@ export default function SupportPage() {
         </div>
       </div>
 
-      {/* Live Chat Widget - Always available */}
-      <LiveChat
-        userId={userId}
-        userToken={userToken}
-        tenantId={tenantId}
-      />
+      {/* Live Chat Widget - Available when logged in */}
+      {isAuthenticated && user && (
+        <LiveChat
+          userId={userId}
+          userToken={userToken}
+          tenantId={tenantId}
+        />
+      )}
     </div>
   );
 }

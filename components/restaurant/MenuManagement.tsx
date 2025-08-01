@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Edit, Trash2, Eye, EyeOff, DollarSign, Clock, Save, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MenuItem {
   id: string;
@@ -61,6 +62,7 @@ interface MenuManagementProps {
 }
 
 export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) => {
+  const { user, isAuthenticated } = useAuth();
   const [menus, setMenus] = useState<RestaurantMenu[]>([]);
   const [selectedMenu, setSelectedMenu] = useState<RestaurantMenu | null>(null);
   const [loading, setLoading] = useState(false);
@@ -71,37 +73,36 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
   const [showNewMenuForm, setShowNewMenuForm] = useState(false);
 
   const fetchMenus = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping menu fetch');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Get menus from localStorage temporarily until auth is fixed
-      const localMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-      console.log('Loading menus from localStorage:', localMenus);
-      
-      setMenus(localMenus);
-      if (localMenus.length > 0 && !selectedMenu) {
-        setSelectedMenu(localMenus[0]);
-      }
-      
-      /* Original API call - commented out until auth is fixed
-      const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/menu-management/restaurant/${restaurantId}`, {
+        method: 'GET',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setMenus(data.data);
-        if (data.data.length > 0 && !selectedMenu) {
-          setSelectedMenu(data.data[0]);
+        if (data.success && data.data) {
+          setMenus(data.data);
+          if (data.data.length > 0 && !selectedMenu) {
+            setSelectedMenu(data.data[0]);
+          }
         }
+      } else if (response.status === 401) {
+        console.error('Authentication failed - user needs to login');
+        // AuthContext should handle this automatically
       } else {
-        console.error('Failed to fetch menus');
+        console.error('Failed to fetch menus:', response.statusText);
       }
-      */
     } catch (error) {
       console.error('Error fetching menus:', error);
     } finally {
@@ -111,7 +112,18 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
   useEffect(() => {
     fetchMenus();
-  }, [restaurantId]);
+  }, [restaurantId, isAuthenticated, user]);
+
+  // Show loading or unauthenticated state
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">Please log in to manage menus</p>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -142,16 +154,34 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         }))
       };
 
-      // Update localStorage
-      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-      const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
-      if (menuIndex !== -1) {
-        existingMenus[menuIndex] = updatedMenu;
-        localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+      // Update the menu via API if authenticated
+      if (isAuthenticated && user) {
+        try {
+          const response = await fetch(`/api/v1/menu-management/items/${item.id}/availability`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-tenant-id': user.tenant_id
+            },
+            body: JSON.stringify({
+              is_available: !item.availability.is_available
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to update item availability');
+          }
+        } catch (apiError) {
+          console.error('API update failed:', apiError);
+          throw apiError;
+        }
       }
 
       setSelectedMenu(updatedMenu);
-      setMenus(existingMenus);
+      setMenus(prev => prev.map(menu => 
+        menu.id === selectedMenu.id ? updatedMenu : menu
+      ));
       
       const newStatus = !item.availability.is_available ? 'available' : 'unavailable';
       alert(`Menu item marked as ${newStatus}!`);
@@ -184,16 +214,32 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
           })
         };
 
-        // Update localStorage
-        const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-        const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
-        if (menuIndex !== -1) {
-          existingMenus[menuIndex] = updatedMenu;
-          localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+        // Update the menu via API if authenticated
+        if (isAuthenticated && user) {
+          try {
+            const response = await fetch(`/api/v1/menu-management/items/${editingItem.id}`, {
+              method: 'PUT',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-tenant-id': user.tenant_id
+              },
+              body: JSON.stringify(itemData)
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to update menu item');
+            }
+          } catch (apiError) {
+            console.error('API update failed:', apiError);
+            throw apiError;
+          }
         }
 
         setSelectedMenu(updatedMenu);
-        setMenus(existingMenus);
+        setMenus(prev => prev.map(menu => 
+          menu.id === selectedMenu.id ? updatedMenu : menu
+        ));
         setEditingItem(null);
         alert('Menu item updated successfully!');
       } else {
@@ -238,16 +284,35 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
           })
         };
 
-        // Update localStorage
-        const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-        const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
-        if (menuIndex !== -1) {
-          existingMenus[menuIndex] = updatedMenu;
-          localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+        // Create the new menu item via API if authenticated
+        if (isAuthenticated && user) {
+          try {
+            const response = await fetch('/api/v1/menu-management/items', {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-tenant-id': user.tenant_id
+              },
+              body: JSON.stringify({
+                ...newItem,
+                categoryId: categoryId
+              })
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to create menu item');
+            }
+          } catch (apiError) {
+            console.error('API create failed:', apiError);
+            throw apiError;
+          }
         }
 
         setSelectedMenu(updatedMenu);
-        setMenus(existingMenus);
+        setMenus(prev => prev.map(menu => 
+          menu.id === selectedMenu.id ? updatedMenu : menu
+        ));
         setShowNewItemForm(null);
         alert('Menu item created successfully!');
       }
@@ -271,16 +336,31 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         }))
       };
 
-      // Update localStorage
-      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-      const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
-      if (menuIndex !== -1) {
-        existingMenus[menuIndex] = updatedMenu;
-        localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+      // Delete the menu item via API if authenticated
+      if (isAuthenticated && user) {
+        try {
+          const response = await fetch(`/api/v1/menu-management/items/${itemId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-tenant-id': user.tenant_id
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to delete menu item');
+          }
+        } catch (apiError) {
+          console.error('API delete failed:', apiError);
+          throw apiError;
+        }
       }
 
       setSelectedMenu(updatedMenu);
-      setMenus(existingMenus);
+      setMenus(prev => prev.map(menu => 
+        menu.id === selectedMenu.id ? updatedMenu : menu
+      ));
       alert('Menu item deleted successfully!');
     } catch (error) {
       console.error('Error deleting menu item:', error);
@@ -289,44 +369,43 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
   };
 
   const createMenu = async (menuData: { name: string; description?: string }) => {
-    try {
-      // Get user data for tenant info
-      const userData = localStorage.getItem('menuca_user');
-      const user = userData ? JSON.parse(userData) : null;
-      const tenantId = user?.tenant?.id || 'default-tenant';
-      
-      console.log('Creating menu with data:', menuData);
-      console.log('Restaurant ID:', restaurantId);
-      console.log('User:', user);
-      
-      // Create menu locally for now since auth system needs fixing
-      // TODO: This should use proper JWT auth once that's implemented
-      const mockMenu = {
-        id: `menu-${Date.now()}`,
-        restaurantId: restaurantId,
-        tenantId: tenantId,
-        name: menuData.name,
-        description: menuData.description,
-        categories: [],
-        is_active: true,
-        display_order: 1,
-        created_at: new Date(),
-        updated_at: new Date(),
-        created_by: user?.id || 'unknown'
-      };
-      
-      // Store locally until backend is properly connected
-      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-      existingMenus.push(mockMenu);
-      localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
-      
-      setShowNewMenuForm(false);
-      fetchMenus();
-      alert('Menu created successfully! (Stored locally until backend auth is fixed)');
-      
+    if (!isAuthenticated || !user) {
+      alert('You must be logged in to create a menu');
       return;
-      
-      /* Original API call - commented out until auth is fixed */
+    }
+
+    try {
+      const response = await fetch('/api/v1/menu-management/menus', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-tenant-id': user.tenant_id
+        },
+        body: JSON.stringify({
+          restaurantId: restaurantId,
+          name: menuData.name,
+          description: menuData.description,
+          is_active: true,
+          display_order: 1
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setShowNewMenuForm(false);
+          fetchMenus();
+          alert('Menu created successfully!');
+        } else {
+          throw new Error(result.error || 'Failed to create menu');
+        }
+      } else if (response.status === 401) {
+        alert('Authentication failed. Please log in again.');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create menu');
+      }
     } catch (error) {
       console.error('Error creating menu:', error);
       alert(`Error creating menu: ${error.message}`);
@@ -352,16 +431,35 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         categories: [...selectedMenu.categories, newCategory]
       };
 
-      // Update localStorage
-      const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-      const menuIndex = existingMenus.findIndex(m => m.id === selectedMenu.id);
-      if (menuIndex !== -1) {
-        existingMenus[menuIndex] = updatedMenu;
-        localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
+      // Create the new category via API if authenticated
+      if (isAuthenticated && user) {
+        try {
+          const response = await fetch('/api/v1/menu-management/categories', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-tenant-id': user.tenant_id
+            },
+            body: JSON.stringify({
+              ...newCategory,
+              menuId: selectedMenu.id
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to create category');
+          }
+        } catch (apiError) {
+          console.error('API create failed:', apiError);
+          throw apiError;
+        }
       }
 
       setSelectedMenu(updatedMenu);
-      setMenus(existingMenus);
+      setMenus(prev => prev.map(menu => 
+        menu.id === selectedMenu.id ? updatedMenu : menu
+      ));
       setShowNewCategoryForm(false);
       
       alert('Category created successfully!');
