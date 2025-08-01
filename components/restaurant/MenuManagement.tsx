@@ -373,7 +373,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         const result = await response.json();
         if (result.success) {
           setShowNewMenuForm(false);
-          fetchMenus();
+          fetchMenus(); // Refresh the menu list from server
           alert('Menu created successfully!');
         } else {
           throw new Error(result.error || 'Failed to create menu');
@@ -465,31 +465,32 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         categories: [...selectedMenu.categories, newCategory]
       };
 
-      // Create the new category via API if authenticated
+      // Create the new category via API
       if (isAuthenticated && user) {
-        try {
-          const response = await fetch('/api/v1/menu-management/categories', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-tenant-id': user.tenant_id
-            },
-            body: JSON.stringify({
-              ...newCategory,
-              menuId: selectedMenu.id
-            })
-          });
+        const response = await fetch('/api/v1/menu-management/categories', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-tenant-id': user.tenant_id
+          },
+          body: JSON.stringify({
+            ...newCategory,
+            menuId: selectedMenu.id
+          })
+        });
 
-          if (!response.ok) {
-            throw new Error('Failed to create category');
-          }
-        } catch (apiError) {
-          console.error('API create failed:', apiError);
-          throw apiError;
+        if (!response.ok) {
+          throw new Error('Failed to create category');
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to create category');
         }
       }
 
+      // Update local state after successful API call
       setSelectedMenu(updatedMenu);
       setMenus(prev => prev.map(menu => 
         menu.id === selectedMenu.id ? updatedMenu : menu
