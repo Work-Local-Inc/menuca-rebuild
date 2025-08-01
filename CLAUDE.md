@@ -1,10 +1,15 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Context
+MenuCA is a multi-tenant SaaS platform for restaurant management. **CRITICAL:** We have an enterprise-grade backend (67 APIs) but amateur frontend using localStorage. 
 
-## Memory Bank Reference
+**Current Priority:** Replace localStorage with real backend APIs. Stop building toys when we have enterprise systems ready.
 
-**IMPORTANT**: Always refer to the MCP muscle memory bank for project context, previous decisions, and ongoing work status. The memory bank contains our comprehensive project history and should be consulted before making any significant decisions or recommendations.
+## Key References
+- `@docs/backend-api-inventory.md` - All 67 backend APIs ready to use
+- `@docs/implementation-status.md` - Current state vs reality  
+- `@docs/next-steps.md` - Action items with checkboxes
+- `FRONTEND_ARCHITECTURE_PLAN.md` - Complete integration plan
 
 ## Deployment Architecture - SUPABASE + VERCEL STACK
 

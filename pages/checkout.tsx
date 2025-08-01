@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TempNavigation } from '@/components/TempNavigation';
+import { StripeProvider } from '@/components/providers/StripeProvider';
+import { PaymentForm } from '@/components/payment/PaymentForm';
 import { ArrowLeft, CreditCard, MapPin, Phone, User, Clock } from 'lucide-react';
 
 // TypeScript declaration for Canada Post Address Complete
@@ -58,6 +60,8 @@ export default function CheckoutPage() {
     deliveryInstructions: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'info' | 'payment'>('info');
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -156,31 +160,72 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleSubmitOrder = async (e: React.FormEvent) => {
+  const handleInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // Calculate total in cents for Stripe
+      const totalAmount = Math.round((getCartTotal() + (getCartTotal() * 0.13) + 2.99) * 100);
+
+      // Create payment intent with backend API
+      const response = await fetch('/api/payments/intents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // TODO: Add proper JWT authentication header
+        },
+        body: JSON.stringify({
+          amount: totalAmount,
+          currency: 'cad',
+          orderId: `ORD-${Date.now()}`,
+          metadata: {
+            restaurantId: restaurantId as string,
+            customerName: customerInfo.name,
+            customerEmail: customerInfo.email,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create payment intent');
+      }
+
+      const { data } = await response.json();
+      setClientSecret(data.client_secret);
+      setPaymentStep('payment');
+      
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      alert('Error preparing payment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    try {
       // Generate order ID
       const orderId = `ORD-${Date.now()}`;
       
-      // Create order object
+      // Create order object with payment info
       const order = {
         id: orderId,
         restaurantId: restaurantId,
         customer: customerInfo,
         items: cart,
         subtotal: getCartTotal(),
-        tax: getCartTotal() * 0.13, // 13% HST (Ontario rate)
+        tax: getCartTotal() * 0.13,
         deliveryFee: 2.99,
         total: getCartTotal() + (getCartTotal() * 0.13) + 2.99,
-        status: 'pending',
+        status: 'paid',
+        paymentIntentId: paymentIntentId,
         estimatedPrepTime: getTotalPrepTime(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
 
-      // Store order in localStorage (temporary until backend is ready)
+      // Store order (will be replaced with backend API later)
       const existingOrders = JSON.parse(localStorage.getItem(`orders_${restaurantId}`) || '[]');
       existingOrders.push(order);
       localStorage.setItem(`orders_${restaurantId}`, JSON.stringify(existingOrders));
@@ -193,11 +238,13 @@ export default function CheckoutPage() {
       router.push(`/order-confirmation?orderId=${orderId}&restaurantId=${restaurantId}`);
       
     } catch (error) {
-      console.error('Error submitting order:', error);
-      alert('Error submitting order. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error processing successful payment:', error);
+      alert('Payment succeeded but there was an error processing your order. Please contact support.');
     }
+  };
+
+  const handlePaymentError = (error: string) => {
+    alert(`Payment failed: ${error}`);
   };
 
   if (cart.length === 0) {
@@ -225,8 +272,9 @@ export default function CheckoutPage() {
         />
       </Head>
       
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto p-6">
+      <StripeProvider clientSecret={clientSecret || undefined}>
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-4xl mx-auto p-6">
         <TempNavigation />
         
         {/* Header */}
@@ -313,7 +361,7 @@ export default function CheckoutPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmitOrder} className="space-y-4">
+              <form onSubmit={handleInfoSubmit} className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Full Name</label>
@@ -417,9 +465,19 @@ export default function CheckoutPage() {
               </form>
             </CardContent>
           </Card>
+          ) : (
+            /* Payment Form */
+            <PaymentForm
+              amount={getCartTotal() + (getCartTotal() * 0.13) + 2.99}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+              customerInfo={customerInfo}
+            />
+          )}
         </div>
-      </div>
-    </div>
+        </div>
+        </div>
+      </StripeProvider>
     </>
   );
 }
