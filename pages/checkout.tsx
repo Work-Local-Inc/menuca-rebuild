@@ -87,7 +87,13 @@ export default function CheckoutPage() {
     const initializeAddressComplete = () => {
       if (window.pca && addressInputRef.current) {
         try {
-          const apiKey = process.env.NEXT_PUBLIC_CANADA_POST_API_KEY || 'DN79-CD57-NR86-YW85';
+          const apiKey = process.env.NEXT_PUBLIC_CANADA_POST_API_KEY;
+          
+          if (!apiKey) {
+            console.warn('Canada Post API key not configured');
+            setAddressApiError('Address suggestions temporarily unavailable. Please enter your address manually.');
+            return;
+          }
           
           const options = {
             key: apiKey,
