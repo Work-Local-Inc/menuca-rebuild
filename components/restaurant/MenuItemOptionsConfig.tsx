@@ -31,8 +31,8 @@ export const MenuItemOptionsConfig: React.FC<MenuItemOptionsConfigProps> = ({
   onSave,
   onCancel
 }) => {
-  const [config, setConfig] = useState<MenuItemOption>(
-    options || {
+  // Create default config structure
+  const defaultConfig: MenuItemOption = {
       sizes: [
         { id: 'small', name: 'Small', diameter: '10"', slices: 6, price_modifier: 1.0, is_available: true },
         { id: 'medium', name: 'Medium', diameter: '12"', slices: 8, price_modifier: 1.3, is_available: true },
@@ -88,7 +88,21 @@ export const MenuItemOptionsConfig: React.FC<MenuItemOptionsConfigProps> = ({
         premium: 3.00,
         extra_cheese: 2.00
       }
-    }
+    };
+
+  const [config, setConfig] = useState<MenuItemOption>(
+    options ? {
+      sizes: options.sizes || defaultConfig.sizes,
+      crusts: options.crusts || defaultConfig.crusts,
+      sauces: options.sauces || defaultConfig.sauces,
+      toppings: options.toppings || defaultConfig.toppings,
+      customizations: options.customizations || defaultConfig.customizations,
+      allows_half_and_half: options.allows_half_and_half ?? defaultConfig.allows_half_and_half,
+      max_toppings: options.max_toppings ?? defaultConfig.max_toppings,
+      free_toppings_count: options.free_toppings_count ?? defaultConfig.free_toppings_count,
+      base_price_by_size: options.base_price_by_size || defaultConfig.base_price_by_size,
+      topping_pricing: options.topping_pricing || defaultConfig.topping_pricing
+    } : defaultConfig
   );
 
   const handleSave = () => {
