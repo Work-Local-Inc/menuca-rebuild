@@ -76,15 +76,32 @@ export default function CustomerMenuPage() {
     }
   }, [restaurantId]);
 
-  const loadMenus = () => {
+  const loadMenus = async () => {
     try {
-      // Load menus from localStorage (same as restaurant management)
-      const localMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-      console.log('Loading customer menus:', localMenus);
+      console.log('Loading customer menus for restaurant:', restaurantId);
       
-      setMenus(localMenus);
-      if (localMenus.length > 0) {
-        setSelectedMenu(localMenus[0]);
+      // Fetch menus from public API (no authentication required)
+      const response = await fetch(`/api/public/menu/${restaurantId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('API response:', data);
+        
+        if (data.success && data.data) {
+          setMenus(data.data);
+          if (data.data.length > 0) {
+            setSelectedMenu(data.data[0]);
+          }
+        } else {
+          console.error('API returned no menu data:', data);
+        }
+      } else {
+        console.error('Failed to fetch menus:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading menus:', error);
