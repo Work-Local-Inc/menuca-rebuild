@@ -57,6 +57,7 @@ export default function OrderConfirmationPage() {
 
   const loadOrder = () => {
     try {
+      if (typeof window === 'undefined') return; // Ensure localStorage is only accessed on client-side
       const orders = JSON.parse(localStorage.getItem(`orders_${restaurantId}`) || '[]');
       const foundOrder = orders.find((o: Order) => o.id === orderId);
       

@@ -1,8 +1,11 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const TempNavigation: React.FC = () => {
+  const router = useRouter();
+
   const routes = [
     { path: '/', label: '🏠 Home', description: 'Main dashboard/login' },
     { path: '/login', label: '🔐 Login', description: 'User authentication' },
@@ -30,13 +33,13 @@ export const TempNavigation: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => {
-                if (route.path === window.location.pathname) {
+                if (route.path === router.pathname) {
                   return; // Already on this page
                 }
-                window.location.href = route.path;
+                router.push(route.path);
               }}
               className={`text-xs h-8 ${
-                route.path === window.location.pathname 
+                route.path === router.pathname 
                   ? 'bg-blue-100 border-blue-300 text-blue-800' 
                   : 'hover:bg-white'
               }`}

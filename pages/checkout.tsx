@@ -52,6 +52,8 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return; // Ensure localStorage is only accessed on client-side
+
     // Get cart data from sessionStorage (passed from menu page)
     const cartData = sessionStorage.getItem('checkout_cart');
     const restaurantIdFromSession = sessionStorage.getItem('checkout_restaurant');

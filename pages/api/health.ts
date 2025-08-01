@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    // Simple health check response for Railway
+    // Simple health check response
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
