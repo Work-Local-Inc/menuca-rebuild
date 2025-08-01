@@ -352,121 +352,121 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
 
-          {/* Customer Information Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Delivery Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleInfoSubmit} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
+          {/* Conditional Rendering: Customer Information Form or Payment Form */}
+          {paymentStep === 'info' ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Delivery Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleInfoSubmit} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Full Name</label>
+                      <Input
+                        value={customerInfo.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        required
+                        placeholder="John Smith"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Phone Number</label>
+                      <Input
+                        type="tel"
+                        value={customerInfo.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        required
+                        placeholder="(416) 555-0123"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">Full Name</label>
+                    <label className="block text-sm font-medium mb-2">Email Address</label>
                     <Input
-                      value={customerInfo.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      type="email"
+                      value={customerInfo.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
                       required
-                      placeholder="John Smith"
+                      placeholder="john@example.ca"
                     />
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">Phone Number</label>
+                    <label className="block text-sm font-medium mb-2">Street Address</label>
                     <Input
-                      type="tel"
-                      value={customerInfo.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      ref={addressInputRef}
+                      value={customerInfo.address.street}
+                      onChange={(e) => handleInputChange('address.street', e.target.value)}
                       required
-                      placeholder="(416) 555-0123"
+                      placeholder="Start typing your address for suggestions..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      🍁 Start typing for Canada Post address suggestions
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">City</label>
+                      <Input
+                        value={customerInfo.address.city}
+                        onChange={(e) => handleInputChange('address.city', e.target.value)}
+                        required
+                        placeholder="Toronto"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Province</label>
+                      <Input
+                        value={customerInfo.address.province}
+                        onChange={(e) => handleInputChange('address.province', e.target.value)}
+                        required
+                        placeholder="ON"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Postal Code</label>
+                      <Input
+                        value={customerInfo.address.postalCode}
+                        onChange={(e) => handleInputChange('address.postalCode', e.target.value)}
+                        required
+                        placeholder="M5V 3A8"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Delivery Instructions (Optional)</label>
+                    <Input
+                      value={customerInfo.deliveryInstructions}
+                      onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
+                      placeholder="Buzzer #123, leave with concierge, etc."
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Email Address</label>
-                  <Input
-                    type="email"
-                    value={customerInfo.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    required
-                    placeholder="john@example.ca"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Street Address</label>
-                  <Input
-                    ref={addressInputRef}
-                    value={customerInfo.address.street}
-                    onChange={(e) => handleInputChange('address.street', e.target.value)}
-                    required
-                    placeholder="Start typing your address for suggestions..."
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    🍁 Start typing for Canada Post address suggestions
-                  </p>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">City</label>
-                    <Input
-                      value={customerInfo.address.city}
-                      onChange={(e) => handleInputChange('address.city', e.target.value)}
-                      required
-                      placeholder="Toronto"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Province</label>
-                    <Input
-                      value={customerInfo.address.province}
-                      onChange={(e) => handleInputChange('address.province', e.target.value)}
-                      required
-                      placeholder="ON"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Postal Code</label>
-                    <Input
-                      value={customerInfo.address.postalCode}
-                      onChange={(e) => handleInputChange('address.postalCode', e.target.value)}
-                      required
-                      placeholder="M5V 3A8"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Delivery Instructions (Optional)</label>
-                  <Input
-                    value={customerInfo.deliveryInstructions}
-                    onChange={(e) => handleInputChange('deliveryInstructions', e.target.value)}
-                    placeholder="Buzzer #123, leave with concierge, etc."
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    'Processing Order...'
-                  ) : (
-                    <>
-                      <CreditCard className="h-5 w-5 mr-2" />
-                      Place Order - {formatCurrency(getCartTotal() + (getCartTotal() * 0.13) + 2.99)}
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-lg"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      'Processing Payment Intent...'
+                    ) : (
+                      <>
+                        <CreditCard className="h-5 w-5 mr-2" />
+                        Continue to Payment - {formatCurrency(getCartTotal() + (getCartTotal() * 0.13) + 2.99)}
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           ) : (
-            /* Payment Form */
             <PaymentForm
               amount={getCartTotal() + (getCartTotal() * 0.13) + 2.99}
               onSuccess={handlePaymentSuccess}
