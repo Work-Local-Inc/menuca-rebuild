@@ -16,15 +16,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { access_token } = req.cookies;
+    const { auth_token, user_data } = req.cookies;
 
-    if (!access_token) {
+    if (!auth_token || !user_data) {
       return res.status(401).json({
         error: 'No access token found',
         code: 'NO_TOKEN'
       });
     }
 
+    // DEMO MODE: Return user from cookie
+    // TODO: Replace with real JWT verification when backend is deployed
+    try {
+      const user = JSON.parse(user_data);
+      return res.status(200).json({
+        success: true,
+        data: { user }
+      });
+    } catch (parseError) {
+      return res.status(401).json({
+        error: 'Invalid user data',
+        code: 'INVALID_USER_DATA'
+      });
+    }
+
+    /* ORIGINAL JWT VERIFICATION CODE - Commented out for demo mode
     // Verify the JWT token
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
@@ -33,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     let decoded: JWTPayload;
     try {
-      decoded = jwt.verify(access_token, jwtSecret) as JWTPayload;
+      decoded = jwt.verify(auth_token, jwtSecret) as JWTPayload;
     } catch (jwtError) {
       return res.status(401).json({
         error: 'Invalid or expired token',
@@ -46,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await fetch(`${backendUrl}/api/auth/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${access_token}`,
+        'Authorization': `Bearer ${auth_token}`,
         'Content-Type': 'application/json',
       },
     });
