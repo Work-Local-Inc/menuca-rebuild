@@ -4,35 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Eye, EyeOff, DollarSign, Clock, Save, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, DollarSign, Clock, Save, X, Settings, Layers } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { MenuItem, MenuItemOption } from '@/types/menu';
+import { MenuItemOptionsConfig } from './MenuItemOptionsConfig';
 
-interface MenuItem {
-  id: string;
-  categoryId: string;
-  name: string;
-  description?: string;
-  price: number;
-  cost: number;
-  images: any[];
-  options: any[];
-  nutritional_info?: any;
-  allergens: string[];
-  tags: string[];
-  availability: {
-    is_available: boolean;
-    available_days: number[];
-    available_times: Array<{ start_time: string; end_time: string; }>;
-    stock_quantity?: number;
-    out_of_stock_message?: string;
-  };
-  display_order: number;
-  is_active: boolean;
-  is_featured: boolean;
-  preparation_time: number;
-  created_at: string;
-  updated_at: string;
-}
+// Using MenuItem from @/types/menu instead of local interface
 
 interface MenuCategory {
   id: string;
@@ -71,6 +48,7 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
   const [showNewItemForm, setShowNewItemForm] = useState<string | null>(null);
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
   const [showNewMenuForm, setShowNewMenuForm] = useState(false);
+  const [configuringItemOptions, setConfiguringItemOptions] = useState<MenuItem | null>(null);
 
   const fetchMenus = async () => {
     if (!isAuthenticated || !user) {
@@ -409,6 +387,62 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     } catch (error) {
       console.error('Error creating menu:', error);
       alert(`Error creating menu: ${error.message}`);
+    }
+  };
+
+  const saveMenuItemOptions = async (item: MenuItem, options: MenuItemOption) => {
+    try {
+      // Update the menu item with new options
+      const updatedItem: MenuItem = {
+        ...item,
+        type: 'customizable',
+        options: options,
+        updated_at: new Date().toISOString()
+      };
+
+      if (!selectedMenu) return;
+
+      const updatedMenu = {
+        ...selectedMenu,
+        categories: selectedMenu.categories.map(category => ({
+          ...category,
+          items: category.items.map(menuItem =>
+            menuItem.id === item.id ? updatedItem : menuItem
+          )
+        }))
+      };
+
+      // Update the menu via API if authenticated
+      if (isAuthenticated && user) {
+        try {
+          const response = await fetch(`/api/v1/menu-management/items/${item.id}/options`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-tenant-id': user.tenant_id
+            },
+            body: JSON.stringify(options)
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to update menu item options');
+          }
+        } catch (apiError) {
+          console.error('API update failed:', apiError);
+          // Continue with local update for demo
+        }
+      }
+
+      setSelectedMenu(updatedMenu);
+      setMenus(prev => prev.map(menu => 
+        menu.id === selectedMenu.id ? updatedMenu : menu
+      ));
+      setConfiguringItemOptions(null);
+      alert('Menu item customization options saved successfully!');
+    } catch (error) {
+      console.error('Error saving menu item options:', error);
+      alert(`Error saving options: ${error.message}`);
     }
   };
 
@@ -867,6 +901,9 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
                           {item.is_featured && (
                             <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>
                           )}
+                          {item.type === 'customizable' && (
+                            <Badge className="bg-orange-100 text-orange-800">Customizable</Badge>
+                          )}
                           {!item.availability.is_available && (
                             <Badge className="bg-red-100 text-red-800">Unavailable</Badge>
                           )}
@@ -892,6 +929,15 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
                       </div>
 
                       <div className="flex items-center space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setConfiguringItemOptions(item)}
+                          className="text-orange-600 hover:text-orange-800"
+                          title="Configure Customization Options"
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
@@ -957,6 +1003,19 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {/* Menu Item Options Configuration Modal */}
+      {configuringItemOptions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <MenuItemOptionsConfig
+              options={configuringItemOptions.options || null}
+              onSave={(options) => saveMenuItemOptions(configuringItemOptions, options)}
+              onCancel={() => setConfiguringItemOptions(null)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -33,12 +33,19 @@ interface CustomerInfo {
   name: string;
   phone: string;
   email: string;
-  address: {
+  deliveryAddress: {
     street: string;
     city: string;
     province: string;
     postalCode: string;
   };
+  billingAddress: {
+    street: string;
+    city: string;
+    province: string;
+    postalCode: string;
+  };
+  sameAsBilling: boolean;
   deliveryInstructions: string;
 }
 
