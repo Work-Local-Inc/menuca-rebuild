@@ -38,7 +38,35 @@ const getDemoMenus = (restaurantId: string): RestaurantMenu[] => [
             price: 18.99,
             cost: 7.50,
             images: [],
-            options: {},
+            options: {
+              sizes: [
+                { id: 'small', name: 'Small', diameter: '10"', price_modifier: 1.0, is_available: true },
+                { id: 'medium', name: 'Medium', diameter: '12"', price_modifier: 1.3, is_available: true },
+                { id: 'large', name: 'Large', diameter: '14"', price_modifier: 1.6, is_available: true },
+                { id: 'xlarge', name: 'X-Large', diameter: '16"', price_modifier: 2.0, is_available: true }
+              ],
+              crusts: [
+                { id: 'classic', name: 'Classic Hand-Tossed', description: 'Our signature dough', price_modifier: 0, is_available: true },
+                { id: 'thin', name: 'Thin & Crispy', description: 'Ultra-thin crust', price_modifier: 0, is_available: true },
+                { id: 'thick', name: 'Thick Pan', description: 'Deep dish style', price_modifier: 1.5, is_available: true },
+                { id: 'gluten_free', name: 'Gluten-Free', description: 'Certified gluten-free', price_modifier: 3.0, is_available: true }
+              ],
+              sauces: [
+                { id: 'tomato', name: 'Classic Tomato', description: 'Traditional pizza sauce', price_modifier: 0, is_available: true },
+                { id: 'white', name: 'Garlic White Sauce', description: 'Creamy garlic base', price_modifier: 0.5, is_available: true },
+                { id: 'bbq', name: 'BBQ Sauce', description: 'Sweet and tangy', price_modifier: 0.5, is_available: true },
+                { id: 'pesto', name: 'Basil Pesto', description: 'Fresh basil and pine nuts', price_modifier: 1.0, is_available: true }
+              ],
+              toppings: [
+                { id: 'pepperoni', name: 'Pepperoni', category: 'meat', price_modifier: 1.5, is_available: true },
+                { id: 'sausage', name: 'Italian Sausage', category: 'meat', price_modifier: 1.5, is_available: true },
+                { id: 'bacon', name: 'Crispy Bacon', category: 'meat', price_modifier: 2.0, is_available: true },
+                { id: 'mushrooms', name: 'Mushrooms', category: 'vegetable', price_modifier: 1.0, is_available: true },
+                { id: 'peppers', name: 'Bell Peppers', category: 'vegetable', price_modifier: 1.0, is_available: true },
+                { id: 'onions', name: 'Red Onions', category: 'vegetable', price_modifier: 0.5, is_available: true },
+                { id: 'extra_mozzarella', name: 'Extra Mozzarella', category: 'cheese', price_modifier: 1.5, is_available: true }
+              ]
+            },
             nutritional_info: {},
             allergens: ['dairy', 'gluten'],
             tags: ['vegetarian', 'classic'],
@@ -64,7 +92,35 @@ const getDemoMenus = (restaurantId: string): RestaurantMenu[] => [
             price: 21.99,
             cost: 8.50,
             images: [],
-            options: {},
+            options: {
+              sizes: [
+                { id: 'small', name: 'Small', diameter: '10"', price_modifier: 1.0, is_available: true },
+                { id: 'medium', name: 'Medium', diameter: '12"', price_modifier: 1.3, is_available: true },
+                { id: 'large', name: 'Large', diameter: '14"', price_modifier: 1.6, is_available: true },
+                { id: 'xlarge', name: 'X-Large', diameter: '16"', price_modifier: 2.0, is_available: true }
+              ],
+              crusts: [
+                { id: 'classic', name: 'Classic Hand-Tossed', description: 'Our signature dough', price_modifier: 0, is_available: true },
+                { id: 'thin', name: 'Thin & Crispy', description: 'Ultra-thin crust', price_modifier: 0, is_available: true },
+                { id: 'thick', name: 'Thick Pan', description: 'Deep dish style', price_modifier: 1.5, is_available: true },
+                { id: 'gluten_free', name: 'Gluten-Free', description: 'Certified gluten-free', price_modifier: 3.0, is_available: true }
+              ],
+              sauces: [
+                { id: 'tomato', name: 'Classic Tomato', description: 'Traditional pizza sauce', price_modifier: 0, is_available: true },
+                { id: 'white', name: 'Garlic White Sauce', description: 'Creamy garlic base', price_modifier: 0.5, is_available: true },
+                { id: 'bbq', name: 'BBQ Sauce', description: 'Sweet and tangy', price_modifier: 0.5, is_available: true },
+                { id: 'pesto', name: 'Basil Pesto', description: 'Fresh basil and pine nuts', price_modifier: 1.0, is_available: true }
+              ],
+              toppings: [
+                { id: 'pepperoni', name: 'Pepperoni', category: 'meat', price_modifier: 1.5, is_available: true },
+                { id: 'sausage', name: 'Italian Sausage', category: 'meat', price_modifier: 1.5, is_available: true },
+                { id: 'bacon', name: 'Crispy Bacon', category: 'meat', price_modifier: 2.0, is_available: true },
+                { id: 'mushrooms', name: 'Mushrooms', category: 'vegetable', price_modifier: 1.0, is_available: true },
+                { id: 'peppers', name: 'Bell Peppers', category: 'vegetable', price_modifier: 1.0, is_available: true },
+                { id: 'onions', name: 'Red Onions', category: 'vegetable', price_modifier: 0.5, is_available: true },
+                { id: 'extra_mozzarella', name: 'Extra Mozzarella', category: 'cheese', price_modifier: 1.5, is_available: true }
+              ]
+            },
             nutritional_info: {},
             allergens: ['dairy', 'gluten'],
             tags: ['classic', 'popular'],
