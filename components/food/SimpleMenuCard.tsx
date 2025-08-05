@@ -28,6 +28,19 @@ export interface SimpleMenuCardProps extends LocalBusinessProps {
   onAddToCart?: () => void;
   onCustomize?: () => void;
   className?: string;
+  
+  // Enhanced local business features (inspired by Uber Eats)
+  deliveryFee?: number;
+  deliveryTime?: string; // "15-25 min"
+  distance?: string; // "0.8 km"
+  restaurantName?: string;
+  minOrderAmount?: number;
+  isFeatured?: boolean;
+  rankingBadge?: string; // "#1 most liked", "Best seller", etc.
+  closingTime?: string; // "Closes at 9:00 PM"
+  isClosingSoon?: boolean;
+  availability?: 'open' | 'closing_soon' | 'closed';
+  promoText?: string; // "Save $5 on orders $25+"
 }
 
 export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
