@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, ShoppingCart, Clock, DollarSign } from 'lucide-react';
 import { TempNavigation } from '@/components/TempNavigation';
+import { MenuItemCustomization } from '@/components/customer/MenuItemCustomization';
 
 interface MenuItem {
   id: string;
@@ -59,6 +60,8 @@ interface RestaurantMenu {
 interface CartItem {
   menuItem: MenuItem;
   quantity: number;
+  customization?: any;
+  finalPrice?: number;
 }
 
 export default function CustomerMenuPage() {
@@ -69,6 +72,7 @@ export default function CustomerMenuPage() {
   const [selectedMenu, setSelectedMenu] = useState<RestaurantMenu | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     if (restaurantId) {
@@ -111,11 +115,14 @@ export default function CustomerMenuPage() {
   };
 
   const addToCart = (item: MenuItem) => {
+    // For simple items without customization options
     setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.menuItem.id === item.id);
+      const existingItem = prevCart.find(cartItem => 
+        cartItem.menuItem.id === item.id && !cartItem.customization
+      );
       if (existingItem) {
         return prevCart.map(cartItem =>
-          cartItem.menuItem.id === item.id
+          cartItem.menuItem.id === item.id && !cartItem.customization
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
@@ -123,6 +130,20 @@ export default function CustomerMenuPage() {
         return [...prevCart, { menuItem: item, quantity: 1 }];
       }
     });
+  };
+
+  const addCustomizedToCart = (item: MenuItem, customization: any, finalPrice: number) => {
+    // For customized items, always add as new item (each customization is unique)
+    setCart(prevCart => [
+      ...prevCart, 
+      { 
+        menuItem: item, 
+        quantity: 1, 
+        customization, 
+        finalPrice 
+      }
+    ]);
+    setCustomizingItem(null);
   };
 
   const removeFromCart = (item: MenuItem) => {
@@ -147,7 +168,8 @@ export default function CustomerMenuPage() {
 
   const getCartTotal = (): number => {
     return cart.reduce((total, cartItem) => {
-      return total + (cartItem.menuItem.price * cartItem.quantity);
+      const itemPrice = cartItem.finalPrice || cartItem.menuItem.price;
+      return total + (itemPrice * cartItem.quantity);
     }, 0);
   };
 
@@ -156,6 +178,14 @@ export default function CustomerMenuPage() {
       style: 'currency',
       currency: 'CAD'
     }).format(amount);
+  };
+
+  const hasCustomizationOptions = (item: MenuItem): boolean => {
+    return item.options && (
+      (item.options.sizes && item.options.sizes.length > 1) ||
+      (item.options.crusts && item.options.crusts.length > 1) ||
+      (item.options.toppings && item.options.toppings.length > 0)
+    );
   };
 
   if (loading) {
@@ -283,7 +313,16 @@ export default function CustomerMenuPage() {
                               {formatCurrency(item.price)}
                             </span>
                             
-                            {quantityInCart === 0 ? (
+                            {hasCustomizationOptions(item) ? (
+                              <Button
+                                onClick={() => setCustomizingItem(item)}
+                                className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700"
+                                size="sm"
+                              >
+                                <Plus className="h-4 w-4" />
+                                Customize
+                              </Button>
+                            ) : quantityInCart === 0 ? (
                               <Button
                                 onClick={() => addToCart(item)}
                                 className="flex items-center gap-2"
@@ -332,6 +371,15 @@ export default function CustomerMenuPage() {
           </div>
         )}
       </div>
+
+      {/* Customization Modal */}
+      {customizingItem && (
+        <MenuItemCustomization
+          item={customizingItem}
+          onClose={() => setCustomizingItem(null)}
+          onAddToCart={addCustomizedToCart}
+        />
+      )}
     </div>
   );
 }
