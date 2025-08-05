@@ -27,6 +27,19 @@ export interface SimpleMenuCardProps {
   onAddToCart?: () => void;
   onCustomize?: () => void;
   className?: string;
+  
+  // Enhanced local business features (inspired by Uber Eats)
+  deliveryFee?: number;
+  deliveryTime?: string; // "15-25 min"
+  distance?: string; // "0.8 km"
+  restaurantName?: string;
+  minOrderAmount?: number;
+  isFeatured?: boolean;
+  rankingBadge?: string; // "#1 most liked", "Best seller", etc.
+  closingTime?: string; // "Closes at 9:00 PM"
+  isClosingSoon?: boolean;
+  availability?: 'open' | 'closing_soon' | 'closed';
+  promoText?: string; // "Save $5 on orders $25+"
 }
 
 export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
@@ -45,7 +58,19 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
   hasCustomizations,
   onAddToCart,
   onCustomize,
-  className
+  className,
+  // Enhanced props
+  deliveryFee,
+  deliveryTime,
+  distance,
+  restaurantName,
+  minOrderAmount,
+  isFeatured,
+  rankingBadge,
+  closingTime,
+  isClosingSoon,
+  availability = 'open',
+  promoText
 }) => {
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-CA', {
@@ -71,8 +96,18 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
             </div>
           )}
           
-          {/* Badges on image */}
+          {/* Enhanced badges on image */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-1">
+            {isFeatured && (
+              <Badge className="bg-purple-600 text-white text-xs font-bold px-2 py-1 shadow-lg">
+                ⭐ Featured
+              </Badge>
+            )}
+            {rankingBadge && (
+              <Badge className="bg-orange-600 text-white text-xs font-bold px-2 py-1 shadow-lg">
+                {rankingBadge}
+              </Badge>
+            )}
             {isPopular && (
               <Badge className="bg-red-500 text-white text-xs font-medium px-2 py-1">
                 Popular
@@ -90,6 +125,19 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
               </Badge>
             )}
           </div>
+          
+          {/* Availability status */}
+          {availability !== 'open' && (
+            <div className="absolute top-3 right-3">
+              <Badge className={`text-xs font-medium px-2 py-1 ${
+                availability === 'closing_soon' 
+                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                  : 'bg-red-100 text-red-800 border border-red-300'
+              }`}>
+                {availability === 'closing_soon' ? 'Closing Soon' : 'Closed'}
+              </Badge>
+            </div>
+          )}
 
           {/* Rating overlay */}
           <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
@@ -101,6 +149,15 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
 
         {/* Content Section */}
         <div className="p-4">
+          {/* Restaurant name (if provided) */}
+          {restaurantName && (
+            <div className="mb-2">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                {restaurantName}
+              </span>
+            </div>
+          )}
+          
           {/* Title and description */}
           <div className="mb-3">
             <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-1">
@@ -110,6 +167,42 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
               {description}
             </p>
           </div>
+          
+          {/* Delivery info row (Uber Eats style) */}
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+            <div className="flex items-center gap-3">
+              {deliveryFee !== undefined && (
+                <span className={deliveryFee === 0 ? 'text-green-600 font-medium' : ''}>
+                  {deliveryFee === 0 ? 'Free delivery' : `$${deliveryFee.toFixed(2)} delivery`}
+                </span>
+              )}
+              {deliveryTime && (
+                <span>{deliveryTime}</span>
+              )}
+              {distance && (
+                <span>{distance}</span>
+              )}
+            </div>
+            {isClosingSoon && closingTime && (
+              <span className="text-orange-600 font-medium">
+                Closes {closingTime}
+              </span>
+            )}
+          </div>
+          
+          {/* Promotion banner */}
+          {promoText && (
+            <div className="bg-green-50 border border-green-200 rounded-md px-2 py-1 mb-3">
+              <span className="text-xs font-medium text-green-700">{promoText}</span>
+            </div>
+          )}
+          
+          {/* Minimum order notice */}
+          {minOrderAmount && (
+            <div className="text-xs text-gray-500 mb-3">
+              Minimum order: ${minOrderAmount}
+            </div>
+          )}
 
           {/* Prep time */}
           {preparationTime && (
