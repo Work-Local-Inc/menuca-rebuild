@@ -32,6 +32,7 @@ import {
   BarChart,
   Bar,
   PieChart as RechartsPieChart,
+  Pie,
   Cell,
   XAxis,
   YAxis,
@@ -654,7 +655,7 @@ export const CampaignAnalyticsDashboard: React.FC = () => {
                       cy="50%"
                       outerRadius={80}
                       dataKey="value"
-                      label={({ name, percentage }) => `${name}: ${percentage}%`}
+                      label={({ name, percentage }: { name: string; percentage: number }) => `${name}: ${percentage}%`}
                     >
                       {channelPerformance.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -709,7 +710,7 @@ export const CampaignAnalyticsDashboard: React.FC = () => {
                       cy="50%"
                       outerRadius={80}
                       dataKey="value"
-                      label={({ name, percentage }) => `${name}: ${percentage}%`}
+                      label={({ name, percentage }: { name: string; percentage: number }) => `${name}: ${percentage}%`}
                     >
                       {audienceSegments.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />

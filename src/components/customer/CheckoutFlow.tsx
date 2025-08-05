@@ -297,7 +297,7 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderCompl
                 {[0, 2, 3, 5].map(tip => (
                   <Button
                     key={tip}
-                    variant={orderData.tipAmount === tip ? "default" : "outline"}
+                    variant={orderData.tipAmount === tip ? "primary" : "outline"}
                     onClick={() => setOrderData({...orderData, tipAmount: tip})}
                     className="flex-1"
                   >

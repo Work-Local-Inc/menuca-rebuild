@@ -32,7 +32,7 @@ import {
   MousePointer,
   Move3d,
   Layers,
-  Grid3x3,
+  Grid,
   Palette
 } from 'lucide-react';
 import {
@@ -460,7 +460,7 @@ export const InteractiveDataVisualization: React.FC = () => {
         
         <div className="flex items-center gap-3">
           <Button
-            variant={isFullscreen ? "outline" : "default"}
+            variant={isFullscreen ? "outline" : "primary"}
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="flex items-center gap-2"
           >
@@ -494,7 +494,7 @@ export const InteractiveDataVisualization: React.FC = () => {
             {Object.values(ChartType).map((type) => (
               <Button
                 key={type}
-                variant={selectedChart === type ? "default" : "outline"}
+                variant={selectedChart === type ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setSelectedChart(type)}
                 className="w-full justify-start capitalize"
@@ -521,7 +521,7 @@ export const InteractiveDataVisualization: React.FC = () => {
             {CHART_THEMES.map((theme) => (
               <Button
                 key={theme.name}
-                variant={activeTheme.name === theme.name ? "default" : "outline"}
+                variant={activeTheme.name === theme.name ? "primary" : "outline"}
                 size="sm"
                 onClick={() => setActiveTheme(theme)}
                 className="w-full justify-start"
@@ -564,7 +564,7 @@ export const InteractiveDataVisualization: React.FC = () => {
                 size="sm"
                 onClick={() => setShowGrid(!showGrid)}
               >
-                {showGrid ? <Grid3x3 className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                {showGrid ? <Grid className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
               </Button>
             </div>
             <div className="flex items-center justify-between">
