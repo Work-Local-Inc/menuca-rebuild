@@ -124,6 +124,7 @@ const MenuCardDemo: React.FC = () => {
             <CompactMenuCard
               key={item.id}
               {...item}
+              // Demo: Log actions to console for testing purposes
               onAddToCart={() => console.log(`Adding ${item.name} to cart`)}
               onCustomize={() => console.log(`Customizing ${item.name}`)}
             />
@@ -136,6 +137,7 @@ const MenuCardDemo: React.FC = () => {
             <SimpleMenuCard
               key={item.id}
               {...item}
+              // Demo: Log actions to console for testing purposes
               onAddToCart={() => console.log(`Adding ${item.name} to cart`)}
               onCustomize={() => console.log(`Customizing ${item.name}`)}
             />
