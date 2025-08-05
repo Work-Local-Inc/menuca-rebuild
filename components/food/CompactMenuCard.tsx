@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, Clock, Leaf } from 'lucide-react';
 import { SimpleMenuCardProps } from './SimpleMenuCard';
+import { formatPrice, getAvailabilityStyle } from './menuCardUtils';
 
 export const CompactMenuCard: React.FC<SimpleMenuCardProps> = ({
   id,
@@ -40,12 +41,7 @@ export const CompactMenuCard: React.FC<SimpleMenuCardProps> = ({
   availability = 'open',
   promoText
 }) => {
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD'
-    }).format(amount);
-  };
+  const availabilityStyle = getAvailabilityStyle(availability);
 
   return (
     <Card className={`group hover:shadow-md transition-all duration-200 border border-gray-200 bg-white ${className}`}>
@@ -106,12 +102,8 @@ export const CompactMenuCard: React.FC<SimpleMenuCardProps> = ({
               <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                 {isVegetarian && <Leaf className="w-3 h-3 text-green-500" />}
                 {isSpicy && <span className="text-xs">🌶️</span>}
-                {availability !== 'open' && (
-                  <Badge className={`text-xs font-bold px-1.5 py-0.5 ${
-                    availability === 'closing_soon' 
-                      ? 'bg-yellow-500 text-white' 
-                      : 'bg-red-600 text-white'
-                  }`}>
+                {availabilityStyle && (
+                  <Badge className={`${availabilityStyle.className.replace('px-2 py-1', 'px-1.5 py-0.5')}`}>
                     {availability === 'closing_soon' ? '⏰' : '🔒'}
                   </Badge>
                 )}

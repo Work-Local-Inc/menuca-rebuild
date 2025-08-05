@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Star, Clock, Leaf } from 'lucide-react';
+import { formatPrice, LocalBusinessProps, badgeStyles, getAvailabilityStyle } from './menuCardUtils';
 
-export interface SimpleMenuCardProps {
+export interface SimpleMenuCardProps extends LocalBusinessProps {
   id: string;
   name: string;
   description: string;
@@ -72,12 +73,7 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
   availability = 'open',
   promoText
 }) => {
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD'
-    }).format(amount);
-  };
+  const availabilityStyle = getAvailabilityStyle(availability);
 
   return (
     <Card className={`group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-white ${className}`}>
@@ -99,42 +95,38 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
           {/* Enhanced badges on image */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-1">
             {isFeatured && (
-              <Badge className="bg-purple-600 text-white text-xs font-bold px-2 py-1 shadow-lg">
+              <Badge className={badgeStyles.featured}>
                 ⭐ Featured
               </Badge>
             )}
             {rankingBadge && (
-              <Badge className="bg-orange-600 text-white text-xs font-bold px-2 py-1 shadow-lg">
+              <Badge className={badgeStyles.ranking}>
                 {rankingBadge}
               </Badge>
             )}
             {isPopular && (
-              <Badge className="bg-red-500 text-white text-xs font-medium px-2 py-1">
+              <Badge className={badgeStyles.popular}>
                 Popular
               </Badge>
             )}
             {isVegetarian && (
-              <Badge className="bg-green-500 text-white text-xs font-medium px-2 py-1 flex items-center gap-1">
+              <Badge className={badgeStyles.vegetarian}>
                 <Leaf className="w-3 h-3" />
                 Veg
               </Badge>
             )}
             {isSpicy && (
-              <Badge className="bg-orange-500 text-white text-xs font-medium px-2 py-1">
+              <Badge className={badgeStyles.spicy}>
                 🌶️ Spicy
               </Badge>
             )}
           </div>
           
           {/* Availability status */}
-          {availability !== 'open' && (
+          {availabilityStyle && (
             <div className="absolute top-3 right-3">
-              <Badge className={`text-xs font-bold px-2 py-1 shadow-lg ${
-                availability === 'closing_soon' 
-                  ? 'bg-yellow-500 text-white' 
-                  : 'bg-red-600 text-white'
-              }`}>
-                {availability === 'closing_soon' ? 'Closing Soon' : 'Closed'}
+              <Badge className={availabilityStyle.className}>
+                {availabilityStyle.text}
               </Badge>
             </div>
           )}
@@ -191,7 +183,7 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
           </div>
           
           {/* Promotion banner */}
-          {promoText && (
+          {promoText && availability === 'open' && (
             <div className="bg-green-50 border border-green-200 rounded-md px-2 py-1 mb-3">
               <span className="text-xs font-medium text-green-700">{promoText}</span>
             </div>
