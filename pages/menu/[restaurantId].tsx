@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, ShoppingCart, Clock, DollarSign } from 'lucide-react';
 import { TempNavigation } from '@/components/TempNavigation';
 import { MenuItemCustomization } from '@/components/customer/MenuItemCustomization';
-import { MenuCard } from '@/components/food/MenuCard';
+import { SimpleMenuCard } from '@/components/food/SimpleMenuCard';
 
 interface MenuItem {
   id: string;
@@ -264,28 +264,20 @@ export default function CustomerMenuPage() {
                     const quantityInCart = getItemQuantityInCart(item);
                     
                     return (
-                      <MenuCard
+                      <SimpleMenuCard
                         key={item.id}
                         id={item.id}
                         name={item.name}
-                        description={item.description || ''}
+                        description={item.description || 'Delicious and freshly prepared'}
                         price={item.price}
-                        originalPrice={item.price * 1.2} // Show slight discount effect
-                        image={item.images?.[0] || '/placeholder-food.jpg'}
-                        category={category.name}
-                        dietaryInfo={{
-                          isVegetarian: item.tags.includes('vegetarian'),
-                          isVegan: item.tags.includes('vegan'),
-                          isGlutenFree: item.tags.includes('gluten-free'),
-                          isSpicy: item.tags.includes('spicy'),
-                          allergens: item.allergens
-                        }}
+                        originalPrice={item.price * 1.15} // Show slight discount effect
+                        image={item.images?.[0]}
                         preparationTime={item.preparation_time}
                         rating={4.5}
                         reviewCount={Math.floor(Math.random() * 100) + 20}
                         isPopular={item.is_featured}
-                        isAvailable={item.availability.is_available}
-                        badges={item.is_featured ? ['Featured'] : []}
+                        isVegetarian={item.tags.includes('vegetarian')}
+                        isSpicy={item.tags.includes('spicy')}
                         hasCustomizations={hasCustomizationOptions(item)}
                         onAddToCart={() => {
                           if (hasCustomizationOptions(item)) {
@@ -295,7 +287,7 @@ export default function CustomerMenuPage() {
                           }
                         }}
                         onCustomize={() => setCustomizingItem(item)}
-                        className="transform hover:scale-[1.02] transition-all duration-200"
+                        className="transform hover:scale-[1.02] transition-all duration-300"
                       />
                     );
                   })}
