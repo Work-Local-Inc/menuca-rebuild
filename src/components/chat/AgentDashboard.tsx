@@ -342,7 +342,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
           {/* Status Controls */}
           <div className="flex items-center space-x-2">
             <Button
-              variant={agentStatus === 'online' ? 'default' : 'outline'}
+              variant={agentStatus === 'online' ? 'primary' : 'outline'}
               size="sm"
               onClick={() => updateStatus('online')}
               className="flex items-center gap-1"
@@ -351,7 +351,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               Online
             </Button>
             <Button
-              variant={agentStatus === 'away' ? 'default' : 'outline'}
+              variant={agentStatus === 'away' ? 'primary' : 'outline'}
               size="sm"
               onClick={() => updateStatus('away')}
               className="flex items-center gap-1"
@@ -360,7 +360,7 @@ export const AgentDashboard: React.FC<AgentDashboardProps> = ({
               Away
             </Button>
             <Button
-              variant={agentStatus === 'busy' ? 'default' : 'outline'}
+              variant={agentStatus === 'busy' ? 'primary' : 'outline'}
               size="sm"
               onClick={() => updateStatus('busy')}
               className="flex items-center gap-1"

@@ -1,8 +1,8 @@
-# MenuCA Rebuild - Phase 1 Foundation
+# MenuCA Rebuild – Phase 1 Foundation
 
 Multi-tenant SaaS platform for restaurant management with PostgreSQL + Redis + TypeScript.
 
-<!-- CodeRabbit Test: Testing AI code review capabilities with restaurant CMS components -->
+<!-- Environment Variables Fixed: Updated Vercel deployment to include all required Supabase environment variables -->
 
 ## 🏗️ Phase 1 Foundation Complete
 

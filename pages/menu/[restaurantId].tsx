@@ -182,8 +182,9 @@ export default function CustomerMenuPage() {
 
   const hasCustomizationOptions = (item: MenuItem): boolean => {
     return item.options && (
-      (item.options.sizes && item.options.sizes.length > 1) ||
-      (item.options.crusts && item.options.crusts.length > 1) ||
+      (item.options.sizes && item.options.sizes.length > 0) ||
+      (item.options.crusts && item.options.crusts.length > 0) ||
+      (item.options.sauces && item.options.sauces.length > 0) ||
       (item.options.toppings && item.options.toppings.length > 0)
     );
   };
