@@ -162,14 +162,14 @@ router.get('/restaurant/:restaurantId',
       
       const menus = menusResult.rows.map(mapRowToMenu);
       
-      res.json({
+      return res.json({
         success: true,
         data: menus
       });
       
     } catch (error) {
       logger.error('Error fetching restaurant menus:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to fetch restaurant menus'
       });
@@ -254,14 +254,14 @@ router.post('/restaurant/:restaurantId/menus',
       
       logger.info(`Menu created: ${menuId} for restaurant ${restaurantId}`);
       
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: menu
       });
       
     } catch (error) {
       logger.error('Error creating menu:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to create menu'
       });
@@ -332,14 +332,14 @@ router.put('/menus/:menuId',
       
       logger.info(`Menu updated: ${menuId}`);
       
-      res.json({
+      return res.json({
         success: true,
         data: menu
       });
       
     } catch (error) {
       logger.error('Error updating menu:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update menu'
       });
@@ -419,14 +419,14 @@ router.post('/menus/:menuId/categories',
       
       logger.info(`Menu category created: ${categoryId} in menu ${menuId}`);
       
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: category
       });
       
     } catch (error) {
       logger.error('Error creating menu category:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to create menu category'
       });
@@ -495,9 +495,7 @@ router.post('/categories/:categoryId/items',
       const defaultAvailability: ItemAvailability = {
         is_available: true,
         available_days: [1, 2, 3, 4, 5, 6, 7], // All days
-        available_times: [{ start_time: '00:00', end_time: '23:59' }],
-        stock_quantity: null,
-        out_of_stock_message: null
+        available_times: [{ start_time: '00:00', end_time: '23:59' }]
       };
       
       const result = await client.query(`
@@ -532,14 +530,14 @@ router.post('/categories/:categoryId/items',
       
       logger.info(`Menu item created: ${itemId} in category ${categoryId}`);
       
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: menuItem
       });
       
     } catch (error) {
       logger.error('Error creating menu item:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to create menu item'
       });
@@ -623,14 +621,14 @@ router.put('/items/:itemId',
       
       logger.info(`Menu item updated: ${itemId}`);
       
-      res.json({
+      return res.json({
         success: true,
         data: menuItem
       });
       
     } catch (error) {
       logger.error('Error updating menu item:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update menu item'
       });
@@ -694,14 +692,14 @@ router.patch('/items/:itemId/availability',
       
       logger.info(`Menu item availability updated: ${itemId}`);
       
-      res.json({
+      return res.json({
         success: true,
         data: { availability: result.rows[0].availability }
       });
       
     } catch (error) {
       logger.error('Error updating menu item availability:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update menu item availability'
       });
@@ -748,14 +746,14 @@ router.delete('/items/:itemId',
       
       logger.info(`Menu item soft deleted: ${itemId}`);
       
-      res.json({
+      return res.json({
         success: true,
         message: 'Menu item deleted successfully'
       });
       
     } catch (error) {
       logger.error('Error deleting menu item:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to delete menu item'
       });

@@ -1,5 +1,5 @@
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import { Pool } from 'pg';
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
@@ -244,7 +244,7 @@ export class ChatService {
       ]);
 
       // Cache session in Redis
-      await redis.set(
+      await cache.set(
         `${this.SESSION_PREFIX}${sessionId}`,
         JSON.stringify(session),
         this.SESSION_TTL
@@ -289,14 +289,14 @@ export class ChatService {
         `, [agent.id, sessionId]);
 
         // Update Redis cache
-        const sessionData = await redis.get(`${this.SESSION_PREFIX}${sessionId}`);
+        const sessionData = await cache.get(`${this.SESSION_PREFIX}${sessionId}`);
         if (sessionData) {
           const session = JSON.parse(sessionData);
           session.agent_id = agent.id;
           session.status = 'active';
           session.started_at = new Date().toISOString();
           
-          await redis.set(
+          await cache.set(
             `${this.SESSION_PREFIX}${sessionId}`,
             JSON.stringify(session),
             this.SESSION_TTL
@@ -393,9 +393,9 @@ export class ChatService {
     };
 
     if (status === 'offline') {
-      await redis.del(agentKey);
+      await cache.del(agentKey);
     } else {
-      await redis.set(agentKey, JSON.stringify(agentData), this.AGENT_PRESENCE_TTL);
+      await cache.set(agentKey, JSON.stringify(agentData), this.AGENT_PRESENCE_TTL);
     }
   }
 
@@ -403,12 +403,12 @@ export class ChatService {
     try {
       const pattern = `${this.AGENT_PREFIX}*`;
       // Note: In production, use SCAN instead of KEYS
-      const agentKeys = await redis.keys(pattern);
+      const agentKeys = await cache.keys(pattern);
       
       const agents: Agent[] = [];
       
       for (const key of agentKeys) {
-        const agentData = await redis.get(key);
+        const agentData = await cache.get(key);
         if (agentData) {
           const agent = JSON.parse(agentData);
           if (agent.status === 'online' && agent.current_chats < agent.max_concurrent_chats) {
@@ -431,10 +431,10 @@ export class ChatService {
 
   async addToQueue(session: ChatSession): Promise<void> {
     const queueKey = `${this.QUEUE_PREFIX}${session.tenant_id}`;
-    await redis.lpush(queueKey, session.id);
+    await cache.lpush(queueKey, session.id);
     
     // Update queue position
-    const position = await redis.lpos(queueKey, session.id);
+    const position = await cache.lpos(queueKey, session.id);
     session.queue_position = position || 0;
     
     // Estimate wait time (simple calculation: position * 5 minutes)
@@ -576,7 +576,7 @@ export class ChatService {
       `, [sessionId]);
 
       // Clean up Redis cache
-      await redis.del(`${this.SESSION_PREFIX}${sessionId}`);
+      await cache.del(`${this.SESSION_PREFIX}${sessionId}`);
     } finally {
       client.release();
     }

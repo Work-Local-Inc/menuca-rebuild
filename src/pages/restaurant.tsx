@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { OrderManagement } from '@/components/restaurant/OrderManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Restaurant {
   id: string;
@@ -9,15 +10,20 @@ interface Restaurant {
 }
 
 export default function RestaurantPage() {
+  const { user, isAuthenticated } = useAuth();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, skipping restaurant fetch');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('jwt_token');
-        
         // Mock restaurants for demo - in production this would fetch from API
         const mockRestaurants: Restaurant[] = [
           { id: 'restaurant-0', name: "Mario's Italian Kitchen" },
@@ -41,7 +47,18 @@ export default function RestaurantPage() {
     };
 
     fetchRestaurants();
-  }, []);
+  }, [isAuthenticated, user]);
+
+  // Show authentication required state
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">Please log in to access restaurant management</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

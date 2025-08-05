@@ -1,10 +1,50 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Context
+MenuCA is a multi-tenant SaaS platform for restaurant management. **CRITICAL:** We have an enterprise-grade backend (67 APIs) but amateur frontend using localStorage. 
 
-## Memory Bank Reference
+**Current Priority:** Replace localStorage with real backend APIs. Stop building toys when we have enterprise systems ready.
 
-**IMPORTANT**: Always refer to the MCP muscle memory bank for project context, previous decisions, and ongoing work status. The memory bank contains our comprehensive project history and should be consulted before making any significant decisions or recommendations.
+## Key References
+- `@docs/backend-api-inventory.md` - All 67 backend APIs ready to use
+- `@docs/implementation-status.md` - Current state vs reality  
+- `@docs/next-steps.md` - Action items with checkboxes
+- `FRONTEND_ARCHITECTURE_PLAN.md` - Complete integration plan
+
+## Deployment Architecture - SUPABASE + VERCEL STACK
+
+**CRITICAL WARNING**: This project uses SUPABASE + VERCEL deployment stack ONLY. Railway is NOT used in this project and should never be configured.
+
+### Deployment Stack
+- **Database**: Supabase PostgreSQL (https://fsjodpnptdbwaigzkmfl.supabase.co)
+- **Frontend/Backend**: Vercel with Next.js
+- **Configuration Files**: 
+  - `vercel.json` - Vercel deployment configuration
+  - `next.config.js` - Next.js configuration
+  - `lib/supabase.ts` - Supabase client configuration
+
+### Git Repository Status
+- **Repository**: `Work-Local-Inc/menuca-rebuild`
+- **Main Branch**: `main` 
+- **Deployment**: Automatic deployment to Vercel on push to main branch
+- **Database**: Supabase handles database hosting and management
+
+### Deployment Commands
+```bash
+# Deploy to Vercel (automatic on git push)
+git status && git add . && git commit -m "Deploy update" && git push origin main
+
+# Manual Vercel deployment (if needed)
+vercel --prod
+
+# Check Supabase connection
+npx supabase status
+```
+
+### Common Deployment Issues
+- Ensure environment variables are set in Vercel dashboard
+- Verify Supabase connection string in environment variables
+- Check build logs in Vercel dashboard for deployment failures
 
 ## Project Overview
 

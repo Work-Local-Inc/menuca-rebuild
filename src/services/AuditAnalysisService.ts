@@ -3,7 +3,7 @@
  * Provides intelligent threat detection and compliance monitoring
  */
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import winston from 'winston';
 import { Pool } from 'pg';
 

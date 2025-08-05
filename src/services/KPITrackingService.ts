@@ -3,7 +3,7 @@
  * Provides comprehensive KPI monitoring, threshold alerts, and performance scoring
  */
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import winston from 'winston';
 import { Pool } from 'pg';
 import { analyticsService, AnalyticsMetric, AnalyticsCategory } from './AnalyticsService';
@@ -231,7 +231,7 @@ export class KPITrackingService {
     const cacheKey = `${this.CACHE_PREFIX}list:${tenantId}:${category || 'all'}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -259,7 +259,7 @@ export class KPITrackingService {
       
       // Cache results
       try {
-        await redis.setex(cacheKey, this.CACHE_TTL, JSON.stringify(kpis));
+        await cache.set(cacheKey, JSON.stringify(kpis), this.CACHE_TTL);
       } catch (error) {
         logger.warn('Cache write failed for KPIs:', error);
       }

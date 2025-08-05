@@ -1,5 +1,5 @@
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import winston from 'winston';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
@@ -257,7 +257,7 @@ export class AnalyticsService {
     
     try {
       // Try cache first
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -318,7 +318,7 @@ export class AnalyticsService {
       
       // Cache results
       try {
-        await redis.set(cacheKey, JSON.stringify(trends), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(trends), this.CACHE_TTL);
       } catch (error) {
         console.warn('Failed to cache order trends:', error);
       }
@@ -340,7 +340,7 @@ export class AnalyticsService {
     const cacheKey = `${this.CACHE_PREFIX}customer_prefs:${tenantId}:${JSON.stringify(filters)}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -415,7 +415,7 @@ export class AnalyticsService {
       
       // Cache results
       try {
-        await redis.set(cacheKey, JSON.stringify(preferences), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(preferences), this.CACHE_TTL);
       } catch (error) {
         console.warn('Failed to cache customer preferences:', error);
       }
@@ -438,7 +438,7 @@ export class AnalyticsService {
     const cacheKey = `${this.CACHE_PREFIX}menu_performance:${tenantId}:${restaurantId}:${JSON.stringify(filters)}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -510,7 +510,7 @@ export class AnalyticsService {
       
       // Cache results
       try {
-        await redis.set(cacheKey, JSON.stringify(performance), this.CACHE_TTL);
+        await cache.set(cacheKey, JSON.stringify(performance), this.CACHE_TTL);
       } catch (error) {
         console.warn('Failed to cache menu performance:', error);
       }
@@ -532,7 +532,7 @@ export class AnalyticsService {
     const cacheKey = `${this.CACHE_PREFIX}financial_insights:${tenantId}:${JSON.stringify(filters)}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         const parsed = JSON.parse(cached);
         // Convert date strings back to Date objects
@@ -582,7 +582,7 @@ export class AnalyticsService {
     
     // Cache results
     try {
-      await redis.set(cacheKey, JSON.stringify(insights), this.CACHE_TTL);
+      await cache.set(cacheKey, JSON.stringify(insights), this.CACHE_TTL);
     } catch (error) {
       console.warn('Failed to cache financial insights:', error);
     }
@@ -762,7 +762,7 @@ export class AnalyticsService {
     const cacheKey = `${this.CACHE_PREFIX}advanced_metrics:${tenantId}:${category || 'all'}:${timeRange.start.getTime()}-${timeRange.end.getTime()}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -814,7 +814,7 @@ export class AnalyticsService {
 
       // Cache results
       try {
-        await redis.setex(cacheKey, this.CACHE_TTL, JSON.stringify(metrics));
+        await cache.set(cacheKey, JSON.stringify(metrics), this.CACHE_TTL);
       } catch (error) {
         logger.warn('Cache write failed for advanced analytics metrics:', error);
       }
@@ -1293,7 +1293,7 @@ export class AnalyticsService {
     const cacheKey = `${this.CACHE_PREFIX}advanced_insights:${tenantId}`;
     
     try {
-      const cached = await redis.get(cacheKey);
+      const cached = await cache.get(cacheKey);
       if (cached) {
         return JSON.parse(cached);
       }
@@ -1424,7 +1424,7 @@ export class AnalyticsService {
 
     // Cache insights
     try {
-      await redis.setex(cacheKey, this.INSIGHTS_CACHE_TTL, JSON.stringify(insights));
+      await cache.set(cacheKey, JSON.stringify(insights), this.INSIGHTS_CACHE_TTL);
     } catch (error) {
       logger.warn('Cache write failed for advanced insights:', error);
     }

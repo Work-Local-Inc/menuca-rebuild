@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { User, JWTPayload, AuthTokens, LoginRequest, RegisterRequest, AuthResponse, UserRole, UserStatus } from '@/types/auth';
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import { v4 as uuidv4 } from 'uuid';
 
 export class AuthService {
@@ -52,7 +52,7 @@ export class AuthService {
     );
 
     // Store refresh token in Redis with 7-day expiry
-    await redis.set(
+    await cache.set(
       `${this.REFRESH_TOKEN_PREFIX}${refreshTokenId}`,
       JSON.stringify({ userId: user.id, tenantId: user.tenant_id }),
       7 * 24 * 60 * 60 // 7 days in seconds
@@ -84,7 +84,7 @@ export class AuthService {
       const decoded = jwt.verify(token, this.JWT_REFRESH_SECRET) as JWTPayload & { tokenId: string };
       
       // Check if refresh token exists in Redis
-      const storedToken = await redis.get(`${this.REFRESH_TOKEN_PREFIX}${decoded.tokenId}`);
+      const storedToken = await cache.get(`${this.REFRESH_TOKEN_PREFIX}${decoded.tokenId}`);
       if (!storedToken) {
         throw new Error('Refresh token not found or expired');
       }
@@ -101,7 +101,7 @@ export class AuthService {
   async revokeRefreshToken(token: string): Promise<void> {
     try {
       const decoded = jwt.verify(token, this.JWT_REFRESH_SECRET) as JWTPayload & { tokenId: string };
-      await redis.del(`${this.REFRESH_TOKEN_PREFIX}${decoded.tokenId}`);
+      await cache.del(`${this.REFRESH_TOKEN_PREFIX}${decoded.tokenId}`);
     } catch (error) {
       // Token might already be invalid, but we don't need to throw
     }

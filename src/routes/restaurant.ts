@@ -178,7 +178,7 @@ router.get('/',
       const totalCount = parseInt(countResult.rows[0].count);
       const restaurants = dataResult.rows.map(mapRowToRestaurant);
       
-      res.json({
+      return res.json({
         success: true,
         data: restaurants,
         pagination: {
@@ -191,7 +191,7 @@ router.get('/',
       
     } catch (error) {
       logger.error('Error fetching restaurants:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to fetch restaurants'
       });
@@ -237,14 +237,14 @@ router.get('/:id',
       
       const restaurant = mapRowToRestaurant(result.rows[0]);
       
-      res.json({
+      return res.json({
         success: true,
         data: restaurant
       });
       
     } catch (error) {
       logger.error('Error fetching restaurant:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to fetch restaurant'
       });
@@ -348,14 +348,14 @@ router.post('/',
       
       logger.info(`Restaurant created: ${restaurantId} by user ${userId}`);
       
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         data: restaurant
       });
       
     } catch (error) {
       logger.error('Error creating restaurant:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to create restaurant'
       });
@@ -443,14 +443,14 @@ router.put('/:id',
       
       logger.info(`Restaurant updated: ${restaurantId}`);
       
-      res.json({
+      return res.json({
         success: true,
         data: restaurant
       });
       
     } catch (error) {
       logger.error('Error updating restaurant:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update restaurant'
       });
@@ -494,14 +494,14 @@ router.delete('/:id',
       
       logger.info(`Restaurant soft deleted: ${restaurantId}`);
       
-      res.json({
+      return res.json({
         success: true,
         message: 'Restaurant deleted successfully'
       });
       
     } catch (error) {
       logger.error('Error deleting restaurant:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to delete restaurant'
       });
@@ -552,14 +552,14 @@ router.patch('/:id/status',
       
       logger.info(`Restaurant status updated: ${restaurantId} -> ${status}`);
       
-      res.json({
+      return res.json({
         success: true,
         data: { status: result.rows[0].status }
       });
       
     } catch (error) {
       logger.error('Error updating restaurant status:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Failed to update restaurant status'
       });

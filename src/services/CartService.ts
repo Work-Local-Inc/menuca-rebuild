@@ -1,4 +1,4 @@
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import db from '@/database/connection';
 import { orderService } from '@/services/OrderService';
 import { Pool } from 'pg';
@@ -54,7 +54,7 @@ export class CartService {
     const cartKey = this.getCartKey(tenantId, userId);
     
     try {
-      const cartData = await redis.get(cartKey);
+      const cartData = await cache.get(cartKey);
       
       if (!cartData) {
         return null;
@@ -195,7 +195,7 @@ export class CartService {
     const cartKey = this.getCartKey(tenantId, userId);
     
     // Clear from Redis
-    await redis.del(cartKey);
+    await cache.del(cartKey);
     
     // Clear from database backup
     await this.clearCartFromDatabase(tenantId, userId);
@@ -252,7 +252,7 @@ export class CartService {
     const cartKey = this.getCartKey(tenantId, cart.userId);
     
     try {
-      await redis.set(cartKey, JSON.stringify(cart), this.CART_TTL);
+      await cache.set(cartKey, JSON.stringify(cart), this.CART_TTL);
     } catch (error) {
       console.error('Failed to save cart to Redis:', error);
       throw new Error('Failed to save cart');

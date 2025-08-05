@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, CreditCard, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CartItem {
   id: string;
@@ -24,11 +25,11 @@ interface Cart {
 }
 
 interface CheckoutFlowProps {
-  userId: string;
   onOrderComplete?: (orderId: string) => void;
 }
 
-export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderComplete }) => {
+export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ onOrderComplete }) => {
+  const { user, isAuthenticated } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'cart' | 'delivery' | 'payment' | 'confirmation'>('cart');
@@ -40,23 +41,36 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderCompl
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCart();
-  }, [userId]);
+    if (isAuthenticated && user) {
+      fetchCart();
+    }
+  }, [user, isAuthenticated]);
 
   const fetchCart = async () => {
+    if (!isAuthenticated || !user) {
+      console.log('User not authenticated, skipping cart fetch');
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('jwt_token');
       const response = await fetch(`/api/v1/cart`, {
+        method: 'GET',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         }
       });
 
       if (response.ok) {
         const data = await response.json() as { data: Cart };
-        setCart(data.data);
+        if (data.data) {
+          setCart(data.data);
+        }
+      } else if (response.status === 401) {
+        console.error('Authentication failed - user needs to login');
+      } else {
+        console.error('Failed to fetch cart:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching cart:', error);
@@ -76,12 +90,10 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderCompl
   };
 
   const handlePlaceOrder = async () => {
-    if (!cart || cart.items.length === 0) return;
+    if (!cart || cart.items.length === 0 || !isAuthenticated || !user) return;
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('jwt_token');
-      
       // Prepare order items
       const items = cart.items.map(item => ({
         menu_item_id: item.menuItemId,
@@ -92,13 +104,13 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderCompl
 
       const response = await fetch('/api/v1/orders', {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         },
         body: JSON.stringify({
-          customer_id: userId,
+          customer_id: user.id,
           restaurant_id: cart.restaurantId,
           items,
           delivery_address: orderData.deliveryAddress,
@@ -109,36 +121,48 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderCompl
 
       if (response.ok) {
         const orderResult = await response.json() as { data: { id: string } };
-        setCompletedOrderId(orderResult.data.id);
-        setStep('confirmation');
-        
-        // Clear cart after successful order
-        await clearCart();
-        
-        if (onOrderComplete) {
-          onOrderComplete(orderResult.data.id);
+        if (orderResult.data?.id) {
+          setCompletedOrderId(orderResult.data.id);
+          setStep('confirmation');
+          
+          // Clear cart after successful order
+          await clearCart();
+          
+          if (onOrderComplete) {
+            onOrderComplete(orderResult.data.id);
+          }
         }
+      } else if (response.status === 401) {
+        alert('Authentication failed. Please log in again.');
       } else {
-        console.error('Failed to place order');
+        const errorData = await response.json();
+        console.error('Failed to place order:', errorData);
+        alert('Failed to place order. Please try again.');
       }
     } catch (error) {
       console.error('Error placing order:', error);
+      alert('Error placing order. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const clearCart = async () => {
+    if (!isAuthenticated || !user) return;
+
     try {
-      const token = localStorage.getItem('jwt_token');
-      await fetch(`/api/v1/cart/clear`, {
+      const response = await fetch(`/api/v1/cart/clear`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'x-tenant-id': 'default-tenant'
+          'x-tenant-id': user.tenant_id
         }
       });
+
+      if (!response.ok && response.status !== 401) {
+        console.error('Failed to clear cart:', response.statusText);
+      }
     } catch (error) {
       console.error('Error clearing cart:', error);
     }
@@ -150,6 +174,19 @@ export const CheckoutFlow: React.FC<CheckoutFlowProps> = ({ userId, onOrderCompl
       currency: 'USD'
     }).format(amount);
   };
+
+  // Show authentication required state
+  if (!isAuthenticated) {
+    return (
+      <Card className="max-w-md mx-auto">
+        <CardContent className="flex flex-col items-center justify-center h-64">
+          <ShoppingCart className="h-16 w-16 text-gray-400 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Please log in</h3>
+          <p className="text-gray-600 text-center">You must be logged in to view your cart and checkout.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!cart || cart.items.length === 0) {
     return (

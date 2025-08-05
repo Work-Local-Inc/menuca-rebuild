@@ -3,7 +3,7 @@
  * Generates scheduled reports, executive summaries, and automated insights
  */
 import db from '@/database/connection';
-import redis from '@/cache/redis';
+import cache from '@/cache/memory';
 import winston from 'winston';
 import { Pool } from 'pg';
 import { analyticsService, AnalyticsMetric, AnalyticsCategory } from './AnalyticsService';

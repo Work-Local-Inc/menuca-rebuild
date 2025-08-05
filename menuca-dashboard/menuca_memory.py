@@ -1,10 +1,9 @@
 """
-MenuCA Memory Bank - Progress tracking system using muscle-mem
+MenuCA Memory Bank - Progress tracking system
 """
 import json
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-from muscle_mem import Engine
 import os
 
 class MenuCAMemory:
@@ -12,9 +11,6 @@ class MenuCAMemory:
         """Initialize MenuCA memory bank"""
         self.memory_dir = memory_dir
         os.makedirs(memory_dir, exist_ok=True)
-        
-        # Initialize muscle-mem engine for progress tracking
-        self.engine = Engine()
         
         # Define our project structure
         self.phases = {
