@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, CreditCard, MapPin, Clock, CheckCircle } from 'lucide-react';
 import { TempNavigation } from '@/components/TempNavigation';
+import StripePaymentForm from '@/components/StripePaymentForm';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface CartItem {
   menuItem: any;
@@ -24,6 +29,9 @@ export default function CheckoutPage() {
     specialInstructions: '',
     tipAmount: 0
   });
+  const [clientSecret, setClientSecret] = useState<string>('');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load cart from sessionStorage (set by menu page)
@@ -65,8 +73,50 @@ export default function CheckoutPage() {
     }).format(amount);
   };
 
+  const createPaymentIntent = async () => {
+    try {
+      const totals = calculateTotals();
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: totals.total,
+          currency: 'cad',
+          orderData: {
+            restaurantId,
+            deliveryAddress: orderData.deliveryAddress,
+            specialInstructions: orderData.specialInstructions,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create payment intent');
+      }
+
+      const { client_secret } = await response.json();
+      setClientSecret(client_secret);
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      setPaymentError('Failed to initialize payment. Please try again.');
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    setStep('confirmation');
+    // Clear cart
+    sessionStorage.removeItem('checkout_cart');
+    sessionStorage.removeItem('checkout_restaurant');
+  };
+
+  const handlePaymentError = (error: string) => {
+    setPaymentError(error);
+  };
+
   const handlePlaceOrder = async () => {
-    // For now, just simulate order completion
+    // This is only called for non-Stripe payments or confirmation
     console.log('Placing order:', { cart, orderData, restaurantId });
     setStep('confirmation');
     
@@ -229,7 +279,10 @@ export default function CheckoutPage() {
                   Back to Cart
                 </Button>
                 <Button 
-                  onClick={() => setStep('payment')} 
+                  onClick={async () => {
+                    setStep('payment');
+                    await createPaymentIntent();
+                  }} 
                   className="flex-1"
                   disabled={!orderData.deliveryAddress.trim()}
                 >
@@ -296,15 +349,37 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {paymentError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-800">{paymentError}</p>
+                </div>
+              )}
+
+              {clientSecret ? (
+                <Elements stripe={stripePromise} options={{ clientSecret }}>
+                  <StripePaymentForm
+                    onPaymentSuccess={handlePaymentSuccess}
+                    onPaymentError={handlePaymentError}
+                    isProcessing={isProcessingPayment}
+                    setIsProcessing={setIsProcessingPayment}
+                    totalAmount={totals.total}
+                  />
+                </Elements>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <svg className="animate-spin h-8 w-8 text-blue-600 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p className="text-sm text-gray-600">Initializing payment...</p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => setStep('delivery')}>
                   Back
-                </Button>
-                <Button 
-                  onClick={handlePlaceOrder} 
-                  className="flex-1"
-                >
-                  Place Order - {formatCurrency(totals.total)}
                 </Button>
               </div>
             </CardContent>

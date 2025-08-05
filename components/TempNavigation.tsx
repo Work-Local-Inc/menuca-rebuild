@@ -55,6 +55,14 @@ export const TempNavigation: React.FC = () => {
           >
             📊 Analytics Dashboard
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleNavigation('/checkout')}
+            title="Test checkout flow"
+          >
+            💳 Test Checkout
+          </Button>
         </div>
         <div className="mt-3 text-xs text-blue-600">
           💡 <strong>Test Flow:</strong> Restaurant Management → Load Pizza Data → Preview Customer Menu → Customer Ordering

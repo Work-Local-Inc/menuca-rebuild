@@ -22,6 +22,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^3.9.0",
+    "@stripe/stripe-js": "^7.8.0",
     "@types/stripe": "^8.0.416",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
@@ -44,7 +46,7 @@
     "redis": "^4.6.8",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "stripe": "^18.3.0",
+    "stripe": "^18.4.0",
     "tailwind-merge": "^1.14.0",
     "uuid": "^9.0.1",
     "winston": "^3.10.0"
