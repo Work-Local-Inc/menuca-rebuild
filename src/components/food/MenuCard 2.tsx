@@ -283,6 +283,8 @@ export const MenuCard: React.FC<MenuItemProps> = ({
               size="sm"
               onClick={handleAddToCart}
               disabled={isSoldOut || isAddingToCart}
+              loading={isAddingToCart}
+              leftIcon={!isAddingToCart && !hasCustomizations ? <PlusIcon /> : undefined}
               className="ml-4 flex-shrink-0"
             >
               {hasCustomizations 

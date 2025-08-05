@@ -28,6 +28,7 @@ import {
   ZoomOut,
   RotateCcw,
   Save,
+  LayoutGrid,
   Share2,
   MousePointer,
   Move3d,
@@ -564,7 +565,7 @@ export const InteractiveDataVisualization: React.FC = () => {
                 size="sm"
                 onClick={() => setShowGrid(!showGrid)}
               >
-                {showGrid ? <Grid className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                {showGrid ? <LayoutGrid className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
               </Button>
             </div>
             <div className="flex items-center justify-between">

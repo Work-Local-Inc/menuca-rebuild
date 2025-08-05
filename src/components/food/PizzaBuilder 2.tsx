@@ -349,11 +349,12 @@ export const PizzaBuilder: React.FC<PizzaBuilderProps> = ({
               </span>
             </div>
             <Button
-              variant="default"
+              variant="primary"
               size="lg"
+              fullWidth
               onClick={() => onAddToCart?.(config, totalPrice)}
+              loading={isAddingToCart}
               disabled={isAddingToCart}
-              className="w-full"
             >
               {isAddingToCart ? 'Adding to Cart...' : `Add to Cart • ${formatPrice(totalPrice)}`}
             </Button>
