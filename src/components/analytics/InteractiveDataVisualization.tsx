@@ -460,7 +460,7 @@ export const InteractiveDataVisualization: React.FC = () => {
         
         <div className="flex items-center gap-3">
           <Button
-            variant={isFullscreen ? "outline" : "primary"}
+            variant={isFullscreen ? "outline" : "default"}
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="flex items-center gap-2"
           >
@@ -494,7 +494,7 @@ export const InteractiveDataVisualization: React.FC = () => {
             {Object.values(ChartType).map((type) => (
               <Button
                 key={type}
-                variant={selectedChart === type ? "primary" : "outline"}
+                variant={selectedChart === type ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedChart(type)}
                 className="w-full justify-start capitalize"
@@ -521,7 +521,7 @@ export const InteractiveDataVisualization: React.FC = () => {
             {CHART_THEMES.map((theme) => (
               <Button
                 key={theme.name}
-                variant={activeTheme.name === theme.name ? "primary" : "outline"}
+                variant={activeTheme.name === theme.name ? "default" : "outline"}
                 size="sm"
                 onClick={() => setActiveTheme(theme)}
                 className="w-full justify-start"

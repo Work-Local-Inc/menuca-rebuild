@@ -349,7 +349,7 @@ export const PizzaBuilder: React.FC<PizzaBuilderProps> = ({
               </span>
             </div>
             <Button
-              variant="primary"
+              variant="default"
               size="lg"
               fullWidth
               onClick={() => onAddToCart?.(config, totalPrice)}
