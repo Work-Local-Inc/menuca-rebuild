@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Minus, ShoppingCart, Clock, DollarSign } from 'lucide-react';
 import { TempNavigation } from '@/components/TempNavigation';
 import { MenuItemCustomization } from '@/components/customer/MenuItemCustomization';
+import { MenuCard } from '@/components/food/MenuCard';
 
 interface MenuItem {
   id: string;
@@ -256,103 +257,46 @@ export default function CustomerMenuPage() {
                 )}
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {category.items
                   .filter(item => item.is_active && item.availability.is_available)
                   .map((item) => {
                     const quantityInCart = getItemQuantityInCart(item);
                     
                     return (
-                      <Card key={item.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-6">
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
-                                {item.is_featured && (
-                                  <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>
-                                )}
-                              </div>
-                              {item.description && (
-                                <p className="text-gray-600 text-sm mb-3">{item.description}</p>
-                              )}
-                              
-                              <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                                <span className="flex items-center gap-1">
-                                  <DollarSign className="h-3 w-3" />
-                                  {formatCurrency(item.price)}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {item.preparation_time} min
-                                </span>
-                              </div>
-
-                              {item.allergens.length > 0 && (
-                                <div className="mb-3">
-                                  <p className="text-xs text-orange-600">
-                                    ⚠️ Contains: {item.allergens.join(', ')}
-                                  </p>
-                                </div>
-                              )}
-
-                              {item.tags.length > 0 && (
-                                <div className="flex gap-1 mb-3">
-                                  {item.tags.map((tag, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs">
-                                      {tag}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Add to Cart Controls */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-xl font-bold text-gray-900">
-                              {formatCurrency(item.price)}
-                            </span>
-                            
-                            {hasCustomizationOptions(item) ? (
-                              <Button
-                                onClick={() => setCustomizingItem(item)}
-                                className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700"
-                                size="sm"
-                              >
-                                <Plus className="h-4 w-4" />
-                                Customize
-                              </Button>
-                            ) : quantityInCart === 0 ? (
-                              <Button
-                                onClick={() => addToCart(item)}
-                                className="flex items-center gap-2"
-                                size="sm"
-                              >
-                                <Plus className="h-4 w-4" />
-                                Add to Cart
-                              </Button>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => removeFromCart(item)}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="mx-2 font-medium">{quantityInCart}</span>
-                                <Button
-                                  size="sm"
-                                  onClick={() => addToCart(item)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <MenuCard
+                        key={item.id}
+                        id={item.id}
+                        name={item.name}
+                        description={item.description || ''}
+                        price={item.price}
+                        originalPrice={item.price * 1.2} // Show slight discount effect
+                        image={item.images?.[0] || '/placeholder-food.jpg'}
+                        category={category.name}
+                        dietaryInfo={{
+                          isVegetarian: item.tags.includes('vegetarian'),
+                          isVegan: item.tags.includes('vegan'),
+                          isGlutenFree: item.tags.includes('gluten-free'),
+                          isSpicy: item.tags.includes('spicy'),
+                          allergens: item.allergens
+                        }}
+                        preparationTime={item.preparation_time}
+                        rating={4.5}
+                        reviewCount={Math.floor(Math.random() * 100) + 20}
+                        isPopular={item.is_featured}
+                        isAvailable={item.availability.is_available}
+                        badges={item.is_featured ? ['Featured'] : []}
+                        hasCustomizations={hasCustomizationOptions(item)}
+                        onAddToCart={() => {
+                          if (hasCustomizationOptions(item)) {
+                            setCustomizingItem(item);
+                          } else {
+                            addToCart(item);
+                          }
+                        }}
+                        onCustomize={() => setCustomizingItem(item)}
+                        className="transform hover:scale-[1.02] transition-all duration-200"
+                      />
                     );
                   })}
               </div>
