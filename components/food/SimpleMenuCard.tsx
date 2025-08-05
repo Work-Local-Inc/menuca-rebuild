@@ -170,7 +170,7 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
           </div>
           
           {/* Promotion banner */}
-          {promoText && (
+          {promoText && availability === 'open' && (
             <div className="bg-green-50 border border-green-200 rounded-md px-2 py-1 mb-3">
               <span className="text-xs font-medium text-green-700">{promoText}</span>
             </div>
