@@ -83,7 +83,7 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
     <Card className={`group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-white ${className}`}>
       <CardContent className="p-0">
         {/* Image Section */}
-        <div className="relative h-48 bg-gradient-to-br from-orange-100 to-orange-200 rounded-t-lg overflow-hidden">
+        <div className="relative h-32 sm:h-40 bg-gradient-to-br from-orange-100 to-orange-200 rounded-t-lg overflow-hidden">
           {image && image !== '/placeholder-food.jpg' ? (
             <img 
               src={image} 
@@ -92,7 +92,7 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="text-6xl">🍕</div>
+              <div className="text-4xl sm:text-5xl">🍕</div>
             </div>
           )}
           
@@ -129,10 +129,10 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
           {/* Availability status */}
           {availability !== 'open' && (
             <div className="absolute top-3 right-3">
-              <Badge className={`text-xs font-medium px-2 py-1 ${
+              <Badge className={`text-xs font-bold px-2 py-1 shadow-lg ${
                 availability === 'closing_soon' 
-                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
-                  : 'bg-red-100 text-red-800 border border-red-300'
+                  ? 'bg-yellow-500 text-white' 
+                  : 'bg-red-600 text-white'
               }`}>
                 {availability === 'closing_soon' ? 'Closing Soon' : 'Closed'}
               </Badge>
@@ -172,7 +172,7 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
           <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
             <div className="flex items-center gap-3">
               {deliveryFee !== undefined && (
-                <span className={deliveryFee === 0 ? 'text-green-600 font-medium' : ''}>
+                <span className={deliveryFee === 0 ? 'text-green-600 font-semibold' : 'text-gray-600'}>
                   {deliveryFee === 0 ? 'Free delivery' : `$${deliveryFee.toFixed(2)} delivery`}
                 </span>
               )}
@@ -227,10 +227,11 @@ export const SimpleMenuCard: React.FC<SimpleMenuCardProps> = ({
 
             <Button
               onClick={hasCustomizations ? onCustomize : onAddToCart}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg transition-colors disabled:bg-gray-400"
               size="sm"
+              disabled={availability === 'closed'}
             >
-              {hasCustomizations ? 'Customize' : 'Add'}
+              {availability === 'closed' ? 'Closed' : hasCustomizations ? 'Customize' : 'Add'}
             </Button>
           </div>
         </div>
