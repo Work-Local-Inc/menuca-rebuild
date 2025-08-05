@@ -1,4 +1,4 @@
-code rabbit test fuck # MenuCA Rebuild - Phase 1 Foundation
+# MenuCA Rebuild – Phase 1 Foundation
 
 Multi-tenant SaaS platform for restaurant management with PostgreSQL + Redis + TypeScript.
 
