@@ -219,42 +219,27 @@ const XtremePizzaCheckout: React.FC = () => {
   const handleCheckout = async () => {
     if (cart.length === 0) return;
     
-    try {
-      setIsProcessing(true);
-      
-      const response = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: totalAmount / 100, // Convert back to dollars for API
-          currency: 'cad',
-          orderData: {
-            restaurantId: 'xtreme-pizza-ottawa',
-            items: cart,
-            deliveryAddress: 'Ottawa, ON',
-            specialInstructions: 'Please ring doorbell'
-          }
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Payment intent failed:', response.status, errorText);
-        throw new Error(`Payment service error: ${response.status} - ${errorText}`);
-      }
-
-      const result = await response.json();
-      const { client_secret } = result;
-      setClientSecret(client_secret);
-      setShowCheckout(true);
-    } catch (error) {
-      console.error('Error creating payment intent:', error);
-      alert('Failed to initialize checkout. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    // Convert cart items to the format expected by main checkout page
+    const checkoutCart = cart.map(item => ({
+      menuItem: {
+        name: item.name,
+        price: item.price / 100, // Convert to dollars
+      },
+      quantity: item.quantity,
+      finalPrice: item.price / 100, // Convert to dollars
+    }));
+    
+    // Store cart data for the main checkout page
+    sessionStorage.setItem('checkout_cart', JSON.stringify(checkoutCart));
+    sessionStorage.setItem('checkout_restaurant', JSON.stringify({
+      id: 'xtreme-pizza-ottawa',
+      name: 'Xtreme Pizza Ottawa'
+    }));
+    
+    console.log('Redirecting to main checkout with cart:', checkoutCart);
+    
+    // Redirect to the main checkout page
+    window.location.href = '/checkout';
   };
 
   const handlePaymentSuccess = () => {
@@ -376,45 +361,6 @@ const XtremePizzaCheckout: React.FC = () => {
         </div>
       </div>
 
-      {/* Stripe Checkout Modal */}
-      {showCheckout && clientSecret && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Complete Payment</h2>
-              <button
-                onClick={() => setShowCheckout(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Order Total:</p>
-              <p className="text-lg font-bold text-red-600">
-                ${(totalAmount / 100).toFixed(2)} CAD
-              </p>
-            </div>
-
-            <Elements
-              stripe={stripePromise}
-              options={{
-                clientSecret,
-                appearance,
-              }}
-            >
-              <StripePaymentForm
-                onPaymentSuccess={handlePaymentSuccess}
-                onPaymentError={handlePaymentError}
-                isProcessing={isProcessing}
-                setIsProcessing={setIsProcessing}
-                totalAmount={totalAmount / 100}
-              />
-            </Elements>
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <div className="bg-white border-t border-gray-200 mt-12">
