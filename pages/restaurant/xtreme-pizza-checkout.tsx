@@ -11,125 +11,29 @@ import StripePaymentForm from '@/components/StripePaymentForm';
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// Real scraped menu data (31 items)
-const menuData = {
-  "restaurant": {
-    "name": "Xtreme Pizza Ottawa",
-    "location": "Ottawa, ON",
-    "cuisine": "Pizza",
-    "phone": "+1-613-XXX-XXXX",
-    "address": "Ottawa Location",
-    "website": "https://ottawa.xtremepizzaottawa.com"
-  },
-  "categories": [
-    {
-      "name": "Appetizers",
-      "items": [
-        {
-          "id": "fries",
-          "name": "Fries",
-          "description": "",
-          "variants": [
-            { "size": "Small", "price": 699 },
-            { "size": "Large", "price": 899 }
-          ]
-        },
-        {
-          "id": "onion-rings",
-          "name": "Onion Rings", 
-          "description": "",
-          "variants": [
-            { "size": "Small", "price": 799 },
-            { "size": "Large", "price": 999 }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Pizza",
-      "items": [
-        {
-          "id": "plain-pizza",
-          "name": "Plain Pizza",
-          "description": "",
-          "variants": [
-            { "size": "Small", "price": 1399 },
-            { "size": "Medium", "price": 1999 },
-            { "size": "Large", "price": 2599 },
-            { "size": "X-Large", "price": 3199 }
-          ]
-        },
-        {
-          "id": "hawaiian",
-          "name": "Hawaiian",
-          "description": "Ham, pineapple.",
-          "variants": [
-            { "size": "Small", "price": 1599 },
-            { "size": "Medium", "price": 2299 },
-            { "size": "Large", "price": 2999 },
-            { "size": "X-Large", "price": 3699 }
-          ]
-        },
-        {
-          "id": "meat-lovers",
-          "name": "Meat Lovers",
-          "description": "Pepperoni, ham, sausage, bacon strips.",
-          "variants": [
-            { "size": "Small", "price": 1799 },
-            { "size": "Medium", "price": 2599 },
-            { "size": "Large", "price": 3399 },
-            { "size": "X-Large", "price": 4199 }
-          ]
-        },
-        {
-          "id": "vegetarian-pizza",
-          "name": "Vegetarian Pizza",
-          "description": "Mushrooms, green peppers, onions, olives, tomatoes.",
-          "variants": [
-            { "size": "Small", "price": 1799 },
-            { "size": "Medium", "price": 2599 },
-            { "size": "Large", "price": 3399 },
-            { "size": "X-Large", "price": 4199 }
-          ]
-        },
-        {
-          "id": "xtreme-supreme-pizza",
-          "name": "Xtreme Supreme Pizza",
-          "description": "Pepperoni, mushrooms, green peppers, ham, sausage, olives, onions, bacon.",
-          "variants": [
-            { "size": "Small", "price": 1999 },
-            { "size": "Medium", "price": 2899 },
-            { "size": "Large", "price": 3799 },
-            { "size": "X-Large", "price": 4699 }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Donairs and Shawarma", 
-      "items": [
-        {
-          "id": "donair-sandwich",
-          "name": "Donair Sandwich",
-          "description": "",
-          "variants": [
-            { "size": "Small", "price": 999 },
-            { "size": "Large", "price": 1499 }
-          ]
-        },
-        {
-          "id": "shawarma-sandwich",
-          "name": "Shawarma Sandwich",
-          "description": "Lettuce, tomatoes and garlic sauce.",
-          "variants": [
-            { "size": "Small", "price": 999 },
-            { "size": "Large", "price": 1499 }
-          ]
-        }
-      ]
-    }
-  ]
+// Complete real scraped menu data (ALL 31 items) 
+import scrapedMenuData from '../../data/xtreme-pizza-menu.json';
+
+// Transform scraped data to component format
+const transformScrapedData = (scraped: any) => {
+  return {
+    restaurant: scraped.restaurant,
+    categories: scraped.categories.map((cat: any) => ({
+      name: cat.name,
+      items: cat.items.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || '',
+        variants: item.variants.map((variant: any) => ({
+          size: variant.size,
+          price: variant.price
+        }))
+      }))
+    }))
+  };
 };
+
+const menuData = transformScrapedData(scrapedMenuData);
 
 interface CartItem {
   id: string;

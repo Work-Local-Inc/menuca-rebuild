@@ -1,0 +1,12 @@
+{
+  "restaurant": {
+    "name": "Xtreme Pizza Ottawa",
+    "location": "Ottawa, ON",
+    "cuisine": "Pizza",
+    "phone": "",
+    "address": "",
+    "website": "https://ottawa.xtremepizzaottawa.com"
+  },
+  "scrapedAt": "2025-08-05T20:18:26.639Z",
+  "categories": []
+}
