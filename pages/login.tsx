@@ -17,8 +17,18 @@ export default function Login() {
 
     try {
       await login(email, password);
-      console.log('Login successful, redirecting to restaurant management...');
-      router.push('/restaurant');
+      
+      // Check if there's a redirect URL from Stripe or checkout flow
+      const { redirect } = router.query;
+      const redirectUrl = redirect as string;
+      
+      if (redirectUrl && (redirectUrl.includes('/order-success') || redirectUrl.includes('/checkout'))) {
+        console.log('Login successful, redirecting to:', redirectUrl);
+        router.push(redirectUrl);
+      } else {
+        console.log('Login successful, redirecting to restaurant management...');
+        router.push('/restaurant');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
