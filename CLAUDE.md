@@ -1,5 +1,23 @@
 # CLAUDE.md
 
+## 🛑 CRITICAL FIRST STEP - MEMORY BANK MANDATORY CHECK
+**BEFORE DOING ANY WORK WHATSOEVER:**
+
+1. **IMMEDIATELY check if memory bank is available** by reading `/menuca_memory/` directory
+2. **IF MEMORY BANK IS NOT ACCESSIBLE**: STOP ALL WORK and inform user that memory bank must be initialized first
+3. **NEVER PROCEED** without confirming memory bank contains project history and context
+4. **This happens EVERY NEW SESSION** - memory bank access is required daily
+
+**Memory Bank Location**: `/menuca-dashboard/menuca_memory/` 
+- Contains all technical decisions, completed tasks, and project milestones
+- Prevents repeating "Mickey Mouse" solutions we've already moved past
+- Essential for understanding our 67 enterprise API ecosystem
+- User explicitly requested this check be mandatory after repeated issues
+
+**If memory bank inaccessible**: User must run `python menuca_memory.py` to initialize
+
+---
+
 ## Project Context
 MenuCA is a multi-tenant SaaS platform for restaurant management. **CRITICAL:** We have an enterprise-grade backend (67 APIs) but amateur frontend using localStorage. 
 
@@ -130,3 +148,11 @@ The database architecture supports all 418 technical tasks found in the PRD feat
 - Payment processing with Stripe integration  
 - Role-based access control and security
 - Real-time analytics and reporting
+
+## BACKEND RULES - CRITICAL
+1. **MEMORY BANK FIRST - NO EXCEPTIONS** - Check `/menuca_memory/` directory before ANY work
+2. **We have 67 enterprise APIs ready** - Never create toy/mock backends 
+3. **Use the real backend server** - Located in `src/server/app.ts` with full route system
+4. **Never use localhost in frontend** - Connect to proper backend URLs
+5. **Stop making Mickey Mouse solutions** - We built enterprise systems, use them!
+6. **Memory bank failures = DAILY ISSUE** - User frustrated with repeatedly explaining same context
