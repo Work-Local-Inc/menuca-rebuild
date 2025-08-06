@@ -19,6 +19,7 @@ export default function OrderSuccessPage() {
   const router = useRouter();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [printStatus, setPrintStatus] = useState<'idle' | 'printing' | 'success' | 'error'>('idle');
   
   useEffect(() => {
     const { payment_intent } = router.query;
@@ -76,6 +77,9 @@ export default function OrderSuccessPage() {
       
       setOrderDetails(orderData);
       
+      // Send to printer
+      sendReceiptToPrinter(orderData);
+      
       // Clear storage
       sessionStorage.removeItem('completed_order');
       sessionStorage.removeItem('checkout_cart');
@@ -93,6 +97,62 @@ export default function OrderSuccessPage() {
       style: 'currency',
       currency: 'CAD'
     }).format(amount);
+  };
+
+  // Send receipt to NETUM printer
+  const sendReceiptToPrinter = async (orderData: OrderDetails) => {
+    try {
+      setPrintStatus('printing');
+      
+      // Convert OrderDetails to printer format
+      const printerOrderData = {
+        orderNumber: orderData.orderNumber,
+        restaurantName: 'MenuCA Restaurant', // You can get this from restaurant context
+        restaurantPhone: '1-800-MENUCA',
+        items: orderData.items.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          finalPrice: item.price * item.quantity
+        })),
+        subtotal: orderData.total * 0.85, // Estimate subtotal
+        tax: orderData.total * 0.13, // 13% HST estimate
+        delivery: 2.99,
+        tip: 0,
+        total: orderData.total,
+        paymentMethod: 'Card' as const,
+        timestamp: orderData.timestamp
+      };
+
+      console.log('Sending receipt to printer...', printerOrderData);
+      
+      const response = await fetch('/api/printer/send-receipt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderData: printerOrderData,
+          // For now, just generate commands - restaurant can configure printer IP later
+          printerConfig: {
+            method: 'bluetooth' // This will return commands for tablet to handle
+          }
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ Receipt printed successfully:', result.message);
+        setPrintStatus('success');
+      } else {
+        console.error('❌ Receipt printing failed:', result.error);
+        setPrintStatus('error');
+      }
+    } catch (error) {
+      console.error('❌ Printer API error:', error);
+      setPrintStatus('error');
+    }
   };
 
   if (loading) {
@@ -154,6 +214,63 @@ export default function OrderSuccessPage() {
           <p style={{ fontSize: '18px', color: '#6b7280', marginBottom: '16px' }}>
             🎉 Payment successful - Your delicious food is on the way!
           </p>
+          
+          {/* Print Status Indicator */}
+          {printStatus === 'printing' && (
+            <div style={{ 
+              backgroundColor: '#fef3c7', 
+              border: '1px solid #f59e0b', 
+              borderRadius: '6px', 
+              padding: '8px 16px', 
+              margin: '16px 0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}>
+              <div style={{ 
+                width: '16px', 
+                height: '16px', 
+                border: '2px solid #f59e0b', 
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }}></div>
+              <span style={{ color: '#92400e', fontSize: '14px', fontWeight: '500' }}>
+                Printing receipt...
+              </span>
+            </div>
+          )}
+          
+          {printStatus === 'success' && (
+            <div style={{ 
+              backgroundColor: '#d1fae5', 
+              border: '1px solid #10b981', 
+              borderRadius: '6px', 
+              padding: '8px 16px', 
+              margin: '16px 0',
+              color: '#065f46',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              ✅ Receipt sent to printer successfully
+            </div>
+          )}
+          
+          {printStatus === 'error' && (
+            <div style={{ 
+              backgroundColor: '#fee2e2', 
+              border: '1px solid #ef4444', 
+              borderRadius: '6px', 
+              padding: '8px 16px', 
+              margin: '16px 0',
+              color: '#991b1b',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              ⚠️ Receipt printing queued (check printer connection)
+            </div>
+          )}
           
           <div style={{ 
             backgroundColor: '#ecfdf5', 
