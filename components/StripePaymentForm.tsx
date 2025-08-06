@@ -35,6 +35,33 @@ export default function StripePaymentForm({
     setIsProcessing(true);
     setMessage(null);
 
+    // Store order details before potential redirect
+    // This ensures data is available when Stripe redirects back
+    try {
+      const cartData = sessionStorage.getItem('checkout_cart');
+      if (cartData) {
+        const cart = JSON.parse(cartData);
+        const subtotal = cart.reduce((total: number, item: any) => {
+          const itemPrice = item.finalPrice || item.menuItem.price;
+          return total + (itemPrice * item.quantity);
+        }, 0);
+        
+        const completedOrder = {
+          items: cart,
+          total: totalAmount,
+          subtotal: subtotal,
+          tax: subtotal * 0.13,
+          delivery: 2.99,
+          tip: 0,
+          timestamp: new Date().toISOString(),
+        };
+        
+        sessionStorage.setItem('completed_order', JSON.stringify(completedOrder));
+      }
+    } catch (error) {
+      console.warn('Could not store order details:', error);
+    }
+
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {

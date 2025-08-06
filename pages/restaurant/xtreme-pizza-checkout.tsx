@@ -258,10 +258,28 @@ const XtremePizzaCheckout: React.FC = () => {
   };
 
   const handlePaymentSuccess = () => {
-    alert(`🎉 Payment successful! Order total: $${(totalAmount / 100).toFixed(2)}`);
-    setCart([]);
-    setShowCheckout(false);
-    setClientSecret('');
+    // Store order details for confirmation page
+    const completedOrder = {
+      items: cart.map(item => ({
+        menuItem: {
+          name: item.name,
+          price: item.price
+        },
+        quantity: item.quantity,
+        finalPrice: item.price
+      })),
+      total: totalAmount / 100,
+      subtotal: (totalAmount / 100) * 0.885, // Approximate before tax
+      tax: (totalAmount / 100) * 0.115, // Approximate tax
+      delivery: 2.99,
+      tip: 0,
+      timestamp: new Date().toISOString(),
+    };
+    
+    sessionStorage.setItem('completed_order', JSON.stringify(completedOrder));
+    
+    // Redirect to checkout success page instead of alert
+    window.location.href = '/checkout?payment=success&payment_intent=pi_success';
   };
 
   const handlePaymentError = (error: string) => {

@@ -32,8 +32,58 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [orderDetails, setOrderDetails] = useState<{
+    paymentIntentId: string;
+    amount: number;
+    items: CartItem[];
+    orderNumber: string;
+  } | null>(null);
 
   useEffect(() => {
+    // Check if this is a payment success redirect from Stripe
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const paymentIntent = urlParams.get('payment_intent');
+    const redirectStatus = urlParams.get('redirect_status');
+
+    if (paymentStatus === 'success' && paymentIntent && redirectStatus === 'succeeded') {
+      // Payment was successful, try to get order details from sessionStorage before it was cleared
+      try {
+        const orderData = sessionStorage.getItem('completed_order');
+        if (orderData) {
+          const parsedOrder = JSON.parse(orderData);
+          setOrderDetails({
+            paymentIntentId: paymentIntent,
+            amount: parsedOrder.total || 0,
+            items: parsedOrder.items || [],
+            orderNumber: paymentIntent.slice(-8).toUpperCase(), // Use last 8 chars of payment intent as order number
+          });
+          // Clear the completed order data
+          sessionStorage.removeItem('completed_order');
+        } else {
+          // Fallback: create basic order details from payment intent
+          setOrderDetails({
+            paymentIntentId: paymentIntent,
+            amount: 0, // We don't have the amount, will need to fetch from Stripe
+            items: [],
+            orderNumber: paymentIntent.slice(-8).toUpperCase(),
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing completed order data:', error);
+        setOrderDetails({
+          paymentIntentId: paymentIntent,
+          amount: 0,
+          items: [],
+          orderNumber: paymentIntent.slice(-8).toUpperCase(),
+        });
+      }
+      
+      setStep('confirmation');
+      setLoading(false);
+      return;
+    }
+
     // Load cart from sessionStorage (set by menu page)
     const cartData = sessionStorage.getItem('checkout_cart');
     const restaurantData = sessionStorage.getItem('checkout_restaurant');
@@ -105,6 +155,20 @@ export default function CheckoutPage() {
   };
 
   const handlePaymentSuccess = () => {
+    // Store order details before redirect
+    const totals = calculateTotals();
+    const completedOrder = {
+      items: cart,
+      total: totals.total,
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      delivery: totals.delivery,
+      tip: totals.tip,
+      timestamp: new Date().toISOString(),
+    };
+    
+    sessionStorage.setItem('completed_order', JSON.stringify(completedOrder));
+    
     setStep('confirmation');
     // Clear cart
     sessionStorage.removeItem('checkout_cart');
@@ -388,15 +452,63 @@ export default function CheckoutPage() {
 
         {step === 'confirmation' && (
           <Card>
-            <CardContent className="text-center py-8">
-              <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Placed Successfully!</h2>
-              <p className="text-gray-600 mb-4">
-                Your order has been sent to the restaurant and you'll receive updates as it's prepared.
-              </p>
-              <div className="space-y-2">
-                <Button onClick={() => router.push(`/menu/${restaurantId}`)} className="w-full">
-                  Continue Shopping
+            <CardContent className="py-8">
+              <div className="text-center mb-6">
+                <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Confirmed!</h2>
+                <p className="text-gray-600">
+                  Payment successful - Your order is being prepared
+                </p>
+              </div>
+
+              {orderDetails && (
+                <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                      <span className="font-medium text-gray-700">Order Number:</span>
+                      <p className="font-mono text-gray-900">#{orderDetails.orderNumber}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Payment ID:</span>
+                      <p className="font-mono text-xs text-gray-600">
+                        {orderDetails.paymentIntentId.slice(0, 20)}...
+                      </p>
+                    </div>
+                  </div>
+
+                  {orderDetails.items.length > 0 && (
+                    <>
+                      <h3 className="font-medium text-gray-900 mb-3">Order Summary:</h3>
+                      <div className="space-y-2 mb-4">
+                        {orderDetails.items.map((item, index) => (
+                          <div key={index} className="flex justify-between items-center text-sm">
+                            <span>{item.quantity}x {item.menuItem.name}</span>
+                            <span>{formatCurrency((item.finalPrice || item.menuItem.price) * item.quantity)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="border-t border-gray-200 pt-3">
+                        <div className="flex justify-between items-center font-bold">
+                          <span>Total Paid:</span>
+                          <span className="text-green-600">{formatCurrency(orderDetails.amount)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {orderDetails.items.length === 0 && orderDetails.amount === 0 && (
+                    <div className="text-center text-gray-600">
+                      <p>✅ Payment processed successfully</p>
+                      <p className="text-sm mt-1">Order details are being updated...</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <Button onClick={() => router.push('/restaurant/xtreme-pizza')} className="w-full">
+                  Order Again
                 </Button>
                 <Button variant="outline" onClick={() => router.push('/')} className="w-full">
                   Back to Home
