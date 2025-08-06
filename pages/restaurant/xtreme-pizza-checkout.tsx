@@ -11,29 +11,10 @@ import StripePaymentForm from '@/components/StripePaymentForm';
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// Complete real scraped menu data (ALL 33 items) 
-import scrapedMenuData from '../../data/xtreme-pizza-2025-08-06T14-00-30-317Z.json';
+// Complete real scraped menu data (ALL 33 items) - JavaScript import for reliable build
+import { xtremeMenuData } from '../../data/xtreme-pizza-complete';
 
-// Transform scraped data to component format
-const transformScrapedData = (scraped: any) => {
-  return {
-    restaurant: scraped.restaurant,
-    categories: scraped.categories.map((cat: any) => ({
-      name: cat.name,
-      items: cat.items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        description: item.description || '',
-        variants: item.variants.map((variant: any) => ({
-          size: variant.size,
-          price: variant.price
-        }))
-      }))
-    }))
-  };
-};
-
-const menuData = transformScrapedData(scrapedMenuData);
+const menuData = xtremeMenuData;
 
 interface CartItem {
   id: string;
