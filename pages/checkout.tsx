@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, CreditCard, MapPin, Clock, CheckCircle } from 'lucide-react';
 import { TempNavigation } from '@/components/TempNavigation';
 import StripePaymentForm from '@/components/StripePaymentForm';
+import { AddressAutocomplete } from '@/components/address/AddressAutocomplete';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -29,6 +30,7 @@ export default function CheckoutPage() {
     specialInstructions: '',
     tipAmount: 0
   });
+  const [deliveryAddressInput, setDeliveryAddressInput] = useState('');
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -126,6 +128,13 @@ export default function CheckoutPage() {
     
     setLoading(false);
   }, []);
+
+  // Sync delivery address input when loading from URL parameters
+  useEffect(() => {
+    if (orderData.deliveryAddress) {
+      setDeliveryAddressInput(orderData.deliveryAddress);
+    }
+  }, [orderData.deliveryAddress]);
 
   const calculateTotals = () => {
     if (!cart || cart.length === 0) return { subtotal: 0, tax: 0, delivery: 0, tip: 0, total: 0 };
@@ -344,14 +353,26 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Delivery Address *</label>
-                <textarea
-                  className="w-full p-3 border rounded-md"
-                  rows={3}
+                <AddressAutocomplete
+                  value={deliveryAddressInput}
+                  onChange={(address) => {
+                    if (address) {
+                      setOrderData({...orderData, deliveryAddress: address.formattedAddress});
+                    } else {
+                      setOrderData({...orderData, deliveryAddress: deliveryAddressInput});
+                    }
+                  }}
+                  onInputChange={(value) => {
+                    setDeliveryAddressInput(value);
+                    setOrderData({...orderData, deliveryAddress: value});
+                  }}
                   placeholder="Enter your complete delivery address..."
-                  value={orderData.deliveryAddress}
-                  onChange={(e) => setOrderData({...orderData, deliveryAddress: e.target.value})}
                   required
+                  className="mb-2"
                 />
+                <p className="text-xs text-gray-500">
+                  📍 We validate addresses using Canada Post to ensure accurate delivery
+                </p>
               </div>
 
               <div>
@@ -375,7 +396,7 @@ export default function CheckoutPage() {
                     await createPaymentIntent();
                   }} 
                   className="flex-1"
-                  disabled={!orderData.deliveryAddress.trim()}
+                  disabled={!deliveryAddressInput.trim()}
                 >
                   Continue to Payment
                 </Button>

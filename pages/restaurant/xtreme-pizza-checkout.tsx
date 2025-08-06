@@ -263,8 +263,8 @@ const XtremePizzaCheckout: React.FC = () => {
     
     sessionStorage.setItem('completed_order', JSON.stringify(completedOrder));
     
-    // Redirect to checkout success page instead of alert
-    window.location.href = '/checkout?payment=success&payment_intent=pi_success';
+    // Redirect to dedicated order success page
+    window.location.href = '/order-success?payment_intent=pi_success_' + Date.now();
   };
 
   const handlePaymentError = (error: string) => {

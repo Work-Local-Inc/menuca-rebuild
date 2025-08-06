@@ -65,7 +65,7 @@ export default function StripePaymentForm({
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/checkout?payment=success`,
+        return_url: `${window.location.origin}/order-success`,
       },
     });
 
