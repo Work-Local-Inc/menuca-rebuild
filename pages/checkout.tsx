@@ -47,30 +47,57 @@ export default function CheckoutPage() {
     const redirectStatus = urlParams.get('redirect_status');
 
     if (paymentStatus === 'success' && paymentIntent && redirectStatus === 'succeeded') {
-      // Payment was successful, try to get order details from sessionStorage before it was cleared
+      // Payment was successful, try to get order details from sessionStorage
       try {
-        const orderData = sessionStorage.getItem('completed_order');
+        let orderData = sessionStorage.getItem('completed_order');
+        let parsedOrder = null;
+        
         if (orderData) {
-          const parsedOrder = JSON.parse(orderData);
+          parsedOrder = JSON.parse(orderData);
+          sessionStorage.removeItem('completed_order');
+        } else {
+          // Fallback: try to reconstruct from checkout_cart
+          const cartData = sessionStorage.getItem('checkout_cart');
+          if (cartData) {
+            const cart = JSON.parse(cartData);
+            const subtotal = cart.reduce((total, item) => {
+              const itemPrice = item.finalPrice || item.menuItem.price;
+              return total + (itemPrice * item.quantity);
+            }, 0);
+            
+            parsedOrder = {
+              items: cart,
+              total: subtotal * 1.13 + 2.99, // Add tax and delivery
+              subtotal: subtotal,
+              tax: subtotal * 0.13,
+              delivery: 2.99,
+              tip: 0
+            };
+            
+            // Clear the cart since order is complete
+            sessionStorage.removeItem('checkout_cart');
+            sessionStorage.removeItem('checkout_restaurant');
+          }
+        }
+        
+        if (parsedOrder) {
           setOrderDetails({
             paymentIntentId: paymentIntent,
             amount: parsedOrder.total || 0,
             items: parsedOrder.items || [],
-            orderNumber: paymentIntent.slice(-8).toUpperCase(), // Use last 8 chars of payment intent as order number
+            orderNumber: paymentIntent.slice(-8).toUpperCase(),
           });
-          // Clear the completed order data
-          sessionStorage.removeItem('completed_order');
         } else {
-          // Fallback: create basic order details from payment intent
+          // Final fallback: basic order details
           setOrderDetails({
             paymentIntentId: paymentIntent,
-            amount: 0, // We don't have the amount, will need to fetch from Stripe
+            amount: 0,
             items: [],
             orderNumber: paymentIntent.slice(-8).toUpperCase(),
           });
         }
       } catch (error) {
-        console.error('Error parsing completed order data:', error);
+        console.error('Error parsing order data:', error);
         setOrderDetails({
           paymentIntentId: paymentIntent,
           amount: 0,
