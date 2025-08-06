@@ -11,8 +11,8 @@ import StripePaymentForm from '@/components/StripePaymentForm';
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// Complete real scraped menu data (ALL 31 items) 
-import scrapedMenuData from '../../data/xtreme-pizza-menu.json';
+// Complete real scraped menu data (ALL 33 items) 
+import scrapedMenuData from '../../data/xtreme-pizza-2025-08-06T14-00-30-317Z.json';
 
 // Transform scraped data to component format
 const transformScrapedData = (scraped: any) => {
