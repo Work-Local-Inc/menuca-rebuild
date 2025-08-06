@@ -1,13 +1,24 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+// Debug logging for environment variables
+console.log('Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
+console.log('Environment:', process.env.NODE_ENV);
+
+const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-12-18.acacia',
-});
+}) : null;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log('Payment intent request:', { method: req.method, hasStripe: !!stripe });
+  
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed', method: req.method });
+  }
+
+  if (!stripe) {
+    console.error('Stripe not initialized - missing STRIPE_SECRET_KEY');
+    return res.status(500).json({ error: 'Payment processor not configured' });
   }
 
   try {

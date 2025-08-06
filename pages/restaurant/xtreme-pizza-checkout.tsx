@@ -239,7 +239,14 @@ const XtremePizzaCheckout: React.FC = () => {
         }),
       });
 
-      const { client_secret } = await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Payment intent failed:', response.status, errorText);
+        throw new Error(`Payment service error: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      const { client_secret } = result;
       setClientSecret(client_secret);
       setShowCheckout(true);
     } catch (error) {
