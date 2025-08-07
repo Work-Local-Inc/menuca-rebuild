@@ -49,7 +49,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // Add to print queue instead of trying to reach tablet directly
-      const queueResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/printer/queue`, {
+      const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+      const queueResponse = await fetch(`${baseUrl}/api/printer/queue`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
