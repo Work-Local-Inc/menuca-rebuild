@@ -283,6 +283,7 @@
                     <p><strong>Time:</strong> ${new Date(job.timestamp).toLocaleString()}</p>
                     <p><strong>Items:</strong> ${job.orderData.items?.length || 0} item(s)</p>
                     <p><strong>Total:</strong> $${job.orderData.total?.toFixed(2) || '0.00'}</p>
+                    <button onclick="manualPrint('${job.id}', \`${job.receiptData.replace(/`/g, '\\`')}\`, '${job.orderData.orderNumber}')" style="background: #007bff; margin-top: 10px;">🖨️ PRINT NOW</button>
                 </div>
             `).join('');
         }
@@ -332,6 +333,71 @@
         function clearLog() {
             document.getElementById('log').textContent = '';
             addLog('Log cleared');
+        }
+
+        // Manual print function (triggered by user button click)
+        async function manualPrint(jobId, receiptData, orderNumber) {
+            try {
+                addLog(`🖨️ Manual print triggered for Order #${orderNumber}`);
+                
+                if (navigator.share && /Android/i.test(navigator.userAgent)) {
+                    // Android - share to ESC/POS service (this will work with user gesture)
+                    await navigator.share({
+                        title: `MenuCA Receipt - Order #${orderNumber}`,
+                        text: receiptData
+                    });
+                    addLog('✅ Shared to ESC/POS Print Service');
+                } else {
+                    // Desktop/fallback - open print dialog
+                    const printWindow = window.open('', '_blank', 'width=400,height=600');
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>Receipt - Order #${orderNumber}</title>
+                            <style>
+                                body { 
+                                    font-family: monospace; 
+                                    font-size: 12px; 
+                                    white-space: pre-line; 
+                                    margin: 10px;
+                                    width: 58mm;
+                                }
+                                @media print {
+                                    body { font-size: 10px; margin: 0; }
+                                    @page { size: 58mm 200mm; margin: 0; }
+                                }
+                            </style>
+                        </head>
+                        <body>${receiptData}</body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    
+                    setTimeout(() => {
+                        printWindow.print();
+                        setTimeout(() => printWindow.close(), 1000);
+                    }, 500);
+                    
+                    addLog('✅ Opened print dialog');
+                }
+                
+                // Mark job as completed
+                await fetch('/api/printer/queue', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobId: jobId })
+                });
+                
+                printedToday++;
+                document.getElementById('printedCount').textContent = printedToday;
+                addLog(`✅ Completed job ${jobId}`);
+                
+                // Refresh the job list
+                checkForJobs();
+                
+            } catch (error) {
+                addLog(`❌ Manual print failed: ${error.message}`);
+            }
         }
 
         // Initialize
