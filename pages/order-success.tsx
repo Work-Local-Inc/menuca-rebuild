@@ -99,7 +99,7 @@ export default function OrderSuccessPage() {
     }).format(amount);
   };
 
-  // Send receipt to NETUM printer
+  // Send receipt to NETUM printer via Samsung tablet bridge
   const sendReceiptToPrinter = async (orderData: OrderDetails) => {
     try {
       setPrintStatus('printing');
@@ -124,8 +124,9 @@ export default function OrderSuccessPage() {
         timestamp: orderData.timestamp
       };
 
-      console.log('Sending receipt to printer...', printerOrderData);
+      console.log('Generating ESC/POS commands for tablet bridge...', printerOrderData);
       
+      // First, generate ESC/POS commands
       const response = await fetch('/api/printer/send-receipt', {
         method: 'POST',
         headers: {
@@ -133,24 +134,81 @@ export default function OrderSuccessPage() {
         },
         body: JSON.stringify({
           orderData: printerOrderData,
-          // For now, just generate commands - restaurant can configure printer IP later
           printerConfig: {
-            method: 'bluetooth' // This will return commands for tablet to handle
+            method: 'bluetooth' // Generate commands for bridge app
           }
         }),
       });
 
       const result = await response.json();
       
-      if (result.success) {
-        console.log('✅ Receipt printed successfully:', result.message);
-        setPrintStatus('success');
+      if (result.success && result.commandsGenerated) {
+        console.log('✅ ESC/POS commands generated, sending to tablet bridge...');
+        
+        // Try to send to tablet bridge app
+        // You'll configure the tablet IP address for each restaurant
+        const tabletIPs = [
+          '192.168.1.100', // Restaurant 1 tablet
+          '192.168.1.101', // Restaurant 2 tablet  
+          // Add more tablet IPs as needed
+        ];
+        
+        let printed = false;
+        
+        // Try each tablet IP until one succeeds
+        for (const tabletIP of tabletIPs) {
+          try {
+            console.log(`Trying tablet bridge at ${tabletIP}...`);
+            
+            const bridgeResponse = await fetch(`http://${tabletIP}:8080/print`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                escposCommands: btoa(String.fromCharCode(...new Uint8Array(
+                  await (await fetch('/api/printer/send-receipt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      orderData: printerOrderData,
+                      printerConfig: { method: 'bluetooth' }
+                    })
+                  })).arrayBuffer()
+                )))
+              }),
+              signal: AbortSignal.timeout(5000) // 5 second timeout
+            });
+            
+            const bridgeResult = await bridgeResponse.json();
+            
+            if (bridgeResult.success) {
+              console.log(`✅ Receipt printed via tablet ${tabletIP}`);
+              printed = true;
+              break;
+            } else {
+              console.log(`❌ Tablet ${tabletIP} failed: ${bridgeResult.error}`);
+            }
+            
+          } catch (bridgeError) {
+            console.log(`❌ Tablet ${tabletIP} unreachable: ${bridgeError}`);
+            continue;
+          }
+        }
+        
+        if (printed) {
+          setPrintStatus('success');
+        } else {
+          console.log('⚠️  No tablet bridges responded, receipt queued for manual printing');
+          setPrintStatus('error');
+        }
+        
       } else {
-        console.error('❌ Receipt printing failed:', result.error);
+        console.error('❌ Failed to generate ESC/POS commands:', result.error);
         setPrintStatus('error');
       }
     } catch (error) {
-      console.error('❌ Printer API error:', error);
+      console.error('❌ Printer integration error:', error);
       setPrintStatus('error');
     }
   };
