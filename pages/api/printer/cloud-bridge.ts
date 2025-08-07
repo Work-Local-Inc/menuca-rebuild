@@ -48,48 +48,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     try {
-      // Test if tablet is reachable with a simple GET request (file servers respond to GET)
-      const tabletResponse = await fetch(`http://${tablet.ip}:${tablet.port}/`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(8000) // 8 second timeout
+      // Add to print queue instead of trying to reach tablet directly
+      const queueResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/printer/queue`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          restaurantId,
+          orderData,
+          receiptData
+        })
       });
 
-      if (tabletResponse.ok) {
-        const result = await tabletResponse.text();
-        console.log(`✅ Successfully forwarded to ${tablet.name}`);
+      const queueResult = await queueResponse.json();
+      
+      if (queueResult.success) {
+        console.log(`✅ Print job queued for ${tablet.name}. Job ID: ${queueResult.jobId}`);
         
         return res.status(200).json({
           success: true,
-          message: `Receipt sent to ${tablet.name}`,
+          message: `Receipt queued for printing at ${tablet.name}`,
           restaurantId,
           tablet: tablet.name,
+          jobId: queueResult.jobId,
+          queueSize: queueResult.queueSize,
           timestamp: new Date().toISOString()
         });
       } else {
-        console.log(`❌ Tablet ${tablet.name} responded with ${tabletResponse.status}`);
-        
-        // Store in queue for retry (in production, use Redis/database)
-        return res.status(202).json({
-          success: false,
-          message: `Tablet offline - queued for retry`,
-          restaurantId,
-          tablet: tablet.name,
-          status: 'queued',
-          timestamp: new Date().toISOString()
-        });
+        throw new Error('Failed to add to queue');
       }
 
-    } catch (tabletError) {
-      console.log(`❌ Could not reach tablet ${tablet.name}:`, tabletError.message);
+    } catch (error) {
+      console.log(`❌ Failed to queue print job:`, error.message);
       
-      // In production: Store in retry queue, send notification to restaurant
-      return res.status(202).json({
+      return res.status(500).json({
         success: false,
-        message: `Tablet unreachable - queued for retry`,
+        message: `Failed to queue print job`,
         restaurantId,
         tablet: tablet.name,
-        error: tabletError.message,
-        status: 'queued',
+        error: error.message,
         timestamp: new Date().toISOString()
       });
     }

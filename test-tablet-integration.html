@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MenuCA Tablet Printer Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .test-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #45a049; }
+        .output { background: white; padding: 10px; border: 1px solid #ddd; margin: 10px 0; font-family: monospace; white-space: pre-wrap; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖨️ MenuCA NETUM Printer Test</h1>
+        <p><strong>Instructions for Samsung Tablet:</strong></p>
+        <ol>
+            <li>Load this page on your Samsung tablet</li>
+            <li>Ensure NETUM NT-1809DD printer is paired via Bluetooth</li>
+            <li>Click "Generate Test Receipt" to create ESC/POS commands</li>
+            <li>Commands will be displayed - you can copy them to your printer app</li>
+        </ol>
+
+        <div class="test-section">
+            <h3>1. Generate Test Receipt Commands</h3>
+            <button onclick="generateTestReceipt()">Generate Test Receipt</button>
+            <div id="receiptOutput" class="output"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Real Order Data</h3>
+            <button onclick="testRealOrder()">Test with Real Order</button>
+            <div id="orderOutput" class="output"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test API Connection</h3>
+            <button onclick="testAPI()">Test Printer API</button>
+            <div id="apiOutput" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mock ESC/POS generator for tablet testing
+        function generateESCPOSCommands(orderData) {
+            const ESC = '\x1B';
+            const GS = '\x1D';
+            
+            let commands = '';
+            
+            // Initialize printer
+            commands += '\x1B\x40'; // Initialize
+            commands += '\x1B\x74\x00'; // Set codepage
+            
+            // Header (centered, bold, double height)
+            commands += '\x1B\x61\x01'; // Center align
+            commands += '\x1B\x45\x01'; // Bold on
+            commands += '\x1D\x21\x01'; // Double height
+            commands += orderData.restaurantName + '\n';
+            commands += '\x1D\x21\x00'; // Normal size
+            commands += '\x1B\x45\x00'; // Bold off
+            
+            if (orderData.restaurantPhone) {
+                commands += orderData.restaurantPhone + '\n';
+            }
+            
+            // Separator line
+            commands += '-'.repeat(42) + '\n';
+            
+            // Order number (bold)
+            commands += '\x1B\x45\x01'; // Bold on
+            commands += `ORDER #${orderData.orderNumber}\n`;
+            commands += '\x1B\x45\x00'; // Bold off
+            commands += new Date(orderData.timestamp).toLocaleString() + '\n';
+            commands += '-'.repeat(42) + '\n';
+            
+            // Items
+            commands += '\x1B\x61\x00'; // Left align
+            commands += '\x1B\x45\x01'; // Bold on
+            commands += 'ITEMS'.padEnd(34) + 'PRICE\n';
+            commands += '\x1B\x45\x00'; // Bold off
+            
+            orderData.items.forEach(item => {
+                const itemLine = `${item.quantity}x ${item.name}`;
+                const priceLine = `$${item.finalPrice.toFixed(2)}`;
+                const padding = 42 - itemLine.length - priceLine.length;
+                commands += itemLine + ' '.repeat(Math.max(1, padding)) + priceLine + '\n';
+            });
+            
+            commands += '-'.repeat(42) + '\n';
+            
+            // Totals
+            commands += `Subtotal:`.padEnd(34) + `$${orderData.subtotal.toFixed(2)}\n`;
+            if (orderData.tax > 0) {
+                commands += `Tax:`.padEnd(34) + `$${orderData.tax.toFixed(2)}\n`;
+            }
+            if (orderData.delivery > 0) {
+                commands += `Delivery:`.padEnd(34) + `$${orderData.delivery.toFixed(2)}\n`;
+            }
+            if (orderData.tip > 0) {
+                commands += `Tip:`.padEnd(34) + `$${orderData.tip.toFixed(2)}\n`;
+            }
+            
+            commands += '-'.repeat(42) + '\n';
+            
+            // Total (bold, double width)
+            commands += '\x1B\x45\x01'; // Bold on
+            commands += '\x1D\x21\x10'; // Double width
+            commands += `TOTAL:`.padEnd(17) + `$${orderData.total.toFixed(2)}\n`;
+            commands += '\x1D\x21\x00'; // Normal size
+            commands += '\x1B\x45\x00'; // Bold off
+            
+            // Footer
+            commands += '-'.repeat(42) + '\n';
+            commands += '\x1B\x61\x01'; // Center align
+            commands += 'Thank you for your order!\n';
+            commands += 'Visit us again soon!\n';
+            commands += '\n\n\n';
+            commands += '\x1D\x56\x00'; // Cut paper
+            
+            return commands;
+        }
+
+        function generateTestReceipt() {
+            const testOrder = {
+                orderNumber: 'TEST001',
+                restaurantName: 'MenuCA Test Restaurant',
+                restaurantPhone: '1-800-MENUCA',
+                items: [
+                    { name: 'Large Pepperoni Pizza', quantity: 1, finalPrice: 18.99 },
+                    { name: 'Caesar Salad', quantity: 2, finalPrice: 17.98 }
+                ],
+                subtotal: 36.97,
+                tax: 4.81,
+                delivery: 2.99,
+                tip: 5.00,
+                total: 49.77,
+                timestamp: new Date().toISOString()
+            };
+            
+            const commands = generateESCPOSCommands(testOrder);
+            
+            document.getElementById('receiptOutput').innerHTML = 
+                '<div class="success">✅ ESC/POS Commands Generated Successfully!</div>' +
+                '<strong>Commands (copy these to your Bluetooth printer app):</strong>\n' +
+                commands.replace(/\x1B/g, '[ESC]').replace(/\x1D/g, '[GS]').replace(/\x00/g, '[NULL]').replace(/\x01/g, '[SOH]').replace(/\x40/g, '[INIT]') +
+                '\n\n<strong>Raw Bytes Length:</strong> ' + commands.length + ' bytes' +
+                '\n\n<strong>Base64 Encoded:</strong>\n' + btoa(commands);
+        }
+
+        function testRealOrder() {
+            // Simulate getting order from sessionStorage like the real app
+            const realOrder = {
+                orderNumber: 'ORD' + Date.now().toString().slice(-6),
+                restaurantName: 'Xtreme Pizza Ottawa',
+                restaurantPhone: '(613) 555-0123',
+                items: [
+                    { name: 'Supreme Pizza Large', quantity: 1, finalPrice: 22.99 },
+                    { name: 'Chicken Wings 12pc', quantity: 1, finalPrice: 14.99 },
+                    { name: 'Garlic Bread', quantity: 1, finalPrice: 6.99 }
+                ],
+                subtotal: 44.97,
+                tax: 5.85,
+                delivery: 3.99,
+                tip: 7.50,
+                total: 62.31,
+                timestamp: new Date().toISOString()
+            };
+            
+            const commands = generateESCPOSCommands(realOrder);
+            
+            document.getElementById('orderOutput').innerHTML = 
+                '<div class="success">✅ Real Order Receipt Generated!</div>' +
+                '<strong>Order Details:</strong>\n' + JSON.stringify(realOrder, null, 2) +
+                '\n\n<strong>ESC/POS Commands:</strong>\n' +
+                commands.replace(/\x1B/g, '[ESC]').replace(/\x1D/g, '[GS]').replace(/\x00/g, '[NULL]').replace(/\x01/g, '[SOH]').replace(/\x40/g, '[INIT]') +
+                '\n\n<strong>Ready for NETUM NT-1809DD printer!</strong>';
+        }
+
+        async function testAPI() {
+            try {
+                document.getElementById('apiOutput').innerHTML = '⏳ Testing API connection...';
+                
+                const testData = {
+                    orderData: {
+                        orderNumber: 'API001',
+                        restaurantName: 'MenuCA API Test',
+                        restaurantPhone: '1-800-MENUCA',
+                        items: [{ name: 'Test Item', quantity: 1, price: 10.00, finalPrice: 10.00 }],
+                        subtotal: 10.00,
+                        tax: 1.30,
+                        delivery: 2.99,
+                        tip: 0,
+                        total: 14.29,
+                        paymentMethod: 'Card',
+                        timestamp: new Date().toISOString()
+                    },
+                    printerConfig: { method: 'bluetooth' }
+                };
+                
+                const response = await fetch('https://menuca-rebuild.vercel.app/api/printer/send-receipt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('apiOutput').innerHTML = 
+                    '<div class="' + (response.ok ? 'success' : 'error') + '">' +
+                    (response.ok ? '✅' : '❌') + ' API Response:</div>' +
+                    '<strong>Status:</strong> ' + response.status + '\n' +
+                    '<strong>Response:</strong>\n' + JSON.stringify(result, null, 2);
+                    
+            } catch (error) {
+                document.getElementById('apiOutput').innerHTML = 
+                    '<div class="error">❌ API Error:</div>' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
