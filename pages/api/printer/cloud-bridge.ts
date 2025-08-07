@@ -48,13 +48,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     try {
-      // Attempt to reach the tablet
-      const tabletResponse = await fetch(`http://${tablet.ip}:${tablet.port}/print`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(printPayload),
+      // Test if tablet is reachable with a simple GET request (file servers respond to GET)
+      const tabletResponse = await fetch(`http://${tablet.ip}:${tablet.port}/`, {
+        method: 'GET',
         signal: AbortSignal.timeout(8000) // 8 second timeout
       });
 
