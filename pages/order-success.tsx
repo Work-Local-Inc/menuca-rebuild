@@ -310,40 +310,40 @@ export default function OrderSuccessPage() {
         
         let printSuccess = false;
         
-        for (const tabletIP of restaurantTablets) {
-          try {
-            console.log(`Attempting to send receipt to tablet ${tabletIP}...`);
-            
-            // Try different approaches for Samsung tablet integration
-            const printPayload = {
-              receipt: receiptContent,
+        // Use cloud bridge service - works from any device anywhere
+        console.log('Sending receipt via MenuCA cloud bridge...');
+        
+        try {
+          const response = await fetch('/api/printer/cloud-bridge', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              restaurantId: 'xtreme-pizza', // In production, get this from order data
               orderData: orderData,
-              printType: 'thermal_receipt'
-            };
-            
-            // Method A: Direct connection to tablet (local network)
-            const response = await fetch(`http://${tabletIP}:8080/print`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(printPayload),
-              signal: AbortSignal.timeout(10000) // 10 second timeout
-            });
-            
-            if (response.ok) {
-              console.log(`✅ Receipt successfully sent to tablet ${tabletIP}`);
-              setPrintStatus('success');
-              printSuccess = true;
-              break;
-            } else {
-              console.log(`❌ Tablet ${tabletIP} responded with error: ${response.status}`);
-            }
-            
-          } catch (tabletError) {
-            console.log(`❌ Could not reach tablet ${tabletIP}:`, tabletError.message);
-            continue;
+              receiptData: receiptContent
+            }),
+            signal: AbortSignal.timeout(15000) // 15 second timeout
+          });
+
+          const result = await response.json();
+          
+          if (result.success) {
+            console.log(`✅ Receipt sent via cloud bridge to ${result.tablet}`);
+            setPrintStatus('success');
+            printSuccess = true;
+          } else if (response.status === 202) {
+            // Tablet offline but queued
+            console.log(`⏳ Receipt queued for ${result.tablet} (tablet offline)`);
+            setPrintStatus('success'); // Show success to customer
+            printSuccess = true;
+          } else {
+            console.log(`❌ Cloud bridge error: ${result.error}`);
           }
+          
+        } catch (cloudError) {
+          console.log(`❌ Cloud bridge failed:`, cloudError.message);
         }
         
         if (!printSuccess) {
