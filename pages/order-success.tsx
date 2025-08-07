@@ -208,40 +208,76 @@ export default function OrderSuccessPage() {
         </html>
       `;
 
-      // Method 1: Try direct window.print() with formatted content
-      const printWindow = window.open('', '_blank', 'width=300,height=600');
-      if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
+      // Create a data URL with the receipt content for ESC/POS app link
+      const receiptDataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(printContent)}`;
+      
+      // Try ESC/POS app link (direct printing without preview)
+      console.log('Attempting ESC/POS app link printing...');
+      
+      // Method 1: Try direct app link to ESC/POS service
+      try {
+        const escPosLink = `intent://print?data=${encodeURIComponent(receiptContent)}#Intent;scheme=escpos;package=com.loopedlabs.escposprintservice;action=org.escpos.intent.action.PRINT;S.DATA_TYPE=TEXT;end`;
         
-        printWindow.onload = () => {
-          setTimeout(() => {
-            printWindow.print();
-            setTimeout(() => {
-              printWindow.close();
+        // Create hidden link and trigger it
+        const appLinkElement = document.createElement('a');
+        appLinkElement.href = escPosLink;
+        appLinkElement.style.display = 'none';
+        document.body.appendChild(appLinkElement);
+        appLinkElement.click();
+        document.body.removeChild(appLinkElement);
+        
+        console.log('✅ ESC/POS app link triggered');
+        setPrintStatus('success');
+        
+      } catch (appLinkError) {
+        console.log('App link failed, trying share intent...', appLinkError);
+        
+        // Method 2: Try share intent approach
+        try {
+          // Create share URL for ESC/POS service
+          const shareData = {
+            title: `Receipt - Order #${orderData.orderNumber}`,
+            text: receiptContent,
+            url: receiptDataUrl
+          };
+          
+          if (navigator.share) {
+            await navigator.share(shareData);
+            console.log('✅ Receipt shared to ESC/POS service');
+            setPrintStatus('success');
+          } else {
+            // Method 3: Fallback - open receipt in new tab for manual printing
+            console.log('Share API not available, opening receipt for manual printing...');
+            const printTab = window.open(receiptDataUrl, '_blank');
+            if (printTab) {
+              console.log('✅ Receipt opened in new tab - user can manually select ESC/POS service');
               setPrintStatus('success');
-              console.log('✅ Receipt sent to ESC/POS Print Service');
-            }, 1000);
-          }, 500);
-        };
-      } else {
-        // Fallback: Create hidden div and print current page
-        const originalContent = document.body.innerHTML;
-        const printDiv = document.createElement('div');
-        printDiv.innerHTML = printContent;
-        printDiv.style.display = 'none';
-        document.body.appendChild(printDiv);
-        
-        // Replace page content temporarily
-        document.body.innerHTML = printContent;
-        window.print();
-        
-        // Restore original content
-        setTimeout(() => {
-          document.body.innerHTML = originalContent;
-          setPrintStatus('success');
-          console.log('✅ Receipt printed via fallback method');
-        }, 2000);
+            } else {
+              throw new Error('Could not open print tab');
+            }
+          }
+          
+        } catch (shareError) {
+          console.log('Share intent failed, trying window print...', shareError);
+          
+          // Method 4: Final fallback - standard window.print() 
+          const printWindow = window.open(receiptDataUrl, '_blank', 'width=300,height=600');
+          if (printWindow) {
+            printWindow.onload = () => {
+              setTimeout(() => {
+                printWindow.print();
+                setTimeout(() => {
+                  printWindow.close();
+                  setPrintStatus('success');
+                  console.log('✅ Receipt sent via standard print dialog');
+                }, 1000);
+              }, 500);
+            };
+          } else {
+            console.log('All print methods failed');
+            setPrintStatus('error');
+          }
+        }
       }
       
     } catch (error) {
