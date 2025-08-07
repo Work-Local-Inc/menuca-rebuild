@@ -99,116 +99,153 @@ export default function OrderSuccessPage() {
     }).format(amount);
   };
 
-  // Send receipt to NETUM printer via Samsung tablet bridge
+  // Send receipt to NETUM printer via ESC/POS Print Service
   const sendReceiptToPrinter = async (orderData: OrderDetails) => {
     try {
       setPrintStatus('printing');
       
-      // Convert OrderDetails to printer format
-      const printerOrderData = {
-        orderNumber: orderData.orderNumber,
-        restaurantName: 'MenuCA Restaurant', // You can get this from restaurant context
-        restaurantPhone: '1-800-MENUCA',
-        items: orderData.items.map(item => ({
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          finalPrice: item.price * item.quantity
-        })),
-        subtotal: orderData.total * 0.85, // Estimate subtotal
-        tax: orderData.total * 0.13, // 13% HST estimate
-        delivery: 2.99,
-        tip: 0,
-        total: orderData.total,
-        paymentMethod: 'Card' as const,
-        timestamp: orderData.timestamp
+      // Format receipt for thermal printing (58mm paper, 42 chars wide)
+      const formatReceiptForPrinting = (data: OrderDetails): string => {
+        const line = (char: string = '-') => char.repeat(42);
+        const centerText = (text: string) => {
+          const padding = Math.max(0, Math.floor((42 - text.length) / 2));
+          return ' '.repeat(padding) + text;
+        };
+        const rightAlign = (left: string, right: string) => {
+          const padding = Math.max(1, 42 - left.length - right.length);
+          return left + ' '.repeat(padding) + right;
+        };
+        
+        let receipt = '';
+        
+        // Header
+        receipt += centerText('MenuCA Restaurant') + '\n';
+        receipt += centerText('1-800-MENUCA') + '\n';
+        receipt += line() + '\n';
+        receipt += centerText(`ORDER #${data.orderNumber}`) + '\n';
+        receipt += centerText(new Date(data.timestamp).toLocaleString()) + '\n';
+        receipt += line() + '\n';
+        
+        // Items
+        receipt += 'ITEMS' + ' '.repeat(29) + 'PRICE\n';
+        data.items.forEach(item => {
+          const itemText = `${item.quantity}x ${item.name}`;
+          const priceText = `$${item.price.toFixed(2)}`;
+          
+          if (itemText.length <= 34) {
+            receipt += rightAlign(itemText, priceText) + '\n';
+          } else {
+            // Wrap long item names
+            const wrapped = itemText.substring(0, 34);
+            receipt += rightAlign(wrapped + '...', priceText) + '\n';
+          }
+        });
+        
+        receipt += line() + '\n';
+        
+        // Totals
+        const subtotal = data.total * 0.85;
+        const tax = data.total * 0.13;
+        const delivery = 2.99;
+        
+        receipt += rightAlign('Subtotal:', `$${subtotal.toFixed(2)}`) + '\n';
+        receipt += rightAlign('Tax:', `$${tax.toFixed(2)}`) + '\n';
+        receipt += rightAlign('Delivery:', `$${delivery.toFixed(2)}`) + '\n';
+        receipt += line() + '\n';
+        receipt += rightAlign('TOTAL:', `$${data.total.toFixed(2)}`) + '\n';
+        receipt += line() + '\n';
+        
+        // Footer
+        receipt += centerText('Thank you for your order!') + '\n';
+        receipt += centerText('Visit us again soon!') + '\n';
+        receipt += '\n\n\n';
+        
+        return receipt;
       };
 
-      console.log('Generating ESC/POS commands for tablet bridge...', printerOrderData);
+      console.log('Creating receipt for ESC/POS printing...', orderData);
       
-      // First, generate ESC/POS commands
-      const response = await fetch('/api/printer/send-receipt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          orderData: printerOrderData,
-          printerConfig: {
-            method: 'bluetooth' // Generate commands for bridge app
-          }
-        }),
-      });
-
-      const result = await response.json();
+      // Create a hidden printable div with the receipt
+      const receiptContent = formatReceiptForPrinting(orderData);
       
-      if (result.success && result.commandsGenerated) {
-        console.log('✅ ESC/POS commands generated, sending to tablet bridge...');
-        
-        // Try to send to tablet bridge app
-        // You'll configure the tablet IP address for each restaurant
-        const tabletIPs = [
-          '192.168.1.100', // Restaurant 1 tablet
-          '192.168.1.101', // Restaurant 2 tablet  
-          // Add more tablet IPs as needed
-        ];
-        
-        let printed = false;
-        
-        // Try each tablet IP until one succeeds
-        for (const tabletIP of tabletIPs) {
-          try {
-            console.log(`Trying tablet bridge at ${tabletIP}...`);
-            
-            const bridgeResponse = await fetch(`http://${tabletIP}:8080/print`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                escposCommands: btoa(String.fromCharCode(...new Uint8Array(
-                  await (await fetch('/api/printer/send-receipt', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      orderData: printerOrderData,
-                      printerConfig: { method: 'bluetooth' }
-                    })
-                  })).arrayBuffer()
-                )))
-              }),
-              signal: AbortSignal.timeout(5000) // 5 second timeout
-            });
-            
-            const bridgeResult = await bridgeResponse.json();
-            
-            if (bridgeResult.success) {
-              console.log(`✅ Receipt printed via tablet ${tabletIP}`);
-              printed = true;
-              break;
-            } else {
-              console.log(`❌ Tablet ${tabletIP} failed: ${bridgeResult.error}`);
+      // Create print window content
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Receipt - Order #${orderData.orderNumber}</title>
+          <style>
+            @page {
+              size: 58mm 200mm;
+              margin: 0;
             }
-            
-          } catch (bridgeError) {
-            console.log(`❌ Tablet ${tabletIP} unreachable: ${bridgeError}`);
-            continue;
-          }
-        }
+            body {
+              font-family: 'Courier New', monospace;
+              font-size: 12px;
+              line-height: 1.2;
+              margin: 5px;
+              width: 58mm;
+              color: black;
+              background: white;
+            }
+            .receipt {
+              white-space: pre-line;
+              word-wrap: break-word;
+            }
+            @media print {
+              body { 
+                font-size: 10px;
+                width: 100%;
+                margin: 0;
+                padding: 2mm;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="receipt">${receiptContent}</div>
+        </body>
+        </html>
+      `;
+
+      // Method 1: Try direct window.print() with formatted content
+      const printWindow = window.open('', '_blank', 'width=300,height=600');
+      if (printWindow) {
+        printWindow.document.write(printContent);
+        printWindow.document.close();
         
-        if (printed) {
-          setPrintStatus('success');
-        } else {
-          console.log('⚠️  No tablet bridges responded, receipt queued for manual printing');
-          setPrintStatus('error');
-        }
-        
+        printWindow.onload = () => {
+          setTimeout(() => {
+            printWindow.print();
+            setTimeout(() => {
+              printWindow.close();
+              setPrintStatus('success');
+              console.log('✅ Receipt sent to ESC/POS Print Service');
+            }, 1000);
+          }, 500);
+        };
       } else {
-        console.error('❌ Failed to generate ESC/POS commands:', result.error);
-        setPrintStatus('error');
+        // Fallback: Create hidden div and print current page
+        const originalContent = document.body.innerHTML;
+        const printDiv = document.createElement('div');
+        printDiv.innerHTML = printContent;
+        printDiv.style.display = 'none';
+        document.body.appendChild(printDiv);
+        
+        // Replace page content temporarily
+        document.body.innerHTML = printContent;
+        window.print();
+        
+        // Restore original content
+        setTimeout(() => {
+          document.body.innerHTML = originalContent;
+          setPrintStatus('success');
+          console.log('✅ Receipt printed via fallback method');
+        }, 2000);
       }
+      
     } catch (error) {
-      console.error('❌ Printer integration error:', error);
+      console.error('❌ Print service error:', error);
       setPrintStatus('error');
     }
   };
