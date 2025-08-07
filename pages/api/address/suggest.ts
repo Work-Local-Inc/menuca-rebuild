@@ -26,14 +26,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const apiKey = process.env.CANADA_POST_API_KEY;
   
+  // Canada Post API integration
+  
   if (!apiKey) {
-    // Return mock data for development
-    const mockSuggestions = getMockCanadianAddresses(query);
-    return res.status(200).json({ suggestions: mockSuggestions });
+    // Return mock data for development - ALWAYS for now
+    const mockSuggestions = [
+      {
+        id: 'mock-1',
+        text: '123 Main Street, Ottawa, ON K1A 0A6',
+        description: 'Ottawa, Ontario, Canada'
+      },
+      {
+        id: 'mock-2', 
+        text: '456 Bank Street, Ottawa, ON K1S 3T4',
+        description: 'Ottawa, Ontario, Canada'
+      },
+      {
+        id: 'mock-3',
+        text: '789 Somerset Street West, Ottawa, ON K1R 6P6',
+        description: 'Ottawa, Ontario, Canada'
+      }
+    ].filter(addr => 
+      addr.text.toLowerCase().includes(query.toLowerCase()) ||
+      addr.description.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    return res.status(200).json({ 
+      suggestions: mockSuggestions,
+      debug: { query, apiKey: !!apiKey, mockLength: mockSuggestions.length }
+    });
   }
 
   try {
-    // Canada Post Address Complete API
+    // Canada Post Address Complete API - Interactive Find endpoint
     const apiUrl = 'https://ws1.postescanada-canadapost.ca/AddressComplete/Interactive/Find/v2.10/json3.ws';
     
     const params = new URLSearchParams({
@@ -44,20 +69,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       Origin: process.env.NEXT_PUBLIC_SITE_URL || 'localhost'
     });
 
-    const response = await fetch(`${apiUrl}?${params}`);
+    const response = await fetch(`${apiUrl}?${params}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'MenuCA/1.0'
+      }
+    });
     
     if (!response.ok) {
-      throw new Error(`Canada Post API error: ${response.status}`);
+      const errorText = await response.text();
+      throw new Error(`Canada Post API error: ${response.status} - ${errorText}`);
     }
 
-    const data: CanadaPostResponse = await response.json();
+    const data = await response.json();
     
     // Transform Canada Post response to our format
-    const suggestions = data.items?.map((item, index) => ({
-      id: item.id || `cp-${index}`,
-      text: item.text,
-      highlight: item.highlight,
-      description: item.description || 'Canada'
+    const suggestions = data.Items?.map((item, index) => ({
+      id: item.Id || `cp-${index}`,
+      text: item.Text,
+      highlight: item.Highlight,
+      description: item.Description || 'Canada'
     })) || [];
 
     res.status(200).json({ suggestions });
@@ -70,7 +102,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({ 
       suggestions: mockSuggestions,
       fallback: true,
-      error: 'Address service temporarily unavailable'
+      error: 'Address service temporarily unavailable',
+      debug: { originalError: error.message, query, mockCount: mockSuggestions.length }
     });
   }
 }
@@ -135,11 +168,15 @@ function getMockCanadianAddresses(query: string) {
   ];
 
   const lowerQuery = query.toLowerCase();
+  console.log('Mock function called with query:', query, 'lowerQuery:', lowerQuery);
+  console.log('Total addresses available:', addresses.length);
   
-  return addresses
-    .filter(addr => 
-      addr.text.toLowerCase().includes(lowerQuery) ||
-      addr.description.toLowerCase().includes(lowerQuery)
-    )
-    .slice(0, 5);
+  const filtered = addresses.filter(addr => 
+    addr.text.toLowerCase().includes(lowerQuery) ||
+    addr.description.toLowerCase().includes(lowerQuery)
+  );
+  
+  console.log('Filtered addresses:', filtered.length);
+  
+  return filtered.slice(0, 5);
 }

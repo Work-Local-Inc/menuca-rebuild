@@ -257,7 +257,7 @@ export default function CheckoutPage() {
   const totals = calculateTotals();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6">
       <TempNavigation />
       
       <div className="max-w-2xl mx-auto space-y-6">
@@ -267,9 +267,9 @@ export default function CheckoutPage() {
         </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center space-x-8 mb-8">
+        <div className="flex items-center justify-center space-x-2 sm:space-x-8 mb-8 overflow-x-auto pb-2">
           {['cart', 'delivery', 'payment', 'confirmation'].map((stepName, index) => (
-            <div key={stepName} className="flex items-center">
+            <div key={stepName} className="flex items-center min-w-0 flex-shrink-0">
               <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
                 step === stepName ? 'bg-blue-600 text-white' :
                 ['cart', 'delivery', 'payment'].indexOf(step) > index ? 'bg-green-600 text-white' :
@@ -281,7 +281,7 @@ export default function CheckoutPage() {
                   index + 1
                 )}
               </div>
-              <span className="ml-2 text-sm font-medium capitalize">{stepName}</span>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium capitalize truncate">{stepName}</span>
             </div>
           ))}
         </div>
@@ -386,8 +386,12 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('cart')}>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setStep('cart')}
+                  className="w-full sm:w-auto min-h-[44px]"
+                >
                   Back to Cart
                 </Button>
                 <Button 
@@ -395,7 +399,7 @@ export default function CheckoutPage() {
                     setStep('payment');
                     await createPaymentIntent();
                   }} 
-                  className="flex-1"
+                  className="flex-1 min-h-[44px]"
                   disabled={!deliveryAddressInput.trim()}
                 >
                   Continue to Payment
@@ -416,13 +420,13 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Add Tip</label>
-                <div className="flex gap-2 mb-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
                   {[0, 3, 5, 8].map(tip => (
                     <Button
                       key={tip}
                       variant={orderData.tipAmount === tip ? "default" : "outline"}
                       onClick={() => setOrderData({...orderData, tipAmount: tip})}
-                      className="flex-1"
+                      className="min-h-[44px] text-sm"
                     >
                       {tip === 0 ? 'No Tip' : `$${tip}`}
                     </Button>
@@ -430,10 +434,11 @@ export default function CheckoutPage() {
                 </div>
                 <input
                   type="number"
-                  className="w-full p-3 border rounded-md"
+                  className="w-full p-3 border rounded-md text-base"
                   placeholder="Custom tip amount"
                   value={orderData.tipAmount || ''}
                   onChange={(e) => setOrderData({...orderData, tipAmount: parseFloat(e.target.value) || 0})}
+                  style={{ fontSize: '16px' }} /* Prevents zoom on iOS */
                 />
               </div>
 
@@ -489,8 +494,12 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep('delivery')}>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setStep('delivery')}
+                  className="w-full sm:w-auto min-h-[44px]"
+                >
                   Back
                 </Button>
               </div>
