@@ -42,57 +42,32 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Canada Post API integration
+  // Canada Post API integration - ALWAYS use backend API
   const searchAddresses = async (query: string): Promise<AddressSuggestion[]> => {
     if (query.length < 3) return [];
-
-    const apiKey = process.env.NEXT_PUBLIC_CANADA_POST_API_KEY;
-    
-    if (!apiKey) {
-      // Fallback to mock suggestions for development
-      return getMockSuggestions(query);
-    }
 
     try {
       setIsLoading(true);
       
-      // Canada Post Address Complete API
+      // Always use backend API - no frontend API key needed
       const response = await fetch(`/api/address/suggest?q=${encodeURIComponent(query)}`);
       
       if (!response.ok) {
-        throw new Error('Address service unavailable');
+        console.error('Address API error:', response.status, response.statusText);
+        return []; // Return empty array instead of mock data
       }
       
       const data = await response.json();
       return data.suggestions || [];
       
     } catch (error) {
-      console.warn('Address API failed, using fallback:', error);
-      return getMockSuggestions(query);
+      console.error('Address API failed:', error);
+      return []; // Return empty array instead of mock data
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Mock suggestions for development/fallback
-  const getMockSuggestions = (query: string): AddressSuggestion[] => {
-    const mockAddresses = [
-      '123 Main Street, Ottawa, ON K1A 0A6',
-      '456 Bank Street, Ottawa, ON K1S 3T4', 
-      '789 Somerset Street West, Ottawa, ON K1R 6P6',
-      '321 Rideau Street, Ottawa, ON K1N 5Y4',
-      '654 Preston Street, Ottawa, ON K1R 7W1'
-    ];
-
-    return mockAddresses
-      .filter(addr => addr.toLowerCase().includes(query.toLowerCase()))
-      .slice(0, 5)
-      .map((addr, index) => ({
-        id: `mock-${index}`,
-        text: addr,
-        description: 'Ottawa, Ontario, Canada'
-      }));
-  };
 
   // Parse address string into components
   const parseAddress = (addressString: string): Address => {
@@ -284,12 +259,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         </div>
       )}
 
-      {/* No API key warning for development */}
-      {!process.env.NEXT_PUBLIC_CANADA_POST_API_KEY && (
-        <div className="mt-2 text-xs text-amber-600">
-          ⚠️ Using mock address suggestions. Set NEXT_PUBLIC_CANADA_POST_API_KEY for real validation.
-        </div>
-      )}
+      {/* Production address validation */}
     </div>
   );
 };
