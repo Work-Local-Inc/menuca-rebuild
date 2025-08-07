@@ -29,9 +29,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Canada Post API integration
   
   if (!apiKey) {
-    // Return mock data for development
-    const mockSuggestions = getMockCanadianAddresses(query);
-    return res.status(200).json({ suggestions: mockSuggestions });
+    return res.status(500).json({ 
+      error: 'Canada Post API key not configured',
+      message: 'Address validation service unavailable' 
+    });
   }
 
   try {
@@ -74,86 +75,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('Canada Post API error:', error);
     
-    // Fallback to mock data
-    const mockSuggestions = getMockCanadianAddresses(query);
-    res.status(200).json({ 
-      suggestions: mockSuggestions,
-      fallback: true,
+    // Return error - NO FALLBACK TO MOCK DATA
+    res.status(503).json({
       error: 'Address service temporarily unavailable',
-      debug: { originalError: error.message, query, mockCount: mockSuggestions.length }
+      message: 'Unable to validate addresses at this time',
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-}
-
-// Mock Canadian addresses for development/fallback
-function getMockCanadianAddresses(query: string) {
-  const addresses = [
-    // Ottawa addresses
-    {
-      id: 'mock-1',
-      text: '123 Main Street, Ottawa, ON K1A 0A6',
-      description: 'Ottawa, Ontario, Canada'
-    },
-    {
-      id: 'mock-2', 
-      text: '456 Bank Street, Ottawa, ON K1S 3T4',
-      description: 'Ottawa, Ontario, Canada'
-    },
-    {
-      id: 'mock-3',
-      text: '789 Somerset Street West, Ottawa, ON K1R 6P6',
-      description: 'Ottawa, Ontario, Canada'
-    },
-    {
-      id: 'mock-4',
-      text: '321 Rideau Street, Ottawa, ON K1N 5Y4', 
-      description: 'Ottawa, Ontario, Canada'
-    },
-    {
-      id: 'mock-5',
-      text: '654 Preston Street, Ottawa, ON K1R 7W1',
-      description: 'Ottawa, Ontario, Canada'
-    },
-    // Toronto addresses
-    {
-      id: 'mock-6',
-      text: '100 Queen Street West, Toronto, ON M5H 2N2',
-      description: 'Toronto, Ontario, Canada'
-    },
-    {
-      id: 'mock-7',
-      text: '200 Bay Street, Toronto, ON M5J 2J4',
-      description: 'Toronto, Ontario, Canada'
-    },
-    // Vancouver addresses
-    {
-      id: 'mock-8',
-      text: '300 Robson Street, Vancouver, BC V6B 3J1',
-      description: 'Vancouver, British Columbia, Canada'
-    },
-    {
-      id: 'mock-9',
-      text: '400 Granville Street, Vancouver, BC V6C 1T2',
-      description: 'Vancouver, British Columbia, Canada'
-    },
-    // Montreal addresses
-    {
-      id: 'mock-10',
-      text: '500 Rue Sainte-Catherine, Montreal, QC H3B 1A7',
-      description: 'Montreal, Quebec, Canada'
-    }
-  ];
-
-  const lowerQuery = query.toLowerCase();
-  console.log('Mock function called with query:', query, 'lowerQuery:', lowerQuery);
-  console.log('Total addresses available:', addresses.length);
-  
-  const filtered = addresses.filter(addr => 
-    addr.text.toLowerCase().includes(lowerQuery) ||
-    addr.description.toLowerCase().includes(lowerQuery)
-  );
-  
-  console.log('Filtered addresses:', filtered.length);
-  
-  return filtered.slice(0, 5);
 }
