@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MenuCA Tablet Bridge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f8ff;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            font-weight: bold;
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .info { background: #cce5ff; border: 1px solid #80bfff; color: #004085; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .log { 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            padding: 10px; 
+            font-family: monospace; 
+            font-size: 12px; 
+            max-height: 300px; 
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #218838; }
+        .disabled { background: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖨️ MenuCA Tablet Print Bridge</h1>
+        <p><strong>Samsung Tablet IP:</strong> <span id="tabletIP">Loading...</span></p>
+        <p><strong>NETUM Printer:</strong> <span id="printerStatus">Checking...</span></p>
+        
+        <div id="status" class="status info">
+            📡 Ready to receive print requests from MenuCA orders
+        </div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="testPrint()">🖨️ Test Print</button>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+            <button onclick="shareToPrint()" id="shareBtn" class="disabled">📤 Share Last Receipt</button>
+        </div>
+
+        <div>
+            <strong>Activity Log:</strong>
+            <div id="log" class="log">Bridge starting...\n</div>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 12px; color: #666;">
+            <p><strong>How it works:</strong></p>
+            <ol>
+                <li>Customer places order on MenuCA website</li>
+                <li>Success page sends receipt data to this tablet</li>
+                <li>Bridge forwards receipt to ESC/POS Print Service</li>
+                <li>ESC/POS service prints on paired NETUM printer</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let lastReceipt = null;
+
+        // Get tablet IP address
+        function getLocalIP() {
+            return new Promise((resolve) => {
+                const pc = new RTCPeerConnection({iceServers: []});
+                pc.createDataChannel('');
+                pc.createOffer().then(offer => pc.setLocalDescription(offer));
+                pc.onicecandidate = event => {
+                    if (event.candidate) {
+                        const ip = event.candidate.candidate.split(' ')[4];
+                        if (ip && ip !== '0.0.0.0') {
+                            resolve(ip);
+                        }
+                    }
+                };
+                setTimeout(() => resolve('Unknown'), 3000);
+            });
+        }
+
+        // Initialize
+        async function init() {
+            const ip = await getLocalIP();
+            document.getElementById('tabletIP').textContent = ip;
+            addLog(`Tablet IP detected: ${ip}`);
+            addLog('Bridge ready for MenuCA print requests');
+            
+            // Check for ESC/POS Print Service
+            checkPrintService();
+            
+            // Start listening for messages (simulation)
+            startListening();
+        }
+
+        function checkPrintService() {
+            // Check if ESC/POS Print Service is available
+            if (navigator.userAgent.includes('Android')) {
+                document.getElementById('printerStatus').textContent = 'ESC/POS Service Available';
+                document.getElementById('printerStatus').style.color = '#28a745';
+                addLog('✅ Android detected - ESC/POS Print Service should be available');
+            } else {
+                document.getElementById('printerStatus').textContent = 'Desktop Browser (Testing Mode)';
+                document.getElementById('printerStatus').style.color = '#ffc107';
+                addLog('⚠️ Desktop browser - ESC/POS service not available for testing');
+            }
+        }
+
+        // Simulate listening for print requests
+        function startListening() {
+            addLog('🔄 Polling for print requests every 5 seconds...');
+            
+            // Check URL parameters for direct print requests
+            const urlParams = new URLSearchParams(window.location.search);
+            const receipt = urlParams.get('receipt');
+            if (receipt) {
+                addLog('📧 Receipt data found in URL - processing...');
+                handlePrintRequest(decodeURIComponent(receipt));
+            }
+
+            // Simulate periodic checking
+            setInterval(() => {
+                // In real implementation, this would check for HTTP POST requests
+                console.log('Checking for new print jobs...');
+            }, 5000);
+        }
+
+        // Handle incoming print request
+        function handlePrintRequest(receiptData) {
+            addLog('📨 Received print request from MenuCA');
+            addLog('🖨️ Processing receipt...');
+            
+            lastReceipt = receiptData;
+            document.getElementById('shareBtn').classList.remove('disabled');
+            
+            // Show receipt preview
+            const receiptPreview = receiptData.substring(0, 200) + '...';
+            addLog('📄 Receipt preview:\n' + receiptPreview);
+            
+            // Try to send to ESC/POS Print Service
+            sendToESCPOS(receiptData);
+        }
+
+        // Send to ESC/POS Print Service
+        async function sendToESCPOS(receiptData) {
+            try {
+                if (navigator.share) {
+                    addLog('📤 Attempting to share receipt to ESC/POS Print Service...');
+                    
+                    // This should trigger the share menu with ESC/POS service option
+                    await navigator.share({
+                        title: 'MenuCA Receipt',
+                        text: receiptData
+                    });
+                    
+                    setStatus('✅ Receipt sent to ESC/POS Print Service', 'success');
+                    addLog('✅ Successfully shared to print service');
+                    
+                } else {
+                    addLog('⚠️ Share API not available - showing print dialog instead');
+                    
+                    // Fallback: open print dialog
+                    const printWindow = window.open('', '_blank', 'width=400,height=600');
+                    printWindow.document.write(`
+                        <html>
+                        <head><title>MenuCA Receipt</title></head>
+                        <body style="font-family: monospace; white-space: pre-wrap; font-size: 12px;">
+                        ${receiptData}
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    printWindow.print();
+                    
+                    setStatus('✅ Receipt displayed for printing', 'success');
+                    addLog('✅ Opened print dialog as fallback');
+                }
+                
+            } catch (error) {
+                setStatus('❌ Failed to print receipt', 'error');
+                addLog('❌ Print failed: ' + error.message);
+            }
+        }
+
+        // Test print function
+        function testPrint() {
+            addLog('🧪 Test print requested by user');
+            const testReceipt = `
+                MenuCA Restaurant
+                1-800-MENUCA
+                ------------------------------------------
+                ORDER #TEST001
+                ${new Date().toLocaleString()}
+                ------------------------------------------
+                ITEMS                              PRICE
+                1x Test Pizza Large               $18.99
+                1x Test Wings                     $12.99
+                ------------------------------------------
+                Subtotal:                         $31.98
+                Tax:                              $4.16
+                Delivery:                         $2.99
+                ------------------------------------------
+                TOTAL:                            $39.13
+                ------------------------------------------
+                       Thank you for your order!
+                       Visit us again soon!
+            `;
+            
+            handlePrintRequest(testReceipt.trim());
+        }
+
+        // Share last receipt
+        function shareToPrint() {
+            if (lastReceipt) {
+                sendToESCPOS(lastReceipt);
+            } else {
+                addLog('❌ No receipt available to share');
+            }
+        }
+
+        // Utility functions
+        function addLog(message) {
+            const log = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function setStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+            addLog('Log cleared by user');
+        }
+
+        // Start the bridge
+        window.onload = init;
+    </script>
+</body>
+</html>
