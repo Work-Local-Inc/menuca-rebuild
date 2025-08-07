@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 
 interface OrderItem {
   name: string;
@@ -320,8 +321,8 @@ export default function OrderSuccessPage() {
               printType: 'thermal_receipt'
             };
             
-            // Method A: Try direct HTTPS POST to tablet's print service
-            const response = await fetch(`https://${tabletIP}:8080/print`, {
+            // Method A: Try direct HTTP POST to tablet's print service
+            const response = await fetch(`http://${tabletIP}:8080/print`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -435,7 +436,11 @@ export default function OrderSuccessPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', padding: '24px' }}>
+    <>
+      <Head>
+        <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+      </Head>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', padding: '24px' }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         {/* Success Header */}
@@ -684,6 +689,7 @@ export default function OrderSuccessPage() {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
