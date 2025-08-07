@@ -29,32 +29,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Canada Post API integration
   
   if (!apiKey) {
-    // Return mock data for development - ALWAYS for now
-    const mockSuggestions = [
-      {
-        id: 'mock-1',
-        text: '123 Main Street, Ottawa, ON K1A 0A6',
-        description: 'Ottawa, Ontario, Canada'
-      },
-      {
-        id: 'mock-2', 
-        text: '456 Bank Street, Ottawa, ON K1S 3T4',
-        description: 'Ottawa, Ontario, Canada'
-      },
-      {
-        id: 'mock-3',
-        text: '789 Somerset Street West, Ottawa, ON K1R 6P6',
-        description: 'Ottawa, Ontario, Canada'
-      }
-    ].filter(addr => 
-      addr.text.toLowerCase().includes(query.toLowerCase()) ||
-      addr.description.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    return res.status(200).json({ 
-      suggestions: mockSuggestions,
-      debug: { query, apiKey: !!apiKey, mockLength: mockSuggestions.length }
-    });
+    // Return mock data for development
+    const mockSuggestions = getMockCanadianAddresses(query);
+    return res.status(200).json({ suggestions: mockSuggestions });
   }
 
   try {
