@@ -320,8 +320,8 @@ export default function OrderSuccessPage() {
               printType: 'thermal_receipt'
             };
             
-            // Method A: Try direct HTTP POST to tablet's print service
-            const response = await fetch(`http://${tabletIP}:8080/print`, {
+            // Method A: Try direct HTTPS POST to tablet's print service
+            const response = await fetch(`https://${tabletIP}:8080/print`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
