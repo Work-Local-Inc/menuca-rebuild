@@ -297,26 +297,62 @@ export default function OrderSuccessPage() {
       // Create a data URL with the receipt content for ESC/POS app link
       const receiptDataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(printContent)}`;
       
-      // Try ESC/POS app link (direct printing without preview)
-      console.log('Attempting ESC/POS app link printing...');
+      // Send HTTP request to Samsung tablet running ESC/POS Print Service
+      console.log('Sending receipt to restaurant Samsung tablet...');
       
-      // Method 1: Try direct app link to ESC/POS service
+      // Method 1: Try sending to restaurant tablet via HTTP
       try {
-        const escPosLink = `intent://print?data=${encodeURIComponent(receiptContent)}#Intent;scheme=escpos;package=com.loopedlabs.escposprintservice;action=org.escpos.intent.action.PRINT;S.DATA_TYPE=TEXT;end`;
+        // Restaurant tablet IP addresses (configure these for each location)
+        const restaurantTablets = [
+          '192.168.1.100', // Default tablet IP - configure this!
+          '192.168.1.101', // Backup tablet IP
+        ];
         
-        // Create hidden link and trigger it
-        const appLinkElement = document.createElement('a');
-        appLinkElement.href = escPosLink;
-        appLinkElement.style.display = 'none';
-        document.body.appendChild(appLinkElement);
-        appLinkElement.click();
-        document.body.removeChild(appLinkElement);
+        let printSuccess = false;
         
-        console.log('✅ ESC/POS app link triggered');
-        setPrintStatus('success');
+        for (const tabletIP of restaurantTablets) {
+          try {
+            console.log(`Attempting to send receipt to tablet ${tabletIP}...`);
+            
+            // Try different approaches for Samsung tablet integration
+            const printPayload = {
+              receipt: receiptContent,
+              orderData: orderData,
+              printType: 'thermal_receipt'
+            };
+            
+            // Method A: Try direct HTTP POST to tablet's print service
+            const response = await fetch(`http://${tabletIP}:8080/print`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(printPayload),
+              signal: AbortSignal.timeout(3000) // 3 second timeout
+            });
+            
+            if (response.ok) {
+              console.log(`✅ Receipt successfully sent to tablet ${tabletIP}`);
+              setPrintStatus('success');
+              printSuccess = true;
+              break;
+            } else {
+              console.log(`❌ Tablet ${tabletIP} responded with error: ${response.status}`);
+            }
+            
+          } catch (tabletError) {
+            console.log(`❌ Could not reach tablet ${tabletIP}:`, tabletError.message);
+            continue;
+          }
+        }
         
-      } catch (appLinkError) {
-        console.log('App link failed, trying share intent...', appLinkError);
+        if (!printSuccess) {
+          console.log('⚠️ Could not reach any restaurant tablets - trying fallback methods...');
+          throw new Error('No tablets reachable');
+        }
+        
+      } catch (httpError) {
+        console.log('HTTP to tablet failed, trying Android share method...', httpError);
         
         // Method 2: Try share intent approach
         try {
