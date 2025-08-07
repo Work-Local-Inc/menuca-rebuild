@@ -304,8 +304,7 @@ export default function OrderSuccessPage() {
       try {
         // Restaurant tablet IP addresses (configure these for each location)
         const restaurantTablets = [
-          '192.168.1.100', // Default tablet IP - configure this!
-          '192.168.1.101', // Backup tablet IP
+          '192.168.0.49', // Your Samsung tablet IP
         ];
         
         let printSuccess = false;
