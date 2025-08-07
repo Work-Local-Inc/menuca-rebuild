@@ -321,14 +321,17 @@ export default function OrderSuccessPage() {
               printType: 'thermal_receipt'
             };
             
-            // Method A: Try direct HTTP POST to tablet's print service
-            const response = await fetch(`http://${tabletIP}:8080/print`, {
+            // Method A: Use Vercel proxy to send to tablet (bypasses mixed content)
+            const response = await fetch('/api/printer/proxy', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(printPayload),
-              signal: AbortSignal.timeout(3000) // 3 second timeout
+              body: JSON.stringify({
+                tabletIP: tabletIP,
+                printData: printPayload
+              }),
+              signal: AbortSignal.timeout(10000) // 10 second timeout for proxy
             });
             
             if (response.ok) {
