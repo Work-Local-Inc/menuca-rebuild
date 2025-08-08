@@ -11,10 +11,8 @@ import StripePaymentForm from '@/components/StripePaymentForm';
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// Complete real scraped menu data (ALL 33 items) - JavaScript import for reliable build
-import { xtremeMenuData } from '../../data/xtreme-pizza-complete';
-
-const menuData = xtremeMenuData;
+// Restaurant ID for the admin's Xtreme Pizza data
+const RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
 
 interface CartItem {
   id: string;
@@ -181,10 +179,91 @@ const XtremePizzaCheckout: React.FC = () => {
   const [clientSecret, setClientSecret] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [menuData, setMenuData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  const categories = ['All', ...menuData.categories.map(cat => cat.name)];
+  // Fetch menu data from the live database
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/menu-management/restaurant/${RESTAURANT_ID}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch menu: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success || !result.data || result.data.length === 0) {
+          throw new Error('No menu data found');
+        }
+        
+        // Transform the data to match the expected format
+        const menu = result.data[0]; // Get the first menu
+        const transformedData = {
+          restaurant: {
+            name: 'Xtreme Pizza Ottawa',
+            location: 'Ottawa, ON',
+            cuisine: 'Pizza'
+          },
+          categories: menu.categories.map((category: any) => ({
+            name: category.name,
+            items: category.items.map((item: any) => ({
+              id: item.id,
+              name: item.name,
+              description: item.description,
+              variants: item.options || [{ size: 'Regular', price: Math.round(item.price * 100) }] // Convert to cents
+            }))
+          }))
+        };
+        
+        setMenuData(transformedData);
+        console.log('✅ Live menu data loaded:', transformedData);
+        
+      } catch (error) {
+        console.error('❌ Error fetching menu data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchMenuData();
+  }, []);
   
+  const categories = menuData ? ['All', ...menuData.categories.map((cat: any) => cat.name)] : [];
   const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading live menu data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error || !menuData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading menu: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-red-600 text-white px-4 py-2 rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   const addToCart = (newItem: CartItem) => {
     setCart(prevCart => {
