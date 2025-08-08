@@ -50,6 +50,20 @@ export default function RestaurantPage() {
           name: `${user.email}'s Restaurant`
         };
         
+        // Special handling for admin user - auto-load Xtreme Pizza data
+        if (user.email === 'admin@menuca.local') {
+          // Ensure the admin has the demo menu data loaded
+          try {
+            console.log('Admin user detected - loading Xtreme Pizza demo data...');
+            const wasAdded = seedPizzaRestaurantData(userRestaurant.id);
+            if (wasAdded) {
+              console.log('✅ Xtreme Pizza menu data loaded for admin user');
+            }
+          } catch (error) {
+            console.error('Error loading admin demo data:', error);
+          }
+        }
+        
         setRestaurants([userRestaurant]);
         
         // Auto-select the user's restaurant
