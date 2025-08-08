@@ -205,68 +205,6 @@ export default function RestaurantPage() {
             </div>
           </div>
 
-          {/* Quick Actions Bar */}
-          <div className="bg-blue-50 border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-blue-700">
-                  <span className="font-medium">Quick Actions:</span>
-                </div>
-                <div className="flex gap-2">
-                  {activeTab === 'menu' && (
-                    <>
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          console.log('Loading demo data for restaurant:', selectedRestaurant);
-                          try {
-                            const wasAdded = await seedPizzaRestaurantData(selectedRestaurant);
-                            console.log('Demo data added:', wasAdded);
-                            
-                            if (wasAdded) {
-                              alert('Pizza demo data loaded! The page will refresh to show the new menu.');
-                              setTimeout(() => {
-                                window.location.reload();
-                              }, 1000);
-                            } else {
-                              alert('Demo data already exists for this restaurant. Clear data first if you want to reload.');
-                            }
-                          } catch (error) {
-                            console.error('Error loading demo data:', error);
-                            alert('Error loading demo data: ' + error.message);
-                          }
-                        }}
-                        className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
-                      >
-                        🍕 Load Demo Data
-                      </Button>
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          window.open(`/menu/${selectedRestaurant}`, '_blank');
-                        }}
-                      >
-                        👁️ Preview Menu
-                      </Button>
-                    </>
-                  )}
-                  {activeTab === 'orders' && (
-                    <Button 
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        window.open(`/checkout?restaurantId=${selectedRestaurant}`, '_blank');
-                      }}
-                    >
-                      🛒 Test Order
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Tab Content */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
