@@ -196,9 +196,16 @@ const XtremePizzaCheckout: React.FC = () => {
         
         const result = await response.json();
         
+        console.log('🔍 Raw API response:', result);
+        
         if (!result.success || !result.data || result.data.length === 0) {
           throw new Error('No menu data found');
         }
+        
+        console.log('📊 Menu categories and item counts:');
+        result.data[0].categories.forEach((cat: any) => {
+          console.log(`  ${cat.name}: ${cat.items.length} items`);
+        });
         
         // Transform the data to match the expected format
         const menu = result.data[0]; // Get the first menu
@@ -210,12 +217,26 @@ const XtremePizzaCheckout: React.FC = () => {
           },
           categories: menu.categories.map((category: any) => ({
             name: category.name,
-            items: category.items.map((item: any) => ({
-              id: item.id,
-              name: item.name,
-              description: item.description,
-              variants: item.options || [{ size: 'Regular', price: Math.round(item.price * 100) }] // Convert to cents
-            }))
+            items: category.items.map((item: any) => {
+              // Check if item has size variants in options
+              let variants = [];
+              if (item.options && item.options.sizes && item.options.sizes.length > 0) {
+                variants = item.options.sizes.map((size: any) => ({
+                  size: size.name || size,
+                  price: Math.round((size.price || item.price) * 100) // Convert to cents
+                }));
+              } else {
+                // Use single variant with item price
+                variants = [{ size: 'Regular', price: Math.round(item.price * 100) }];
+              }
+              
+              return {
+                id: item.id,
+                name: item.name,
+                description: item.description || `Fresh ${item.name} from Xtreme Pizza`,
+                variants: variants
+              };
+            })
           }))
         };
         

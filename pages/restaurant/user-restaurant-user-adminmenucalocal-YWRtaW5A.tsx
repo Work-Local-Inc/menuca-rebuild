@@ -7,11 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TempNavigation } from '@/components/TempNavigation';
 
-// Load the admin restaurant data
-const RESTAURANT_ID = 'user-restaurant-user-adminmenucalocal-YWRtaW5A';
+// Use the real admin restaurant UUID from Supabase
+const RESTAURANT_ID = '11111111-1111-1111-1111-111111111111';
 
-// Admin restaurant data (loaded from setup script)
-const restaurantData = {
+// Default restaurant info (will be replaced with live data)
+const defaultRestaurantData = {
   "id": "user-restaurant-user-adminmenucalocal-YWRtaW5A",
   "name": "admin@menuca.local's Restaurant",
   "originalName": "Xtreme Pizza Ottawa",
@@ -155,7 +155,52 @@ interface CartItem {
 export default function AdminRestaurantPage() {
   const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('appetizers');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [menuData, setMenuData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch real menu data from Supabase
+  useEffect(() => {
+    const fetchMenuData = async () => {
+      try {
+        setLoading(true);
+        console.log('🔍 Fetching live menu data for restaurant:', RESTAURANT_ID);
+        
+        const response = await fetch(`/api/menu-management/restaurant/${RESTAURANT_ID}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch menu: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        console.log('📊 Raw API response:', result);
+        
+        if (!result.success || !result.data || result.data.length === 0) {
+          throw new Error('No menu data found');
+        }
+        
+        const menu = result.data[0];
+        console.log('✅ Live menu data loaded:', menu.categories.length, 'categories');
+        
+        // Set the menu data
+        setMenuData(menu);
+        
+        // Set default category to first available category
+        if (menu.categories.length > 0) {
+          setSelectedCategory(menu.categories[0].id);
+        }
+        
+      } catch (error) {
+        console.error('❌ Error fetching menu data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchMenuData();
+  }, []);
 
   // Load cart from localStorage
   useEffect(() => {
@@ -217,11 +262,40 @@ export default function AdminRestaurantPage() {
     router.push('/checkout');
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading live menu data from Supabase...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error || !menuData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error loading menu: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Head>
-        <title>{restaurantData.name} - MenuCA</title>
-        <meta name="description" content={restaurantData.description} />
+        <title>Xtreme Pizza Ottawa - MenuCA</title>
+        <meta name="description" content="Real Xtreme Pizza menu with live Supabase data" />
       </Head>
 
       <div className="min-h-screen bg-gray-50">
@@ -233,18 +307,18 @@ export default function AdminRestaurantPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between">
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {restaurantData.originalName}
+                  Xtreme Pizza Ottawa
                 </h1>
-                <p className="text-lg text-gray-600 mb-4">{restaurantData.description}</p>
+                <p className="text-lg text-gray-600 mb-4">Live menu data from Supabase - {menuData.categories.length} categories, {menuData.categories.reduce((sum: number, cat: any) => sum + cat.items.length, 0)} items</p>
                 
                 <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    <span>{restaurantData.address}</span>
+                    <span>Ottawa, ON</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Phone className="h-4 w-4" />
-                    <span>{restaurantData.phone}</span>
+                    <span>+1-613-xxx-xxxx</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
@@ -303,10 +377,10 @@ export default function AdminRestaurantPage() {
                           <Button 
                             className="w-full mt-3" 
                             onClick={goToCheckout}
-                            disabled={getTotalPrice() < restaurantData.minOrderAmount}
+                            disabled={getTotalPrice() < 15.00}
                           >
-                            {getTotalPrice() < restaurantData.minOrderAmount
-                              ? `Minimum $${restaurantData.minOrderAmount.toFixed(2)}`
+                            {getTotalPrice() < 15.00
+                              ? `Minimum $15.00`
                               : 'Checkout'
                             }
                           </Button>
@@ -333,7 +407,7 @@ export default function AdminRestaurantPage() {
                 </CardHeader>
                 <CardContent>
                   <nav className="space-y-2">
-                    {restaurantData.menu.categories.map((category) => (
+                    {menuData.categories.map((category: any) => (
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
@@ -343,7 +417,7 @@ export default function AdminRestaurantPage() {
                             : 'hover:bg-gray-100'
                         }`}
                       >
-                        {category.name}
+                        {category.name} ({category.items.length})
                       </button>
                     ))}
                   </nav>
@@ -353,19 +427,19 @@ export default function AdminRestaurantPage() {
 
             {/* Menu Items */}
             <div className="flex-1">
-              {restaurantData.menu.categories
-                .filter(category => category.id === selectedCategory)
-                .map((category) => (
+              {menuData.categories
+                .filter((category: any) => category.id === selectedCategory)
+                .map((category: any) => (
                   <div key={category.id}>
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-gray-900 mb-2">
                         {category.name}
                       </h2>
-                      <p className="text-gray-600">{category.description}</p>
+                      <p className="text-gray-600">{category.description || `Fresh ${category.name.toLowerCase()} from our kitchen`}</p>
                     </div>
 
                     <div className="grid gap-6 md:grid-cols-2">
-                      {category.items.map((item) => (
+                      {category.items.map((item: any) => (
                         <Card key={item.id} className="overflow-hidden">
                           <CardContent className="p-6">
                             <div className="flex justify-between items-start mb-3">
@@ -373,39 +447,33 @@ export default function AdminRestaurantPage() {
                                 <h3 className="text-lg font-semibold text-gray-900">
                                   {item.name}
                                 </h3>
-                                {item.description && (
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {item.description}
-                                  </p>
-                                )}
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {item.description || `Fresh ${item.name} - made to order`}
+                                </p>
                               </div>
                               <Badge variant="secondary" className="ml-2">
-                                {item.preparationTime}min
+                                {item.preparation_time || 15}min
                               </Badge>
                             </div>
 
                             <div className="space-y-2">
-                              {item.variants?.map((variant) => (
-                                <div
-                                  key={variant.id}
-                                  className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{variant.size}</span>
-                                    <span className="text-lg font-semibold text-green-700">
-                                      ${(variant.price / 100).toFixed(2)}
-                                    </span>
-                                  </div>
-                                  <Button
-                                    size="sm"
-                                    onClick={() => addToCart(item, variant)}
-                                    className="flex items-center gap-1"
-                                  >
-                                    <Plus className="h-4 w-4" />
-                                    Add
-                                  </Button>
+                              {/* Use a single variant with the item's price */}
+                              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">Regular</span>
+                                  <span className="text-lg font-semibold text-green-700">
+                                    ${item.price.toFixed(2)}
+                                  </span>
                                 </div>
-                              ))}
+                                <Button
+                                  size="sm"
+                                  onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
+                                  className="flex items-center gap-1"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                  Add
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>

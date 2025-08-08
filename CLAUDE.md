@@ -156,3 +156,4 @@ The database architecture supports all 418 technical tasks found in the PRD feat
 4. **Never use localhost in frontend** - Connect to proper backend URLs
 5. **Stop making Mickey Mouse solutions** - We built enterprise systems, use them!
 6. **Memory bank failures = DAILY ISSUE** - User frustrated with repeatedly explaining same context
+7. **PRODUCTION DATA ONLY** - NEVER use mock/fake/hardcoded data. Always use live Supabase APIs with real menu/restaurant data. User has fired developers for using fake data and lying about it.
