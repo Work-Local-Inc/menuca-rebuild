@@ -74,10 +74,162 @@ export default function RestaurantPage() {
   const fetchMenuData = async (restaurantId: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/api/restaurants/${restaurantId}/menu`);
+      
+      // Special handling for admin restaurant
+      if (restaurantId === 'user-restaurant-user-1754658729654') {
+        // Use the embedded data for admin testing
+        const adminMenuData = {
+          restaurant: {
+            id: 'user-restaurant-user-1754658729654',
+            name: 'admin@menuca.local\'s Restaurant (Demo)',
+            description: 'Test restaurant featuring Xtreme Pizza menu for platform demonstration',
+            address: {
+              street: '123 Test Street',
+              city: 'Ottawa',
+              state: 'ON',
+              postal_code: 'K1A 0A6'
+            },
+            contact: {
+              phone: '+1-613-555-0123',
+              website: 'https://menuca-rebuild.vercel.app'
+            },
+            cuisine_type: ['Pizza', 'Canadian']
+          },
+          menus: [{
+            id: 'main-menu',
+            name: 'Main Menu',
+            categories: [
+              {
+                id: 'appetizers',
+                name: 'Appetizers',
+                description: 'Start your meal with our delicious appetizers',
+                items: [
+                  {
+                    id: 'fries',
+                    name: 'Fries',
+                    description: 'Crispy golden fries',
+                    price: 699,
+                    variants: [
+                      { id: 'friessmall', size: 'Small', price: 699, available: true },
+                      { id: 'frieslarge', size: 'Large', price: 899, available: true }
+                    ],
+                    tags: [],
+                    dietary: [],
+                    preparationTime: 10
+                  },
+                  {
+                    id: 'onion-rings',
+                    name: 'Onion Rings',
+                    description: 'Crispy battered onion rings',
+                    price: 799,
+                    variants: [
+                      { id: 'onion-ringssmall', size: 'Small', price: 799, available: true },
+                      { id: 'onion-ringslarge', size: 'Large', price: 999, available: true }
+                    ],
+                    tags: [],
+                    dietary: [],
+                    preparationTime: 10
+                  }
+                ]
+              },
+              {
+                id: 'poutine',
+                name: 'Poutine',
+                description: 'Authentic Canadian poutine varieties',
+                items: [
+                  {
+                    id: 'poutine',
+                    name: 'Classic Poutine',
+                    description: 'Cheese curds and gravy on crispy fries',
+                    price: 899,
+                    variants: [
+                      { id: 'poutinesmall', size: 'Small', price: 899, available: true },
+                      { id: 'poutinelarge', size: 'Large', price: 1199, available: true }
+                    ],
+                    tags: ['poutine'],
+                    dietary: [],
+                    preparationTime: 10
+                  },
+                  {
+                    id: 'italian-poutine',
+                    name: 'Italian Poutine',
+                    description: 'Mozzarella cheese and meat sauce',
+                    price: 999,
+                    variants: [
+                      { id: 'italian-poutinesmall', size: 'Small', price: 999, available: true },
+                      { id: 'italian-poutinelarge', size: 'Large', price: 1299, available: true }
+                    ],
+                    tags: ['poutine'],
+                    dietary: [],
+                    preparationTime: 12
+                  }
+                ]
+              },
+              {
+                id: 'pizza',
+                name: 'Pizza',
+                description: 'Freshly made pizzas with premium toppings',
+                items: [
+                  {
+                    id: 'plain-pizza',
+                    name: 'Plain Pizza',
+                    description: 'Classic cheese pizza',
+                    price: 1399,
+                    variants: [
+                      { id: 'plain-pizzasmall', size: 'Small', price: 1399, available: true },
+                      { id: 'plain-pizzamedium', size: 'Medium', price: 1999, available: true },
+                      { id: 'plain-pizzalarge', size: 'Large', price: 2599, available: true },
+                      { id: 'plain-pizzaxlarge', size: 'X-Large', price: 3199, available: true }
+                    ],
+                    tags: ['pizza'],
+                    dietary: [],
+                    preparationTime: 20
+                  },
+                  {
+                    id: 'hawaiian',
+                    name: 'Hawaiian Pizza',
+                    description: 'Ham and pineapple',
+                    price: 1599,
+                    variants: [
+                      { id: 'hawaiiansmall', size: 'Small', price: 1599, available: true },
+                      { id: 'hawaiianmedium', size: 'Medium', price: 2299, available: true },
+                      { id: 'hawaiianlarge', size: 'Large', price: 2999, available: true },
+                      { id: 'hawaiianxlarge', size: 'X-Large', price: 3699, available: true }
+                    ],
+                    tags: ['pizza'],
+                    dietary: [],
+                    preparationTime: 22
+                  },
+                  {
+                    id: 'meat-lovers',
+                    name: 'Meat Lovers',
+                    description: 'Pepperoni, ham, sausage, bacon strips',
+                    price: 1799,
+                    variants: [
+                      { id: 'meat-loverssmall', size: 'Small', price: 1799, available: true },
+                      { id: 'meat-loversmedium', size: 'Medium', price: 2599, available: true },
+                      { id: 'meat-loverslarge', size: 'Large', price: 3399, available: true },
+                      { id: 'meat-loversxlarge', size: 'X-Large', price: 4199, available: true }
+                    ],
+                    tags: ['pizza'],
+                    dietary: [],
+                    preparationTime: 25
+                  }
+                ]
+              }
+            ]
+          }]
+        };
+        
+        setMenuData(adminMenuData);
+        return;
+      }
+      
+      // For other restaurants, try to fetch from API
+      const response = await fetch(`/api/restaurants/${restaurantId}/menu`);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch menu: ${response.status}`);
+        throw new Error(`Restaurant not found or menu unavailable`);
       }
       
       const data = await response.json();
@@ -242,10 +394,37 @@ export default function RestaurantPage() {
                         </div>
                         
                         <button
-                          onClick={() => console.log('Add to cart:', item.name)}
+                          onClick={() => {
+                            // Add first variant to cart and redirect to checkout
+                            if (item.variants.length > 0) {
+                              const variant = item.variants[0];
+                              const cartItem = {
+                                menuItem: {
+                                  id: item.id,
+                                  name: item.name,
+                                  price: variant.price / 100
+                                },
+                                variant: {
+                                  id: variant.id,
+                                  size: variant.size,
+                                  price: variant.price / 100
+                                },
+                                quantity: 1,
+                                finalPrice: variant.price / 100
+                              };
+                              
+                              // Store in checkout format for compatibility
+                              const existingCart = JSON.parse(localStorage.getItem('checkout_cart') || '[]');
+                              existingCart.push(cartItem);
+                              localStorage.setItem('checkout_cart', JSON.stringify(existingCart));
+                              
+                              // Redirect to checkout
+                              router.push('/checkout');
+                            }
+                          }}
                           className="bg-orange-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-600 transition-colors"
                         >
-                          Add
+                          Order Now
                         </button>
                       </div>
                     </div>
@@ -264,7 +443,10 @@ export default function RestaurantPage() {
           <p className="text-orange-100 mb-4">
             {totalItems} delicious items waiting for you!
           </p>
-          <button className="bg-white text-orange-500 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
+          <button 
+            onClick={() => router.push('/checkout')}
+            className="bg-white text-orange-500 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
+          >
             Start Your Order
           </button>
         </div>
