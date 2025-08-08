@@ -45,7 +45,7 @@ export default function RestaurantPage() {
 
         // For admin user, use the pre-seeded restaurant with Xtreme Pizza data
         // For other users, create a single restaurant per user (proper onboarding needed)
-        const userRestaurant = user.id === 'YWRtaW5A' ? {
+        const userRestaurant = user.id === '11111111-1111-1111-1111-111111111111' ? {
           id: '11111111-1111-1111-1111-111111111111', // Fixed UUID for admin restaurant
           name: 'Xtreme Pizza Ottawa (Admin Demo)'
         } : {
@@ -54,7 +54,7 @@ export default function RestaurantPage() {
         };
         
         // Admin user will automatically see the pre-seeded Xtreme Pizza data
-        if (user.id === 'YWRtaW5A') {
+        if (user.id === '11111111-1111-1111-1111-111111111111') {
           console.log('✅ Admin user detected - restaurant connected to live Xtreme Pizza data');
         }
         

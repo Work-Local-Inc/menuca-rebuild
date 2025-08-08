@@ -12,14 +12,14 @@ export const TempNavigation: React.FC = () => {
 
   // Get the correct restaurant ID based on the user
   const getRestaurantId = () => {
-    if (user?.id === 'YWRtaW5A') {
+    if (user?.id === '11111111-1111-1111-1111-111111111111') {
       return '11111111-1111-1111-1111-111111111111'; // Admin's fixed UUID
     }
     return `user-restaurant-${user?.id}`; // Dynamic for other users
   };
 
   const getCustomerOrderingUrl = () => {
-    if (user?.id === 'YWRtaW5A') {
+    if (user?.id === '11111111-1111-1111-1111-111111111111') {
       // Admin gets the live database-connected page
       return '/restaurant/xtreme-pizza-checkout';
     }
