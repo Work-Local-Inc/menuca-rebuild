@@ -327,176 +327,160 @@ export default function AdminRestaurantPage() {
                 </div>
               </div>
 
-              {/* Cart Summary */}
+              {/* Cart Summary - Professional Style */}
               <div className="mt-6 md:mt-0 md:ml-8">
-                <Card className="w-full md:w-80">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2">
-                      <ShoppingCart className="h-5 w-5" />
-                      Cart ({getTotalItems()} items)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm w-full md:w-80">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                      <ShoppingCart className="h-5 w-5 text-green-600" />
+                      Your Order ({getTotalItems()} items)
+                    </h3>
+                  </div>
+                  <div className="p-4">
                     {cart.length > 0 ? (
                       <>
-                        <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
+                        <div className="space-y-3 mb-4 max-h-40 overflow-y-auto">
                           {cart.map((item) => (
-                            <div key={item.id} className="flex justify-between items-center text-sm">
-                              <span className="flex-1">{item.name}</span>
+                            <div key={item.id} className="border-b border-gray-100 pb-3 last:border-0">
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="font-medium text-gray-900 flex-1 pr-2">{item.name}</span>
+                                <span className="font-semibold text-green-700">
+                                  ${(item.price * item.quantity).toFixed(2)}
+                                </span>
+                              </div>
                               <div className="flex items-center gap-2">
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-6 w-6 p-0"
+                                  className="h-7 w-7 p-0"
                                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                 >
                                   <Minus className="h-3 w-3" />
                                 </Button>
-                                <span className="w-6 text-center">{item.quantity}</span>
+                                <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-6 w-6 p-0"
+                                  className="h-7 w-7 p-0"
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                 >
                                   <Plus className="h-3 w-3" />
                                 </Button>
-                                <span className="w-12 text-right">
-                                  ${(item.price * item.quantity).toFixed(2)}
-                                </span>
                               </div>
                             </div>
                           ))}
                         </div>
                         
-                        <div className="border-t pt-3">
-                          <div className="flex justify-between font-semibold">
-                            <span>Total:</span>
-                            <span>${getTotalPrice().toFixed(2)}</span>
+                        <div className="border-t border-gray-200 pt-4">
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-lg font-semibold text-gray-900">Total:</span>
+                            <span className="text-xl font-bold text-green-700">${getTotalPrice().toFixed(2)}</span>
                           </div>
                           <Button 
-                            className="w-full mt-3" 
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 font-semibold" 
                             onClick={goToCheckout}
                             disabled={getTotalPrice() < 15.00}
                           >
                             {getTotalPrice() < 15.00
-                              ? `Minimum $15.00`
-                              : 'Checkout'
+                              ? `Minimum Order $15.00`
+                              : 'Proceed to Checkout'
                             }
                           </Button>
                         </div>
                       </>
                     ) : (
-                      <p className="text-gray-500 text-center py-4">Your cart is empty</p>
+                      <div className="text-center py-8 text-gray-500">
+                        <ShoppingCart className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                        <p>Your cart is empty</p>
+                        <p className="text-sm">Add items from the menu</p>
+                      </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Navigation - Sticky */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex space-x-1 overflow-x-auto">
+              {menuData.categories.map((category: any) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedCategory === category.id
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {category.name} ({category.items.length})
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Menu Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="lg:flex lg:gap-8">
-            {/* Category Navigation */}
-            <div className="lg:w-64 mb-8 lg:mb-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Menu Categories</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <nav className="space-y-2">
-                    {menuData.categories.map((category: any) => (
-                      <button
-                        key={category.id}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                          selectedCategory === category.id
-                            ? 'bg-blue-100 text-blue-900 font-medium'
-                            : 'hover:bg-gray-100'
-                        }`}
-                      >
-                        {category.name} ({category.items.length})
-                      </button>
-                    ))}
-                  </nav>
-                </CardContent>
-              </Card>
-            </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {menuData.categories
+            .filter((category: any) => category.id === selectedCategory)
+            .map((category: any) => (
+              <div key={category.id}>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                    {category.name}
+                  </h2>
+                  <p className="text-gray-600">{category.description || `Fresh ${category.name.toLowerCase()} from our kitchen`}</p>
+                </div>
 
-            {/* Menu Items */}
-            <div className="flex-1">
-              {menuData.categories
-                .filter((category: any) => category.id === selectedCategory)
-                .map((category: any) => (
-                  <div key={category.id}>
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        {category.name}
-                      </h2>
-                      <p className="text-gray-600">{category.description || `Fresh ${category.name.toLowerCase()} from our kitchen`}</p>
+                <div className="space-y-4">
+                  {category.items.map((item: any) => (
+                    <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 mr-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            {item.name}
+                          </h3>
+                          {item.description && (
+                            <p className="text-sm text-gray-600 mb-2 leading-relaxed">
+                              {item.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg font-bold text-green-700">
+                              ${item.price.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Order
+                        </Button>
+                      </div>
                     </div>
-
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {category.items.map((item: any) => (
-                        <Card key={item.id} className="overflow-hidden">
-                          <CardContent className="p-6">
-                            <div className="flex justify-between items-start mb-3">
-                              <div>
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                  {item.name}
-                                </h3>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {item.description || `Fresh ${item.name} - made to order`}
-                                </p>
-                              </div>
-                              <Badge variant="secondary" className="ml-2">
-                                {item.preparation_time || 15}min
-                              </Badge>
-                            </div>
-
-                            <div className="space-y-2">
-                              {/* Use a single variant with the item's price */}
-                              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">Regular</span>
-                                  <span className="text-lg font-semibold text-green-700">
-                                    ${item.price.toFixed(2)}
-                                  </span>
-                                </div>
-                                <Button
-                                  size="sm"
-                                  onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
-                                  className="flex items-center gap-1"
-                                >
-                                  <Plus className="h-4 w-4" />
-                                  Add
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
+                  ))}
+                </div>
+              </div>
+            ))}
         </div>
 
-        {/* Demo Notice */}
-        <div className="fixed bottom-4 right-4">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-3">
-              <div className="flex items-center gap-2 text-blue-800">
-                <Star className="h-4 w-4" />
-                <span className="text-xs font-medium">
-                  Demo Restaurant - Full testing experience
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Professional Footer */}
+        <div className="bg-white border-t border-gray-200 mt-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="text-center text-sm text-gray-500">
+              <p className="flex items-center justify-center gap-2">
+                <Star className="h-4 w-4 text-green-600" />
+                Powered by MenuCA - Professional Restaurant Ordering Platform
+              </p>
+              <p className="mt-1">Real menu data • Live ordering system • Secure checkout</p>
+            </div>
+          </div>
         </div>
       </div>
     </>
