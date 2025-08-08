@@ -430,30 +430,54 @@ export default function AdminRestaurantPage() {
               <div className="space-y-4">
                 {category.items.map((item: any) => (
                   <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1 mr-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {item.name}
-                        </h3>
-                        {item.description && (
-                          <p className="text-sm text-gray-600 mb-2 leading-relaxed">
-                            {item.description}
-                          </p>
-                        )}
+                    <div className="mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {item.name}
+                      </h3>
+                      {item.description && (
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {/* Real Size Options from Supabase Data */}
+                    {item.options && Array.isArray(item.options) && item.options.length > 0 ? (
+                      <div className="space-y-2">
+                        {item.options.map((option: any, index: number) => (
+                          <div key={`${item.id}-${option.size}-${index}`} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                            <div className="flex items-center gap-3">
+                              <span className="font-medium text-gray-900">{option.size}</span>
+                              <span className="text-lg font-bold text-green-700">
+                                ${(option.price / 100).toFixed(2)}
+                              </span>
+                            </div>
+                            <Button
+                              onClick={() => addToCart(item, { id: `${item.id}-${option.size.toLowerCase()}`, size: option.size, price: option.price })}
+                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+                            >
+                              <Plus className="h-4 w-4" />
+                              Order
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
                         <div className="flex items-center gap-3">
                           <span className="text-lg font-bold text-green-700">
                             ${item.price.toFixed(2)}
                           </span>
                         </div>
+                        <Button
+                          onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Order
+                        </Button>
                       </div>
-                      <Button
-                        onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Order
-                      </Button>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
