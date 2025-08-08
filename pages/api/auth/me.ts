@@ -6,15 +6,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // For demo purposes, return admin user if token exists
-    const authHeader = req.headers.authorization;
+    // Check for token in Authorization header OR cookies for persistence
+    let token = null;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else {
+      // Fallback to cookies for browser refresh persistence
+      token = req.cookies['auth-token'];
+    }
+    
+    if (!token) {
       return res.status(401).json({ success: false, error: 'No token provided' });
     }
-
-    // In a real app, you would validate the JWT token here
-    const token = authHeader.substring(7);
     
     if (token === 'demo-token') {
       const userData = {

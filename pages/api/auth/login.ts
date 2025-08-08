@@ -65,6 +65,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         isAdmin: true
       };
 
+      // Set HTTP-only cookie for session persistence
+      res.setHeader('Set-Cookie', [
+        `auth-token=demo-token; HttpOnly; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+      ]);
+
       return res.json({
         success: true,
         data: {

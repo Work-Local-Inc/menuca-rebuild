@@ -6,8 +6,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // In a real app, you would invalidate the JWT token here
-    // For demo purposes, just return success
+    // Clear the auth cookie
+    res.setHeader('Set-Cookie', [
+      'auth-token=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax'
+    ]);
     
     return res.json({
       success: true,

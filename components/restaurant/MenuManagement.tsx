@@ -775,12 +775,40 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <p className="text-gray-500">No menus found. Create your first menu to get started.</p>
-            <Button 
-              className="mt-4" 
-              onClick={() => setShowNewMenuForm(true)}
-            >
-              Create Menu
-            </Button>
+            <div className="flex gap-3 mt-4">
+              <Button 
+                onClick={() => setShowNewMenuForm(true)}
+              >
+                Create Menu
+              </Button>
+              {user?.email === 'admin@menuca.local' && (
+                <Button 
+                  variant="outline" 
+                  className="bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                  onClick={async () => {
+                    try {
+                      console.log('🍕 Loading Xtreme Pizza data for restaurant:', restaurantId);
+                      
+                      // Import the seedData function
+                      const { seedPizzaRestaurantData } = await import('@/utils/seedData');
+                      const wasAdded = await seedPizzaRestaurantData(restaurantId);
+                      
+                      if (wasAdded) {
+                        alert('✅ Xtreme Pizza menu loaded successfully! Refreshing...');
+                        fetchMenus(); // Refresh the menu data
+                      } else {
+                        alert('⚠️ Menu data already exists or failed to load.');
+                      }
+                    } catch (error) {
+                      console.error('Error loading demo data:', error);
+                      alert('❌ Error loading demo data: ' + error.message);
+                    }
+                  }}
+                >
+                  🍕 Load Xtreme Pizza Demo
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
         
