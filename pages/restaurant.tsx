@@ -43,25 +43,19 @@ export default function RestaurantPage() {
 
         console.log('Current user:', user);
 
-        // For now, create a single restaurant per user (proper onboarding needed)
-        // This prevents the security flaw of accessing other restaurants
-        const userRestaurant = {
+        // For admin user, use the pre-seeded restaurant with Xtreme Pizza data
+        // For other users, create a single restaurant per user (proper onboarding needed)
+        const userRestaurant = user.email === 'admin@menuca.local' ? {
+          id: '11111111-1111-1111-1111-111111111111', // Fixed UUID for admin restaurant
+          name: 'Xtreme Pizza Ottawa (Admin Demo)'
+        } : {
           id: `user-restaurant-${user.id}`,
           name: `${user.email}'s Restaurant`
         };
         
-        // Special handling for admin user - auto-load Xtreme Pizza data
+        // Admin user will automatically see the pre-seeded Xtreme Pizza data
         if (user.email === 'admin@menuca.local') {
-          // Ensure the admin has the demo menu data loaded
-          try {
-            console.log('Admin user detected - loading Xtreme Pizza demo data...');
-            const wasAdded = await seedPizzaRestaurantData(userRestaurant.id);
-            if (wasAdded) {
-              console.log('✅ Xtreme Pizza menu data loaded for admin user');
-            }
-          } catch (error) {
-            console.error('Error loading admin demo data:', error);
-          }
+          console.log('✅ Admin user detected - restaurant connected to live Xtreme Pizza data');
         }
         
         setRestaurants([userRestaurant]);
