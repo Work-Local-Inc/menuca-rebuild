@@ -58,11 +58,13 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/v1/menu-management/restaurant/${restaurantId}`, {
+      // Connect to REAL Supabase database via Next.js API
+      const response = await fetch(`/api/menu-management/restaurant/${restaurantId}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
           'x-tenant-id': user.tenant_id
         }
       });
@@ -135,11 +137,13 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
       // Update the menu via API if authenticated
       if (isAuthenticated && user) {
         try {
-          const response = await fetch(`/api/v1/menu-management/items/${item.id}/availability`, {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+          const response = await fetch(`${backendUrl}/api/menu-management/items/${item.id}/availability`, {
             method: 'PATCH',
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
               'x-tenant-id': user.tenant_id
             },
             body: JSON.stringify({
@@ -195,11 +199,13 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         // Update the menu via API if authenticated
         if (isAuthenticated && user) {
           try {
-            const response = await fetch(`/api/v1/menu-management/items/${editingItem.id}`, {
+            const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+            const response = await fetch(`${backendUrl}/api/menu-management/items/${editingItem.id}`, {
               method: 'PUT',
               credentials: 'include',
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
                 'x-tenant-id': user.tenant_id
               },
               body: JSON.stringify(itemData)
@@ -265,17 +271,16 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
         // Create the new menu item via API if authenticated
         if (isAuthenticated && user) {
           try {
-            const response = await fetch('/api/v1/menu-management/items', {
+            const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+            const response = await fetch(`${backendUrl}/api/menu-management/categories/${categoryId}/items`, {
               method: 'POST',
               credentials: 'include',
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
                 'x-tenant-id': user.tenant_id
               },
-              body: JSON.stringify({
-                ...newItem,
-                categoryId: categoryId
-              })
+              body: JSON.stringify(newItem)
             });
 
             if (!response.ok) {
@@ -317,11 +322,13 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
       // Delete the menu item via API if authenticated
       if (isAuthenticated && user) {
         try {
-          const response = await fetch(`/api/v1/menu-management/items/${itemId}`, {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+          const response = await fetch(`${backendUrl}/api/menu-management/items/${itemId}`, {
             method: 'DELETE',
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
               'x-tenant-id': user.tenant_id
             }
           });
@@ -353,15 +360,15 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
     }
 
     try {
-      const response = await fetch('/api/v1/menu-management/menus', {
+      const response = await fetch(`/api/menu-management/restaurant/${restaurantId}/menus`, {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
           'x-tenant-id': user.tenant_id
         },
         body: JSON.stringify({
-          restaurantId: restaurantId,
           name: menuData.name,
           description: menuData.description,
           is_active: true,
@@ -415,11 +422,13 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
       // Update the menu via API if authenticated
       if (isAuthenticated && user) {
         try {
-          const response = await fetch(`/api/v1/menu-management/items/${item.id}/options`, {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+          const response = await fetch(`${backendUrl}/api/menu-management/items/${item.id}/options`, {
             method: 'PUT',
             credentials: 'include',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
               'x-tenant-id': user.tenant_id
             },
             body: JSON.stringify(options)
@@ -467,17 +476,16 @@ export const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId }) 
 
       // Create the new category via API
       if (isAuthenticated && user) {
-        const response = await fetch('/api/v1/menu-management/categories', {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+        const response = await fetch(`${backendUrl}/api/menu-management/menus/${selectedMenu.id}/categories`, {
           method: 'POST',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.accessToken || 'demo-token'}`,
             'x-tenant-id': user.tenant_id
           },
-          body: JSON.stringify({
-            ...newCategory,
-            menuId: selectedMenu.id
-          })
+          body: JSON.stringify(newCategory)
         });
 
         if (!response.ok) {
