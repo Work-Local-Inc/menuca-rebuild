@@ -1,10 +1,30 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const TempNavigation: React.FC = () => {
+  const { user } = useAuth();
+  
   const handleNavigation = (path: string) => {
     window.location.href = path;
+  };
+
+  // Get the correct restaurant ID based on the user
+  const getRestaurantId = () => {
+    if (user?.email === 'admin@menuca.local') {
+      return '11111111-1111-1111-1111-111111111111'; // Admin's fixed UUID
+    }
+    return `user-restaurant-${user?.id}`; // Dynamic for other users
+  };
+
+  const getCustomerOrderingUrl = () => {
+    if (user?.email === 'admin@menuca.local') {
+      // Admin gets the live database-connected page
+      return '/restaurant/xtreme-pizza-checkout';
+    }
+    // Other users get their dynamic restaurant page
+    return `/restaurant/${getRestaurantId()}`;
   };
 
   return (
@@ -42,8 +62,9 @@ export const TempNavigation: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleNavigation('/restaurant/xtreme-pizza-checkout')}
-            title="Customer ordering with live menu data"
+            onClick={() => handleNavigation(getCustomerOrderingUrl())}
+            title={`Customer ordering for ${user?.email || 'current user'}`}
+            disabled={!user}
           >
             🛒 Customer Ordering
           </Button>
