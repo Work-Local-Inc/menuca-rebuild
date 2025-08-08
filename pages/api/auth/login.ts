@@ -45,8 +45,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // DEMO MODE: Create mock user for frontend testing
     // TODO: Replace with real backend auth when server is deployed
+    
+    // Generate consistent user ID based on email for stable experience
+    const emailHash = email.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const userId = `user-${emailHash}-${Buffer.from(email.toLowerCase()).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 8)}`;
+    
     const mockUser = {
-      id: `user-${Date.now()}`,
+      id: userId,
       tenant_id: tenantId || 'default-tenant',
       email: email,
       first_name: email.split('@')[0],

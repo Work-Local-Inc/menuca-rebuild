@@ -76,11 +76,11 @@ export default function RestaurantPage() {
       setLoading(true);
       
       // Special handling for admin restaurant
-      if (restaurantId === 'user-restaurant-user-1754659824593') {
+      if (restaurantId === 'user-restaurant-user-adminmenucalocal-YWRtaW5A') {
         // Use the embedded data for admin testing
         const adminMenuData = {
           restaurant: {
-            id: 'user-restaurant-user-1754659824593',
+            id: 'user-restaurant-user-adminmenucalocal-YWRtaW5A',
             name: 'admin@menuca.local\'s Restaurant (Demo)',
             description: 'Test restaurant featuring Xtreme Pizza menu for platform demonstration',
             address: {
