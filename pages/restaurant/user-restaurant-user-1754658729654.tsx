@@ -5,7 +5,7 @@ import { Clock, MapPin, Phone, Globe, Plus, Minus, ShoppingCart, Star } from 'lu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import TempNavigation from '@/components/TempNavigation';
+import { TempNavigation } from '@/components/TempNavigation';
 
 // Load the admin restaurant data
 const RESTAURANT_ID = 'user-restaurant-user-1754658729654';
