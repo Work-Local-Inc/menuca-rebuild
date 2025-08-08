@@ -1,198 +1,64 @@
+// Import real scraped Xtreme Pizza data
+import { xtremeMenuData } from '../data/xtreme-pizza-complete';
+
 export const seedPizzaRestaurantData = (restaurantId: string) => {
   console.log('seedPizzaRestaurantData called with restaurantId:', restaurantId);
   const now = Date.now();
   
+  // Convert scraped data to MenuCA format
+  const categories = xtremeMenuData.categories.map((category, categoryIndex) => ({
+    id: `category-${category.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${now}`,
+    name: category.name,
+    description: `Fresh ${category.name.toLowerCase()} selection`,
+    display_order: categoryIndex + 1,
+    is_active: true,
+    items: category.items.map((item, itemIndex) => ({
+      id: `item-${item.id}-${now + itemIndex}`,
+      categoryId: `category-${category.name.toLowerCase().replace(/[^a-z0-9]/g, '')}-${now}`,
+      name: item.name,
+      description: item.description || '',
+      price: item.variants[0]?.price / 100 || 0, // Use first variant price as base price
+      cost: (item.variants[0]?.price / 100 * 0.4) || 0, // Estimated cost at 40%
+      images: [],
+      options: item.variants.map((variant, variantIndex) => ({
+        id: `option-${variant.size.toLowerCase()}-${now + itemIndex + variantIndex}`,
+        name: variant.size,
+        price_adjustment: (variant.price - item.variants[0].price) / 100, // Price difference from base
+        is_default: variantIndex === 0
+      })),
+      variants: item.variants, // Keep original variants for compatibility
+      nutritional_info: {},
+      allergens: category.name.toLowerCase().includes('pizza') ? ["gluten", "dairy"] : [],
+      tags: [
+        ...(item.description.toLowerCase().includes('spicy') || item.description.toLowerCase().includes('hot') ? ['spicy'] : []),
+        ...(category.name.toLowerCase().includes('pizza') ? ['pizza'] : []),
+        ...(item.name.toLowerCase().includes('chicken') ? ['chicken'] : []),
+        ...(item.name.toLowerCase().includes('vegetarian') || item.name.toLowerCase().includes('veggie') ? ['vegetarian'] : [])
+      ],
+      availability: {
+        is_available: true,
+        available_days: [1, 2, 3, 4, 5, 6, 7],
+        available_times: [{ start_time: '11:00', end_time: '23:00' }],
+        stock_quantity: null,
+        out_of_stock_message: ''
+      },
+      display_order: itemIndex + 1,
+      is_active: true,
+      is_featured: itemIndex < 3, // Mark first 3 items in each category as featured
+      preparation_time: category.name.toLowerCase().includes('pizza') ? 20 : 
+                       category.name.toLowerCase().includes('salad') ? 8 : 12,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }))
+  }));
+
   const pizzaMenu = {
-    id: `menu-pizza-${now}`,
+    id: `menu-xtreme-pizza-${now}`,
     restaurantId: restaurantId,
     tenantId: 'default-tenant',
-    name: "Mario's Pizza Menu",
-    description: "Authentic Italian pizza made with fresh ingredients",
-    categories: [
-      {
-        id: `category-appetizers-${now}`,
-        name: "Appetizers",
-        description: "Start your meal with our delicious appetizers",
-        display_order: 1,
-        is_active: true,
-        items: [
-          {
-            id: `item-garlic-bread-${now + 1}`,
-            categoryId: `category-appetizers-${now}`,
-            name: "Garlic Bread",
-            description: "Fresh baked bread with garlic butter and herbs",
-            price: 6.99,
-            cost: 2.50,
-            images: [],
-            options: [],
-            nutritional_info: {},
-            allergens: ["gluten", "dairy"],
-            tags: ["vegetarian", "popular"],
-            availability: {
-              is_available: true,
-              available_days: [1, 2, 3, 4, 5, 6, 7],
-              available_times: [{ start_time: '11:00', end_time: '23:00' }],
-              stock_quantity: null,
-              out_of_stock_message: ''
-            },
-            display_order: 1,
-            is_active: true,
-            is_featured: false,
-            preparation_time: 8,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: `item-buffalo-wings-${now + 2}`,
-            categoryId: `category-appetizers-${now}`,
-            name: "Buffalo Wings",
-            description: "Crispy chicken wings tossed in spicy buffalo sauce",
-            price: 12.99,
-            cost: 5.50,
-            images: [],
-            options: [],
-            nutritional_info: {},
-            allergens: ["dairy"],
-            tags: ["spicy", "popular"],
-            availability: {
-              is_available: true,
-              available_days: [1, 2, 3, 4, 5, 6, 7],
-              available_times: [{ start_time: '11:00', end_time: '23:00' }],
-              stock_quantity: null,
-              out_of_stock_message: ''
-            },
-            display_order: 2,
-            is_active: true,
-            is_featured: true,
-            preparation_time: 15,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ]
-      },
-      {
-        id: `category-pizzas-${now}`,
-        name: "Signature Pizzas",
-        description: "Our famous handcrafted pizzas with premium toppings",
-        display_order: 2,
-        is_active: true,
-        items: [
-          {
-            id: `item-margherita-${now + 10}`,
-            categoryId: `category-pizzas-${now}`,
-            name: "Margherita Pizza",
-            description: "Classic pizza with fresh mozzarella, basil, and tomato sauce",
-            price: 16.99,
-            cost: 6.50,
-            images: [],
-            options: [],
-            nutritional_info: {},
-            allergens: ["gluten", "dairy"],
-            tags: ["vegetarian", "classic", "popular"],
-            availability: {
-              is_available: true,
-              available_days: [1, 2, 3, 4, 5, 6, 7],
-              available_times: [{ start_time: '11:00', end_time: '23:00' }],
-              stock_quantity: null,
-              out_of_stock_message: ''
-            },
-            display_order: 1,
-            is_active: true,
-            is_featured: true,
-            preparation_time: 18,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: `item-pepperoni-${now + 11}`,
-            categoryId: `category-pizzas-${now}`,
-            name: "Pepperoni Supreme",
-            description: "Loaded with premium pepperoni and extra mozzarella cheese",
-            price: 19.99,
-            cost: 7.80,
-            images: [],
-            options: [],
-            nutritional_info: {},
-            allergens: ["gluten", "dairy"],
-            tags: ["meat-lovers", "popular"],
-            availability: {
-              is_available: true,
-              available_days: [1, 2, 3, 4, 5, 6, 7],
-              available_times: [{ start_time: '11:00', end_time: '23:00' }],
-              stock_quantity: null,
-              out_of_stock_message: ''
-            },
-            display_order: 2,
-            is_active: true,
-            is_featured: true,
-            preparation_time: 20,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          },
-          {
-            id: `item-bbq-chicken-${now + 12}`,
-            categoryId: `category-pizzas-${now}`,
-            name: "BBQ Chicken",
-            description: "Grilled chicken, red onions, cilantro, and tangy BBQ sauce",
-            price: 21.99,
-            cost: 8.50,
-            images: [],
-            options: [],
-            nutritional_info: {},
-            allergens: ["gluten", "dairy"],
-            tags: ["chicken", "bbq", "popular"],
-            availability: {
-              is_available: true,
-              available_days: [1, 2, 3, 4, 5, 6, 7],
-              available_times: [{ start_time: '11:00', end_time: '23:00' }],
-              stock_quantity: null,
-              out_of_stock_message: ''
-            },
-            display_order: 3,
-            is_active: true,
-            is_featured: true,
-            preparation_time: 20,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ]
-      },
-      {
-        id: `category-desserts-${now}`,
-        name: "Sweet Endings",
-        description: "Delicious desserts to complete your meal",
-        display_order: 3,
-        is_active: true,
-        items: [
-          {
-            id: `item-tiramisu-${now + 20}`,
-            categoryId: `category-desserts-${now}`,
-            name: "Tiramisu",
-            description: "Classic Italian dessert with coffee-soaked ladyfingers and mascarpone",
-            price: 7.99,
-            cost: 3.20,
-            images: [],
-            options: [],
-            nutritional_info: {},
-            allergens: ["dairy", "gluten", "eggs"],
-            tags: ["classic", "coffee"],
-            availability: {
-              is_available: true,
-              available_days: [1, 2, 3, 4, 5, 6, 7],
-              available_times: [{ start_time: '11:00', end_time: '23:00' }],
-              stock_quantity: null,
-              out_of_stock_message: ''
-            },
-            display_order: 1,
-            is_active: true,
-            is_featured: true,
-            preparation_time: 5,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ]
-      }
-    ],
+    name: "Xtreme Pizza Menu",
+    description: "Real scraped menu from Xtreme Pizza Ottawa - 33 authentic items",
+    categories: categories,
     is_active: true,
     display_order: 1,
     created_at: new Date(),
@@ -202,12 +68,15 @@ export const seedPizzaRestaurantData = (restaurantId: string) => {
 
   // Store the seeded menu data
   const existingMenus = JSON.parse(localStorage.getItem(`menus_${restaurantId}`) || '[]');
-  const menuExists = existingMenus.some((menu: any) => menu.name === "Mario's Pizza Menu");
+  const menuExists = existingMenus.some((menu: any) => menu.name === "Xtreme Pizza Menu");
   
   if (!menuExists) {
-    existingMenus.push(pizzaMenu);
-    localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(existingMenus));
-    console.log('Pizza menu data saved:', pizzaMenu);
+    // Remove any old Mario's Pizza Menu data
+    const cleanedMenus = existingMenus.filter((menu: any) => menu.name !== "Mario's Pizza Menu");
+    cleanedMenus.push(pizzaMenu);
+    localStorage.setItem(`menus_${restaurantId}`, JSON.stringify(cleanedMenus));
+    console.log('Xtreme Pizza menu data saved with', categories.length, 'categories and', 
+                categories.reduce((total, cat) => total + cat.items.length, 0), 'items');
     return true; // Data was added
   }
   
