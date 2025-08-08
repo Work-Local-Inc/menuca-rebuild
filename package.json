@@ -30,6 +30,7 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^3.9.0",
     "@stripe/stripe-js": "^7.8.0",
+    "@supabase/supabase-js": "^2.54.0",
     "@types/stripe": "^8.0.416",
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
