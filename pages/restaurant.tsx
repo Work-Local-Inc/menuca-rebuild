@@ -55,7 +55,7 @@ export default function RestaurantPage() {
           // Ensure the admin has the demo menu data loaded
           try {
             console.log('Admin user detected - loading Xtreme Pizza demo data...');
-            const wasAdded = seedPizzaRestaurantData(userRestaurant.id);
+            const wasAdded = await seedPizzaRestaurantData(userRestaurant.id);
             if (wasAdded) {
               console.log('✅ Xtreme Pizza menu data loaded for admin user');
             }
@@ -224,10 +224,10 @@ export default function RestaurantPage() {
                       <Button 
                         size="sm"
                         variant="outline"
-                        onClick={() => {
+                        onClick={async () => {
                           console.log('Loading demo data for restaurant:', selectedRestaurant);
                           try {
-                            const wasAdded = seedPizzaRestaurantData(selectedRestaurant);
+                            const wasAdded = await seedPizzaRestaurantData(selectedRestaurant);
                             console.log('Demo data added:', wasAdded);
                             
                             if (wasAdded) {
