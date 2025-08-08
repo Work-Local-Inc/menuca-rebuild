@@ -12,14 +12,14 @@ export const TempNavigation: React.FC = () => {
 
   // Get the correct restaurant ID based on the user
   const getRestaurantId = () => {
-    if (user?.email === 'admin@menuca.local') {
+    if (user?.id === 'YWRtaW5A') {
       return '11111111-1111-1111-1111-111111111111'; // Admin's fixed UUID
     }
     return `user-restaurant-${user?.id}`; // Dynamic for other users
   };
 
   const getCustomerOrderingUrl = () => {
-    if (user?.email === 'admin@menuca.local') {
+    if (user?.id === 'YWRtaW5A') {
       // Admin gets the live database-connected page
       return '/restaurant/xtreme-pizza-checkout';
     }
@@ -63,7 +63,7 @@ export const TempNavigation: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => handleNavigation(getCustomerOrderingUrl())}
-            title={`Customer ordering for ${user?.email || 'current user'}`}
+            title={`Customer ordering for ${user?.id || 'current user'}`}
             disabled={!user}
           >
             🛒 Customer Ordering
