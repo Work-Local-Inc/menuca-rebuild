@@ -155,7 +155,6 @@ interface CartItem {
 export default function AdminRestaurantPage() {
   const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [menuData, setMenuData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,11 +184,6 @@ export default function AdminRestaurantPage() {
         
         // Set the menu data
         setMenuData(menu);
-        
-        // Set default category to first available category
-        if (menu.categories.length > 0) {
-          setSelectedCategory(menu.categories[0].id);
-        }
         
       } catch (error) {
         console.error('❌ Error fetching menu data:', error);
@@ -402,19 +396,18 @@ export default function AdminRestaurantPage() {
           </div>
         </div>
 
-        {/* Category Navigation - Sticky */}
+        {/* Category Navigation - Sticky Jump Links */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex space-x-1 overflow-x-auto">
               {menuData.categories.map((category: any) => (
                 <button
                   key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  onClick={() => {
+                    const element = document.getElementById(`category-${category.id}`);
+                    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700"
                 >
                   {category.name} ({category.items.length})
                 </button>
@@ -423,51 +416,49 @@ export default function AdminRestaurantPage() {
           </div>
         </div>
 
-        {/* Menu Content */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {menuData.categories
-            .filter((category: any) => category.id === selectedCategory)
-            .map((category: any) => (
-              <div key={category.id}>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    {category.name}
-                  </h2>
-                  <p className="text-gray-600">{category.description || `Fresh ${category.name.toLowerCase()} from our kitchen`}</p>
-                </div>
-
-                <div className="space-y-4">
-                  {category.items.map((item: any) => (
-                    <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1 mr-4">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                            {item.name}
-                          </h3>
-                          {item.description && (
-                            <p className="text-sm text-gray-600 mb-2 leading-relaxed">
-                              {item.description}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg font-bold text-green-700">
-                              ${item.price.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Order
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+        {/* Menu Content - All Categories Visible */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+          {menuData.categories.map((category: any) => (
+            <div key={category.id} id={`category-${category.id}`} className="scroll-mt-24">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  {category.name}
+                </h2>
+                <p className="text-gray-600">{category.description || `Fresh ${category.name.toLowerCase()} from our kitchen`}</p>
               </div>
-            ))}
+
+              <div className="space-y-4">
+                {category.items.map((item: any) => (
+                  <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 mr-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          {item.name}
+                        </h3>
+                        {item.description && (
+                          <p className="text-sm text-gray-600 mb-2 leading-relaxed">
+                            {item.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-green-700">
+                            ${item.price.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => addToCart(item, { id: 'regular', size: 'Regular', price: Math.round(item.price * 100) })}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 whitespace-nowrap"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Order
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Professional Footer */}
