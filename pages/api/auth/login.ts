@@ -48,21 +48,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('Auth user exists or creation failed:', authError);
       }
 
-      // Return consistent user data
+      // Return consistent user data matching AuthContext interface
       const userData = {
         id: userId,
-        email,
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin',
         tenant_id: 'default-tenant',
+        email,
+        first_name: 'Admin',
+        last_name: 'User', 
+        role: 'admin',
+        status: 'active',
+        email_verified: true,
+        last_login_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         accessToken: 'demo-token',
         isAdmin: true
       };
 
       return res.json({
         success: true,
-        user: userData,
+        data: {
+          user: userData
+        },
         message: 'Login successful'
       });
     }

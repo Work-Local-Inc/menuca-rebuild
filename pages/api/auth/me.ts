@@ -19,18 +19,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (token === 'demo-token') {
       const userData = {
         id: 'user-adminmenucalocal-YWRtaW5A',
-        email: 'admin@menuca.local',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin',
         tenant_id: 'default-tenant',
+        email: 'admin@menuca.local',
+        first_name: 'Admin',
+        last_name: 'User',
+        role: 'admin',
+        status: 'active',
+        email_verified: true,
+        last_login_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         accessToken: token,
         isAdmin: true
       };
 
       return res.json({
         success: true,
-        user: userData
+        data: {
+          user: userData
+        }
       });
     }
 
