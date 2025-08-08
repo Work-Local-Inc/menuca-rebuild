@@ -42,7 +42,7 @@ export const TempNavigation: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleNavigation('/menu/user-restaurant-user-1754075779852')}
+            onClick={() => handleNavigation('/restaurant/user-restaurant-user-1754659824593')}
             title="Public restaurant listing"
           >
             🛒 Customer Ordering
