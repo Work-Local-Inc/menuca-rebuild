@@ -39,6 +39,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [validationStatus, setValidationStatus] = useState<'none' | 'valid' | 'invalid'>('none');
+  const [hasBeenBlurred, setHasBeenBlurred] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -106,9 +107,9 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     return () => clearTimeout(delayedSearch);
   }, [value]);
 
-  // Validate address format
+  // Validate address format - only show validation after user interaction
   useEffect(() => {
-    if (value) {
+    if (value && hasBeenBlurred) {
       const parsed = parseAddress(value);
       const hasPostalCode = parsed.postalCode && validatePostalCode(parsed.postalCode);
       const hasStreetAndCity = parsed.street && parsed.city;
@@ -121,15 +122,37 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     } else {
       setValidationStatus('none');
     }
-  }, [value]);
+  }, [value, hasBeenBlurred]);
 
   // Handle suggestion selection
-  const selectSuggestion = (suggestion: AddressSuggestion) => {
+  const selectSuggestion = async (suggestion: AddressSuggestion) => {
+    try {
+      // If this is a detailed address ID, try to get full address details
+      if (suggestion.id && suggestion.id.includes('|')) {
+        const response = await fetch(`/api/address/suggest?id=${encodeURIComponent(suggestion.id)}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.fullAddress) {
+            onInputChange(data.fullAddress);
+            onChange(parseAddress(data.fullAddress));
+            setIsOpen(false);
+            setSelectedIndex(-1);
+            setHasBeenBlurred(true); // Mark as interacted for validation
+            return;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error getting full address details:', error);
+    }
+    
+    // Fallback to basic parsing
     const parsedAddress = parseAddress(suggestion.text);
     onInputChange(suggestion.text);
     onChange(parsedAddress);
     setIsOpen(false);
     setSelectedIndex(-1);
+    setHasBeenBlurred(true); // Mark as interacted for validation
   };
 
   // Keyboard navigation
@@ -202,6 +225,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           onChange={(e) => onInputChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setIsOpen(true)}
+          onBlur={() => setHasBeenBlurred(true)}
           placeholder={placeholder}
           required={required}
           className={`w-full pl-10 pr-10 py-3 border rounded-md transition-colors ${getValidationStyles()}`}
