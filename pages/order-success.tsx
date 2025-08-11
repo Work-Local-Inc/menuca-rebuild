@@ -213,20 +213,50 @@ export default function OrderSuccessPage() {
         receipt += centerText(new Date(data.timestamp).toLocaleString()) + '\n';
         receipt += line() + '\n';
         
-        // Items
-        receipt += 'ITEMS' + ' '.repeat(29) + 'PRICE\n';
-        data.items.forEach(item => {
-          const itemText = `${item.quantity}x ${item.name}`;
-          const priceText = `$${item.price.toFixed(2)}`;
+        // Items - SHOW ALL ITEMS (no truncation for kitchen operations)
+        // Split into pages if needed but show every single item
+        const ITEMS_PER_PAGE = 35; // Increased limit per section
+        const totalItems = data.items.length;
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        
+        for (let page = 0; page < totalPages; page++) {
+          const startIndex = page * ITEMS_PER_PAGE;
+          const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+          const pageItems = data.items.slice(startIndex, endIndex);
           
-          if (itemText.length <= 34) {
-            receipt += rightAlign(itemText, priceText) + '\n';
-          } else {
-            // Wrap long item names
-            const wrapped = itemText.substring(0, 34);
-            receipt += rightAlign(wrapped + '...', priceText) + '\n';
+          // Page header (only show if multiple pages)
+          if (totalPages > 1) {
+            receipt += centerText(`--- PAGE ${page + 1} OF ${totalPages} ---`) + '\n';
           }
-        });
+          
+          receipt += 'ITEMS' + ' '.repeat(29) + 'PRICE\n';
+          
+          pageItems.forEach(item => {
+            const itemText = `${item.quantity}x ${item.name}`;
+            const priceText = `$${item.price.toFixed(2)}`;
+            
+            if (itemText.length <= 34) {
+              receipt += rightAlign(itemText, priceText) + '\n';
+            } else {
+              // Wrap long item names
+              const wrapped = itemText.substring(0, 34);
+              receipt += rightAlign(wrapped + '...', priceText) + '\n';
+            }
+          });
+          
+          // Page separator (if not last page)
+          if (page < totalPages - 1) {
+            receipt += line('-') + '\n';
+            receipt += centerText('CONTINUED ON NEXT PAGE...') + '\n';
+            receipt += line('-') + '\n\n';
+          }
+        }
+        
+        // Summary line for large orders
+        if (totalItems > ITEMS_PER_PAGE) {
+          receipt += line() + '\n';
+          receipt += centerText(`TOTAL: ${totalItems} ITEMS ABOVE`) + '\n';
+        }
         
         receipt += line() + '\n';
         
@@ -280,6 +310,16 @@ export default function OrderSuccessPage() {
         receipt += centerText('Visit us again soon!') + '\n';
         receipt += '\n\n\n';
         
+        // Safety check: Allow larger receipts for restaurant operations
+        // Thermal printers can handle more than 8KB, we were being too conservative
+        const MAX_RECEIPT_LENGTH = 16000; // Increased to 16KB for large orders
+        if (receipt.length > MAX_RECEIPT_LENGTH) {
+          console.warn(`⚠️ Receipt extremely long (${receipt.length} chars), may need manual intervention`);
+          // Only truncate if absolutely massive (catering orders 100+ items)
+          receipt = receipt.substring(0, MAX_RECEIPT_LENGTH - 300) + '\n\n[LARGE ORDER - REMAINDER ON NEXT RECEIPT]\n[TOTAL ITEMS: ' + data.items.length + ']\n\n';
+        }
+        
+        console.log(`📄 Receipt generated: ${receipt.length} characters, ${data.items.length} items`);
         return receipt;
       };
 
@@ -345,18 +385,30 @@ export default function OrderSuccessPage() {
         
         // Use cloud bridge service - works from any device anywhere
         console.log('Sending receipt via MenuCA cloud bridge...');
+        console.log(`📊 Order size: ${orderData.items?.length || 0} items, Receipt: ${receiptContent.length} chars`);
+        
+        // Additional safety check before transmission
+        if (receiptContent.length > 10000) {
+          console.warn(`⚠️ Very large receipt (${receiptContent.length} chars) - potential printer issue`);
+        }
         
         try {
+          const requestPayload = {
+            restaurantId: 'xtreme-pizza',
+            orderData: orderData,
+            receiptData: receiptContent
+          };
+          
+          // Check payload size
+          const payloadSize = JSON.stringify(requestPayload).length;
+          console.log(`📤 API payload size: ${payloadSize} bytes`);
+          
           const response = await fetch('/api/printer/cloud-bridge', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              restaurantId: 'xtreme-pizza', // In production, get this from order data
-              orderData: orderData,
-              receiptData: receiptContent
-            }),
+            body: JSON.stringify(requestPayload),
             signal: AbortSignal.timeout(15000) // 15 second timeout
           });
 

@@ -17,12 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status: 'pending'
     };
     
-    addPrintJob(printJob);
-    const stats = getQueueStats();
+    await addPrintJob(printJob);
+    const stats = await getQueueStats();
     
     return res.status(200).json({
       success: true,
-      message: 'Print job added to queue',
+      message: 'Print job added to persistent queue',
       jobId: printJob.id,
       queueSize: stats.total
     });
@@ -31,26 +31,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get pending print jobs for tablet
     const { restaurantId } = req.query;
     
-    const pendingJobs = getPendingJobs(restaurantId as string);
-    const stats = getQueueStats();
+    const pendingJobs = await getPendingJobs(restaurantId as string);
+    const stats = await getQueueStats();
     
-    console.log(`Tablet ${restaurantId} checking queue. Found ${pendingJobs.length} pending jobs.`);
+    console.log(`📱 Tablet ${restaurantId} checking queue. Found ${pendingJobs.length} pending jobs.`);
     
     return res.status(200).json({
       success: true,
       jobs: pendingJobs,
-      totalQueue: stats.total
+      totalQueue: stats.total,
+      pending: stats.pending,
+      completed: stats.completed
     });
     
   } else if (method === 'PUT') {
     // Mark job as completed
     const { jobId } = req.body;
     
-    const success = markJobCompleted(jobId);
+    const success = await markJobCompleted(jobId);
     
     return res.status(200).json({
       success,
-      message: success ? 'Job marked as completed' : 'Job not found'
+      message: success ? 'Job marked as completed in database' : 'Job not found'
     });
     
   } else {

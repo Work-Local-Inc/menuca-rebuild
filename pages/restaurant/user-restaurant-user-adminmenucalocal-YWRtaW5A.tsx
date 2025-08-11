@@ -196,8 +196,6 @@ export default function AdminRestaurantPage() {
     fetchMenuData();
   }, []);
 
-  const router = useRouter();
-
   // Load cart from localStorage (unless this is a fresh start)
   useEffect(() => {
     const isFreshStart = router.query.fresh === 'true';

@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(`Forwarding to tablet ${tablet.name} at ${tablet.ip}:${tablet.port}`);
 
     try {
-      // Add directly to the print queue (same logic as queue.ts)
+      // Add directly to the persistent print queue
       const printJob = {
         id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         restaurantId,
@@ -50,8 +50,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         status: 'pending'
       };
       
-      addPrintJob(printJob);
-      const stats = getQueueStats();
+      await addPrintJob(printJob);
+      const stats = await getQueueStats();
       
       return res.status(200).json({
         success: true,
@@ -60,6 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         tablet: tablet.name,
         jobId: printJob.id,
         queueSize: stats.total,
+        pending: stats.pending,
         timestamp: new Date().toISOString()
       });
 
