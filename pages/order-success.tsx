@@ -242,6 +242,39 @@ export default function OrderSuccessPage() {
         receipt += rightAlign('TOTAL:', `$${data.total.toFixed(2)}`) + '\n';
         receipt += line() + '\n';
         
+        // Special delivery instructions (if any)
+        const specialInstructions = sessionStorage.getItem('delivery_instructions') || '';
+        if (specialInstructions && specialInstructions.trim()) {
+          receipt += '\n';
+          receipt += centerText('DELIVERY INSTRUCTIONS:') + '\n';
+          receipt += line('-') + '\n';
+          
+          // Word wrap instructions to fit receipt width (42 chars)
+          const words = specialInstructions.trim().split(' ');
+          let currentLine = '';
+          
+          words.forEach(word => {
+            if ((currentLine + word + ' ').length <= 42) {
+              currentLine += word + ' ';
+            } else {
+              if (currentLine) {
+                receipt += currentLine.trim() + '\n';
+                currentLine = word + ' ';
+              } else {
+                // Single word longer than line, just add it
+                receipt += word + '\n';
+              }
+            }
+          });
+          
+          // Add any remaining text
+          if (currentLine) {
+            receipt += currentLine.trim() + '\n';
+          }
+          
+          receipt += line('-') + '\n';
+        }
+        
         // Footer
         receipt += centerText('Thank you for your order!') + '\n';
         receipt += centerText('Visit us again soon!') + '\n';

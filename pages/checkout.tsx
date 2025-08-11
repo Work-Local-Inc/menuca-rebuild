@@ -419,6 +419,8 @@ export default function CheckoutPage() {
                 </Button>
                 <Button 
                   onClick={async () => {
+                    // Save special instructions for receipt printing
+                    sessionStorage.setItem('delivery_instructions', orderData.specialInstructions);
                     setStep('payment');
                     await createPaymentIntent();
                   }} 
