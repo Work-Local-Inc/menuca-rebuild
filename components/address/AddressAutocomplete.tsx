@@ -119,6 +119,9 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
   // Handle input changes
   useEffect(() => {
+    // Don't search if address was just selected from suggestions
+    if (wasSelectedFromSuggestion) return;
+    
     const delayedSearch = setTimeout(async () => {
       if (value && value.length >= 3) {
         const results = await searchAddresses(value);
@@ -131,7 +134,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     }, 300); // Debounce API calls
 
     return () => clearTimeout(delayedSearch);
-  }, [value]);
+  }, [value, wasSelectedFromSuggestion]);
 
   // Validate address format - only show validation after user interaction
   useEffect(() => {
