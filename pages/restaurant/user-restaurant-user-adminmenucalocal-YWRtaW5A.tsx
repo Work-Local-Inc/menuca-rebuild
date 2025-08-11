@@ -215,10 +215,10 @@ export default function AdminRestaurantPage() {
 
   const addToCart = (item: any, variant: any) => {
     const cartItem: CartItem = {
-      id: `${item.id}-${variant.id}`,
+      id: variant.id || `${item.id}-${variant.size.toLowerCase()}`,
       name: `${item.name} (${variant.size})`,
       size: variant.size,
-      price: variant.price / 100, // Convert from cents
+      price: variant.price / 100, // Convert from cents to dollars
       quantity: 1,
       preparationTime: item.preparationTime || 15
     };
@@ -253,6 +253,30 @@ export default function AdminRestaurantPage() {
   const getTotalPrice = () => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const goToCheckout = () => {
+    if (cart.length === 0) return;
+    
+    // Convert cart data to the format expected by checkout page
+    const checkoutCart = cart.map(item => ({
+      menuItem: {
+        id: item.id,
+        name: item.name,
+        price: item.price, // Already in dollars
+        description: `${item.name} (${item.size})`
+      },
+      quantity: item.quantity,
+      finalPrice: item.price, // Already in dollars
+    }));
+    
+    // Store cart and restaurant data for checkout page
+    sessionStorage.setItem('checkout_cart', JSON.stringify(checkoutCart));
+    sessionStorage.setItem('checkout_restaurant', JSON.stringify({
+      id: RESTAURANT_ID,
+      name: 'Xtreme Pizza Ottawa'
+    }));
+    
+    console.log('Redirecting to checkout with cart:', checkoutCart);
+    
+    // Navigate to checkout
     router.push('/checkout');
   };
 

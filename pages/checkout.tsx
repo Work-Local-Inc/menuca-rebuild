@@ -245,7 +245,30 @@ export default function CheckoutPage() {
             <ShoppingCart className="h-16 w-16 text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Your cart is empty</h3>
             <p className="text-gray-600 text-center">Add some delicious items to get started!</p>
-            <Button onClick={() => router.push(`/menu/${restaurantId}`)} className="mt-4">
+            <Button onClick={() => {
+              // Get restaurant ID from stored data or fallback to admin restaurant
+              const storedRestaurant = sessionStorage.getItem('checkout_restaurant');
+              let targetRestaurantId = restaurantId;
+              
+              if (!targetRestaurantId && storedRestaurant) {
+                try {
+                  const restaurantData = JSON.parse(storedRestaurant);
+                  targetRestaurantId = restaurantData.id;
+                } catch (e) {
+                  console.error('Error parsing stored restaurant data:', e);
+                }
+              }
+              
+              // Fallback to admin restaurant page if no ID found
+              if (!targetRestaurantId || targetRestaurantId === 'undefined') {
+                router.push('/restaurant/user-restaurant-user-adminmenucalocal-YWRtaW5A');
+              } else if (targetRestaurantId === '11111111-1111-1111-1111-111111111111') {
+                // Admin restaurant - go to the correct page
+                router.push('/restaurant/user-restaurant-user-adminmenucalocal-YWRtaW5A');
+              } else {
+                router.push(`/menu/${targetRestaurantId}`);
+              }
+            }} className="mt-4">
               Continue Shopping
             </Button>
           </CardContent>
