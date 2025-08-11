@@ -275,13 +275,17 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           {isLoading ? (
             <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full" />
           ) : (
-            getValidationIcon()
+            <MapPin className="h-4 w-4 text-gray-400" />
           )}
         </div>
 
         {validationStatus !== 'none' && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            {getValidationIcon()}
+            {validationStatus === 'valid' ? (
+              <Check className="h-4 w-4 text-green-600" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-red-600" />
+            )}
           </div>
         )}
       </div>
