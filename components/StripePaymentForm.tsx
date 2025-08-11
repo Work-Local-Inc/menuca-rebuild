@@ -66,6 +66,13 @@ export default function StripePaymentForm({
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/order-success`,
+        payment_method_data: {
+          billing_details: {
+            address: {
+              country: 'CA', // All customers are Canadian
+            },
+          },
+        },
       },
     });
 
