@@ -684,7 +684,14 @@ export default function OrderSuccessPage() {
         {/* Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button 
-            onClick={() => router.push('/restaurant/user-restaurant-user-adminmenucalocal-YWRtaW5A')}
+            onClick={() => {
+              // Clear cart and storage for fresh order
+              sessionStorage.removeItem('checkout_cart');
+              sessionStorage.removeItem('checkout_restaurant'); 
+              sessionStorage.removeItem('delivery_instructions');
+              localStorage.removeItem('checkout_cart');
+              router.push('/restaurant/user-restaurant-user-adminmenucalocal-YWRtaW5A?fresh=true');
+            }}
             style={{
               width: '100%',
               backgroundColor: '#dc2626',

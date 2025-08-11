@@ -196,17 +196,33 @@ export default function AdminRestaurantPage() {
     fetchMenuData();
   }, []);
 
-  // Load cart from localStorage
+  const router = useRouter();
+
+  // Load cart from localStorage (unless this is a fresh start)
   useEffect(() => {
-    const savedCart = localStorage.getItem('checkout_cart');
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (error) {
-        console.error('Error loading cart:', error);
+    const isFreshStart = router.query.fresh === 'true';
+    
+    if (isFreshStart) {
+      // Clear everything for fresh start
+      localStorage.removeItem('checkout_cart');
+      sessionStorage.removeItem('checkout_cart');
+      sessionStorage.removeItem('checkout_restaurant');
+      sessionStorage.removeItem('delivery_instructions');
+      setCart([]);
+      console.log('🆕 Fresh order started - cart cleared');
+    } else {
+      // Load saved cart
+      const savedCart = localStorage.getItem('checkout_cart');
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart));
+          console.log('📦 Loaded existing cart:', savedCart);
+        } catch (error) {
+          console.error('Error loading cart:', error);
+        }
       }
     }
-  }, []);
+  }, [router.query]);
 
   // Save cart to localStorage
   useEffect(() => {
