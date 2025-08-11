@@ -219,49 +219,49 @@ export default function OrderSuccessPage() {
         receipt += centerText(new Date(data.timestamp).toLocaleString()) + '\n';
         receipt += line() + '\n';
         
-        // Items - SHOW ALL ITEMS (no truncation for kitchen operations)
-        // Split into pages if needed but show every single item
-        const ITEMS_PER_PAGE = 35; // Increased limit per section
+        // Items - KITCHEN-SAFE APPROACH: Print core items + summary for large orders
+        const SAFE_ITEM_LIMIT = 30; // Conservative limit to prevent printer buffer overflow
         const totalItems = data.items.length;
-        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
         
-        for (let page = 0; page < totalPages; page++) {
-          const startIndex = page * ITEMS_PER_PAGE;
-          const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
-          const pageItems = data.items.slice(startIndex, endIndex);
-          
-          // Page header (only show if multiple pages)
-          if (totalPages > 1) {
-            receipt += centerText(`--- PAGE ${page + 1} OF ${totalPages} ---`) + '\n';
-          }
-          
+        if (totalItems <= SAFE_ITEM_LIMIT) {
+          // Normal receipt - show all items
           receipt += 'ITEMS' + ' '.repeat(29) + 'PRICE\n';
-          
-          pageItems.forEach(item => {
+          data.items.forEach(item => {
             const itemText = `${item.quantity}x ${item.name}`;
             const priceText = `$${item.price.toFixed(2)}`;
             
             if (itemText.length <= 34) {
               receipt += rightAlign(itemText, priceText) + '\n';
             } else {
-              // Wrap long item names
               const wrapped = itemText.substring(0, 34);
               receipt += rightAlign(wrapped + '...', priceText) + '\n';
             }
           });
-          
-          // Page separator (if not last page)
-          if (page < totalPages - 1) {
-            receipt += line('-') + '\n';
-            receipt += centerText('CONTINUED ON NEXT PAGE...') + '\n';
-            receipt += line('-') + '\n\n';
-          }
-        }
-        
-        // Summary line for large orders
-        if (totalItems > ITEMS_PER_PAGE) {
+        } else {
+          // LARGE ORDER - Print summary format for kitchen
+          receipt += centerText('⚠️ LARGE ORDER SUMMARY ⚠️') + '\n';
           receipt += line() + '\n';
-          receipt += centerText(`TOTAL: ${totalItems} ITEMS ABOVE`) + '\n';
+          receipt += centerText(`${totalItems} TOTAL ITEMS ORDERED`) + '\n';
+          receipt += line() + '\n';
+          
+          // Group items by name and show quantities
+          const itemCounts = {};
+          data.items.forEach(item => {
+            const key = item.name;
+            if (!itemCounts[key]) {
+              itemCounts[key] = { count: 0, price: item.price };
+            }
+            itemCounts[key].count += item.quantity;
+          });
+          
+          receipt += 'KITCHEN SUMMARY' + ' '.repeat(18) + 'QTY\n';
+          Object.entries(itemCounts).forEach(([name, info]: [string, any]) => {
+            const itemText = name.length > 32 ? name.substring(0, 32) + '...' : name;
+            receipt += rightAlign(itemText, `x${info.count}`) + '\n';
+          });
+          
+          receipt += line() + '\n';
+          receipt += centerText('📋 CHECK ONLINE FOR FULL DETAILS') + '\n';
         }
         
         receipt += line() + '\n';
@@ -316,9 +316,9 @@ export default function OrderSuccessPage() {
         receipt += centerText('Visit us again soon!') + '\n';
         receipt += '\n\n\n';
         
-        // Safety check: Allow larger receipts for restaurant operations
-        // Thermal printers can handle more than 8KB, we were being too conservative
-        const MAX_RECEIPT_LENGTH = 16000; // Increased to 16KB for large orders
+        // Safety check: Conservative limit to prevent printer buffer overflow
+        // NETUM thermal printers have strict memory limits - be safe
+        const MAX_RECEIPT_LENGTH = 6000; // Safe 6KB limit for thermal printer reliability
         if (receipt.length > MAX_RECEIPT_LENGTH) {
           console.warn(`⚠️ Receipt extremely long (${receipt.length} chars), may need manual intervention`);
           // Only truncate if absolutely massive (catering orders 100+ items)
