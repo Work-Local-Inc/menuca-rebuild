@@ -684,7 +684,7 @@ export default function OrderSuccessPage() {
         {/* Actions */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button 
-            onClick={() => router.push('/restaurant/xtreme-pizza-checkout')}
+            onClick={() => router.push('/restaurant/user-restaurant-user-adminmenucalocal-YWRtaW5A')}
             style={{
               width: '100%',
               backgroundColor: '#dc2626',
