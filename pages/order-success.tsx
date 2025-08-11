@@ -91,10 +91,13 @@ export default function OrderSuccessPage() {
       // Send to printer
       sendReceiptToPrinter(orderData);
       
-      // Clear storage
+      // Clear storage completely - both localStorage and sessionStorage
       sessionStorage.removeItem('completed_order');
       sessionStorage.removeItem('checkout_cart');
       sessionStorage.removeItem('checkout_restaurant');
+      sessionStorage.removeItem('delivery_instructions');
+      localStorage.removeItem('checkout_cart'); // THIS WAS MISSING!
+      localStorage.removeItem('checkout_restaurant');
     } else {
       console.log('No payment_intent found - checking for fallback data...');
       
@@ -152,10 +155,13 @@ export default function OrderSuccessPage() {
         setOrderDetails(fallbackOrderData);
         sendReceiptToPrinter(fallbackOrderData);
         
-        // Clear storage
+        // Clear storage completely - both localStorage and sessionStorage
         sessionStorage.removeItem('completed_order');
         sessionStorage.removeItem('checkout_cart');
         sessionStorage.removeItem('checkout_restaurant');
+        sessionStorage.removeItem('delivery_instructions');
+        localStorage.removeItem('checkout_cart'); // THIS WAS MISSING!
+        localStorage.removeItem('checkout_restaurant');
         
       } else {
         // Fallback 2: Create test order for debugging
@@ -737,11 +743,13 @@ export default function OrderSuccessPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button 
             onClick={() => {
-              // Clear cart and storage for fresh order
+              // Clear cart and storage completely for fresh order
               sessionStorage.removeItem('checkout_cart');
               sessionStorage.removeItem('checkout_restaurant'); 
               sessionStorage.removeItem('delivery_instructions');
-              localStorage.removeItem('checkout_cart');
+              sessionStorage.removeItem('completed_order');
+              localStorage.removeItem('checkout_cart'); // Clear the main cart storage
+              localStorage.removeItem('checkout_restaurant');
               router.push('/restaurant/user-restaurant-user-adminmenucalocal-YWRtaW5A?fresh=true');
             }}
             style={{
