@@ -40,6 +40,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [validationStatus, setValidationStatus] = useState<'none' | 'valid' | 'invalid'>('none');
   const [hasBeenBlurred, setHasBeenBlurred] = useState(false);
+  const [wasSelectedFromSuggestion, setWasSelectedFromSuggestion] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -72,17 +73,42 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
 
   // Parse address string into components
   const parseAddress = (addressString: string): Address => {
-    // Simple parsing - in production, use Canada Post's detailed response
+    // Canada Post format: "407 Tatlock Rd, Carleton Place, ON, K7C 0V2"
     const parts = addressString.split(', ');
     
-    return {
-      street: parts[0] || '',
-      city: parts[1] || 'Ottawa',
-      province: parts[2]?.split(' ')[0] || 'ON',
-      postalCode: parts[2]?.split(' ').slice(1).join(' ') || '',
-      country: 'Canada',
-      formattedAddress: addressString
-    };
+    if (parts.length >= 4) {
+      // Full format: [street, city, province, postalCode]
+      return {
+        street: parts[0] || '',
+        city: parts[1] || '',
+        province: parts[2] || 'ON',
+        postalCode: parts[3] || '',
+        country: 'Canada',
+        formattedAddress: addressString
+      };
+    } else if (parts.length === 3) {
+      // Format: [street, city, "ON K7C 0V2"]
+      const lastPart = parts[2] || '';
+      const lastParts = lastPart.split(' ');
+      return {
+        street: parts[0] || '',
+        city: parts[1] || '',
+        province: lastParts[0] || 'ON',
+        postalCode: lastParts.slice(1).join(' ') || '',
+        country: 'Canada',
+        formattedAddress: addressString
+      };
+    } else {
+      // Fallback for incomplete addresses
+      return {
+        street: parts[0] || '',
+        city: parts[1] || 'Ottawa',
+        province: 'ON',
+        postalCode: '',
+        country: 'Canada',
+        formattedAddress: addressString
+      };
+    }
   };
 
   // Validate Canadian postal code format
@@ -114,15 +140,21 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       const hasPostalCode = parsed.postalCode && validatePostalCode(parsed.postalCode);
       const hasStreetAndCity = parsed.street && parsed.city;
       
-      if (hasStreetAndCity && hasPostalCode) {
+      // If address was selected from Canada Post suggestions, trust it's valid
+      if (wasSelectedFromSuggestion && hasStreetAndCity) {
         setValidationStatus('valid');
-      } else {
+      } else if (hasStreetAndCity && hasPostalCode) {
+        setValidationStatus('valid');
+      } else if (hasBeenBlurred && !wasSelectedFromSuggestion) {
+        // Only show invalid if user manually typed and it's actually wrong
         setValidationStatus('invalid');
+      } else {
+        setValidationStatus('none');
       }
     } else {
       setValidationStatus('none');
     }
-  }, [value, hasBeenBlurred]);
+  }, [value, hasBeenBlurred, wasSelectedFromSuggestion]);
 
   // Handle suggestion selection
   const selectSuggestion = async (suggestion: AddressSuggestion) => {
@@ -138,6 +170,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             setIsOpen(false);
             setSelectedIndex(-1);
             setHasBeenBlurred(true); // Mark as interacted for validation
+            setWasSelectedFromSuggestion(true); // Mark as selected from Canada Post
             return;
           }
         }
@@ -153,6 +186,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     setIsOpen(false);
     setSelectedIndex(-1);
     setHasBeenBlurred(true); // Mark as interacted for validation
+    setWasSelectedFromSuggestion(true); // Mark as selected from Canada Post
   };
 
   // Keyboard navigation
@@ -222,7 +256,10 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           ref={inputRef}
           type="text"
           value={value}
-          onChange={(e) => onInputChange(e.target.value)}
+          onChange={(e) => {
+            onInputChange(e.target.value);
+            setWasSelectedFromSuggestion(false); // Reset when user manually types
+          }}
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setIsOpen(true)}
           onBlur={() => setHasBeenBlurred(true)}
