@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { addPrintJob, getQueueStats } from './shared-queue';
 
 // Cloud print bridge service
 // This receives print requests from customers and forwards them to restaurant tablets
@@ -38,56 +39,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`Forwarding to tablet ${tablet.name} at ${tablet.ip}:${tablet.port}`);
 
-    // Forward the print request to the restaurant tablet
-    const printPayload = {
-      receipt: receiptData,
-      orderData: orderData,
-      printType: 'thermal_receipt',
-      timestamp: new Date().toISOString(),
-      source: 'menuca-cloud-bridge'
-    };
-
     try {
-      // Add to print queue instead of trying to reach tablet directly
-      const queueResponse = await fetch(`${process.env.VERCEL_URL || 'http://localhost:3000'}/api/printer/queue`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          restaurantId,
-          orderData,
-          receiptData
-        })
+      // Add directly to the print queue (same logic as queue.ts)
+      const printJob = {
+        id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        restaurantId,
+        orderData,
+        receiptData,
+        timestamp: new Date().toISOString(),
+        status: 'pending'
+      };
+      
+      addPrintJob(printJob);
+      const stats = getQueueStats();
+      
+      return res.status(200).json({
+        success: true,
+        message: `Receipt queued for printing at ${tablet.name}`,
+        restaurantId,
+        tablet: tablet.name,
+        jobId: printJob.id,
+        queueSize: stats.total,
+        timestamp: new Date().toISOString()
       });
 
-      const queueResult = await queueResponse.json();
-      
-      if (queueResult.success) {
-        console.log(`✅ Print job queued for ${tablet.name}. Job ID: ${queueResult.jobId}`);
-        
-        return res.status(200).json({
-          success: true,
-          message: `Receipt queued for printing at ${tablet.name}`,
-          restaurantId,
-          tablet: tablet.name,
-          jobId: queueResult.jobId,
-          queueSize: queueResult.queueSize,
-          timestamp: new Date().toISOString()
-        });
-      } else {
-        throw new Error('Failed to add to queue');
-      }
-
     } catch (error) {
-      console.log(`❌ Failed to queue print job:`, error.message);
+      console.log(`❌ Failed to queue print job:`, error);
       
       return res.status(500).json({
         success: false,
         message: `Failed to queue print job`,
         restaurantId,
         tablet: tablet.name,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       });
     }

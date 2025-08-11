@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-
-// Simple in-memory queue - will reset on deployment but works for testing
-let printQueue: any[] = [];
+import { addPrintJob, getPendingJobs, markJobCompleted, getQueueStats } from './shared-queue';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
@@ -19,46 +17,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status: 'pending'
     };
     
-    printQueue.push(printJob);
-    console.log(`Added print job ${printJob.id} to queue. Queue size: ${printQueue.length}`);
+    addPrintJob(printJob);
+    const stats = getQueueStats();
     
     return res.status(200).json({
       success: true,
       message: 'Print job added to queue',
       jobId: printJob.id,
-      queueSize: printQueue.length
+      queueSize: stats.total
     });
     
   } else if (method === 'GET') {
     // Get pending print jobs for tablet
     const { restaurantId } = req.query;
     
-    const pendingJobs = printQueue.filter(job => 
-      job.restaurantId === restaurantId && job.status === 'pending'
-    );
+    const pendingJobs = getPendingJobs(restaurantId as string);
+    const stats = getQueueStats();
     
     console.log(`Tablet ${restaurantId} checking queue. Found ${pendingJobs.length} pending jobs.`);
     
     return res.status(200).json({
       success: true,
       jobs: pendingJobs,
-      totalQueue: printQueue.length
+      totalQueue: stats.total
     });
     
   } else if (method === 'PUT') {
     // Mark job as completed
     const { jobId } = req.body;
     
-    const job = printQueue.find(j => j.id === jobId);
-    if (job) {
-      job.status = 'completed';
-      job.completedAt = new Date().toISOString();
-      console.log(`Marked job ${jobId} as completed`);
-    }
+    const success = markJobCompleted(jobId);
     
     return res.status(200).json({
-      success: true,
-      message: 'Job marked as completed'
+      success,
+      message: success ? 'Job marked as completed' : 'Job not found'
     });
     
   } else {
