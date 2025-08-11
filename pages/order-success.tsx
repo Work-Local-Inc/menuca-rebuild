@@ -197,8 +197,54 @@ export default function OrderSuccessPage() {
     try {
       setPrintStatus('printing');
       
+      // MULTIPLE RECEIPT APPROACH: Split large orders into multiple small receipts
+      const ITEMS_PER_RECEIPT = 20; // Safe number of items per thermal receipt
+      const totalItems = orderData.items.length;
+      
+      if (totalItems > ITEMS_PER_RECEIPT) {
+        console.log(`📄 Large order detected: ${totalItems} items - splitting into multiple receipts`);
+        
+        // Split items into chunks
+        const itemChunks = [];
+        for (let i = 0; i < totalItems; i += ITEMS_PER_RECEIPT) {
+          itemChunks.push(orderData.items.slice(i, i + ITEMS_PER_RECEIPT));
+        }
+        
+        // Send each chunk as separate receipt
+        for (let chunkIndex = 0; chunkIndex < itemChunks.length; chunkIndex++) {
+          const chunkData = {
+            ...orderData,
+            items: itemChunks[chunkIndex]
+          };
+          
+          console.log(`📄 Printing receipt ${chunkIndex + 1} of ${itemChunks.length} (${itemChunks[chunkIndex].length} items)`);
+          await sendSingleReceipt(chunkData, chunkIndex + 1, itemChunks.length);
+          
+          // Small delay between receipts to prevent printer overload
+          if (chunkIndex < itemChunks.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        }
+        
+        setPrintStatus('success');
+        return;
+      }
+      
+      // Single order - send normally
+      await sendSingleReceipt(orderData, 1, 1);
+      setPrintStatus('success');
+      
+    } catch (error) {
+      console.error('❌ Print service error:', error);
+      setPrintStatus('error');
+    }
+  };
+
+  // Function to send a single receipt (used for both single orders and multi-part large orders)
+  const sendSingleReceipt = async (orderData: OrderDetails, partNumber: number, totalParts: number) => {
+    try {
       // Format receipt for thermal printing (58mm paper, 42 chars wide)
-      const formatReceiptForPrinting = (data: OrderDetails): string => {
+      const formatReceiptForPrinting = (data: OrderDetails, part: number, total: number): string => {
         const line = (char: string = '-') => char.repeat(42);
         const centerText = (text: string) => {
           const padding = Math.max(0, Math.floor((42 - text.length) / 2));
@@ -216,67 +262,48 @@ export default function OrderSuccessPage() {
         receipt += centerText('1-800-MENUCA') + '\n';
         receipt += line() + '\n';
         receipt += centerText(`ORDER #${data.orderNumber}`) + '\n';
+        
+        // Show part number for multi-part orders
+        if (total > 1) {
+          receipt += centerText(`PART ${part} OF ${total}`) + '\n';
+        }
+        
         receipt += centerText(new Date(data.timestamp).toLocaleString()) + '\n';
         receipt += line() + '\n';
         
-        // Items - KITCHEN-SAFE APPROACH: Print core items + summary for large orders
-        const SAFE_ITEM_LIMIT = 30; // Conservative limit to prevent printer buffer overflow
-        const totalItems = data.items.length;
+        // Items - Show all items in this chunk (already safe size)
+        receipt += 'ITEMS' + ' '.repeat(29) + 'PRICE\n';
+        data.items.forEach(item => {
+          const itemText = `${item.quantity}x ${item.name}`;
+          const priceText = `$${item.price.toFixed(2)}`;
+          
+          if (itemText.length <= 34) {
+            receipt += rightAlign(itemText, priceText) + '\n';
+          } else {
+            const wrapped = itemText.substring(0, 34);
+            receipt += rightAlign(wrapped + '...', priceText) + '\n';
+          }
+        });
         
-        if (totalItems <= SAFE_ITEM_LIMIT) {
-          // Normal receipt - show all items
-          receipt += 'ITEMS' + ' '.repeat(29) + 'PRICE\n';
-          data.items.forEach(item => {
-            const itemText = `${item.quantity}x ${item.name}`;
-            const priceText = `$${item.price.toFixed(2)}`;
-            
-            if (itemText.length <= 34) {
-              receipt += rightAlign(itemText, priceText) + '\n';
-            } else {
-              const wrapped = itemText.substring(0, 34);
-              receipt += rightAlign(wrapped + '...', priceText) + '\n';
-            }
-          });
+        receipt += line() + '\n';
+        
+        // Totals - only show on last part of multi-part orders
+        if (part === total) {
+          const subtotal = data.total * 0.85;
+          const tax = data.total * 0.13;
+          const delivery = 2.99;
+          
+          receipt += rightAlign('Subtotal:', `$${subtotal.toFixed(2)}`) + '\n';
+          receipt += rightAlign('Tax:', `$${tax.toFixed(2)}`) + '\n';
+          receipt += rightAlign('Delivery:', `$${delivery.toFixed(2)}`) + '\n';
+          receipt += line() + '\n';
+          receipt += rightAlign('TOTAL:', `$${data.total.toFixed(2)}`) + '\n';
+          receipt += line() + '\n';
         } else {
-          // LARGE ORDER - Print summary format for kitchen
-          receipt += centerText('⚠️ LARGE ORDER SUMMARY ⚠️') + '\n';
+          // For non-final parts, just indicate continuation
+          receipt += centerText('CONTINUED ON NEXT RECEIPT...') + '\n';
           receipt += line() + '\n';
-          receipt += centerText(`${totalItems} TOTAL ITEMS ORDERED`) + '\n';
-          receipt += line() + '\n';
-          
-          // Group items by name and show quantities
-          const itemCounts = {};
-          data.items.forEach(item => {
-            const key = item.name;
-            if (!itemCounts[key]) {
-              itemCounts[key] = { count: 0, price: item.price };
-            }
-            itemCounts[key].count += item.quantity;
-          });
-          
-          receipt += 'KITCHEN SUMMARY' + ' '.repeat(18) + 'QTY\n';
-          Object.entries(itemCounts).forEach(([name, info]: [string, any]) => {
-            const itemText = name.length > 32 ? name.substring(0, 32) + '...' : name;
-            receipt += rightAlign(itemText, `x${info.count}`) + '\n';
-          });
-          
-          receipt += line() + '\n';
-          receipt += centerText('📋 CHECK ONLINE FOR FULL DETAILS') + '\n';
         }
-        
-        receipt += line() + '\n';
-        
-        // Totals
-        const subtotal = data.total * 0.85;
-        const tax = data.total * 0.13;
-        const delivery = 2.99;
-        
-        receipt += rightAlign('Subtotal:', `$${subtotal.toFixed(2)}`) + '\n';
-        receipt += rightAlign('Tax:', `$${tax.toFixed(2)}`) + '\n';
-        receipt += rightAlign('Delivery:', `$${delivery.toFixed(2)}`) + '\n';
-        receipt += line() + '\n';
-        receipt += rightAlign('TOTAL:', `$${data.total.toFixed(2)}`) + '\n';
-        receipt += line() + '\n';
         
         // Special delivery instructions (if any)
         const specialInstructions = sessionStorage.getItem('delivery_instructions') || '';
@@ -332,14 +359,14 @@ export default function OrderSuccessPage() {
       console.log('Creating receipt for ESC/POS printing...', orderData);
       
       // Create a hidden printable div with the receipt
-      const receiptContent = formatReceiptForPrinting(orderData);
+      const receiptContent = formatReceiptForPrinting(orderData, partNumber, totalParts);
       
       // Create print window content
       const printContent = `
         <!DOCTYPE html>
         <html>
         <head>
-          <title>Receipt - Order #${orderData.orderNumber}</title>
+          <title>Receipt - Order #${orderData.orderNumber}${totalParts > 1 ? ` Part ${partNumber}` : ''}</title>
           <style>
             @page {
               size: 58mm 200mm;
@@ -494,8 +521,8 @@ export default function OrderSuccessPage() {
       }
       
     } catch (error) {
-      console.error('❌ Print service error:', error);
-      setPrintStatus('error');
+      console.error('❌ Single receipt print error:', error);
+      throw error; // Re-throw so main function can handle
     }
   };
 
@@ -607,16 +634,19 @@ export default function OrderSuccessPage() {
           
           {printStatus === 'error' && (
             <div style={{ 
-              backgroundColor: '#fee2e2', 
-              border: '1px solid #ef4444', 
+              backgroundColor: '#fef3c7', 
+              border: '1px solid #f59e0b', 
               borderRadius: '6px', 
-              padding: '8px 16px', 
+              padding: '12px 16px', 
               margin: '16px 0',
-              color: '#991b1b',
+              color: '#92400e',
               fontSize: '14px',
               fontWeight: '500'
             }}>
-              ⚠️ Receipt printing queued (check printer connection)
+              📄 Large Order - Multiple Receipts Sent<br/>
+              <span style={{ fontSize: '12px' }}>
+                Order split into multiple kitchen receipts to prevent printer issues. Check printer for all parts.
+              </span>
             </div>
           )}
           
