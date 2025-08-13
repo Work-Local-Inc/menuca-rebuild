@@ -16,7 +16,7 @@ const RESTAURANT_CREDENTIALS = {
     rt_designator: 'P41'
   },
   'A19': {
-    rt_key: '689a41bef18a4', // Try P41 key - might route to your A19 tablet
+    rt_key: 'Y4B2XOO2kSVc5NzxcyLkLA45jQXTT3t7gEUS7o', // Try private_machine_identifier as rt_key
     rt_designator: 'A19'
   },
   // Add more restaurants as we obtain their credentials
