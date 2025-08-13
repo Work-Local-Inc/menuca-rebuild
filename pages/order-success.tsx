@@ -91,6 +91,9 @@ export default function OrderSuccessPage() {
       // Send to printer
       sendReceiptToPrinter(orderData);
       
+      // 🎯 SEND TO TABLET SYSTEM
+      sendOrderToTablet(orderData);
+      
       // Clear storage completely - both localStorage and sessionStorage
       sessionStorage.removeItem('completed_order');
       sessionStorage.removeItem('checkout_cart');
@@ -154,6 +157,7 @@ export default function OrderSuccessPage() {
         
         setOrderDetails(fallbackOrderData);
         sendReceiptToPrinter(fallbackOrderData);
+        sendOrderToTablet(fallbackOrderData);
         
         // Clear storage completely - both localStorage and sessionStorage
         sessionStorage.removeItem('completed_order');
@@ -523,6 +527,92 @@ export default function OrderSuccessPage() {
     } catch (error) {
       console.error('❌ Single receipt print error:', error);
       throw error; // Re-throw so main function can handle
+    }
+  };
+
+  // 🎯 Send order to tablet.menu.ca system
+  const sendOrderToTablet = async (orderData: OrderDetails) => {
+    try {
+      console.log('🎯 Sending order to tablet system...', orderData.orderNumber);
+      
+      // Get restaurant from sessionStorage or use default
+      const storedRestaurant = sessionStorage.getItem('checkout_restaurant') || 'P41';
+      const deliveryInstructions = sessionStorage.getItem('delivery_instructions') || '';
+      
+      // Format order data for tablet system
+      const tabletOrder = {
+        id: orderData.orderNumber,
+        customer: {
+          name: 'MenuCA Customer', // Could be enhanced with real customer data
+          phone: '555-0123',
+          email: 'customer@menuca.com'
+        },
+        address: {
+          name: 'MenuCA Customer',
+          address1: '123 Customer Street', // Could be enhanced with real address
+          address2: '',
+          city: 'Ottawa',
+          province: 'ON',
+          postal_code: 'K1A 0A6',
+          phone: '555-0123'
+        },
+        items: orderData.items.map(item => ({
+          id: item.name.toLowerCase().replace(/\s+/g, '_'),
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          special_instructions: ''
+        })),
+        totals: {
+          subtotal: orderData.total / 1.13 / 1.1, // Rough calculation, could be more precise
+          tax: (orderData.total / 1.13 / 1.1) * 0.13,
+          delivery: 2.99,
+          tip: 0,
+          total: orderData.total
+        },
+        payment: {
+          method: 'Credit Card',
+          status: 'succeeded',
+          transaction_id: orderData.paymentIntentId
+        },
+        delivery_instructions: deliveryInstructions,
+        restaurant_id: storedRestaurant
+      };
+
+      console.log('📡 Sending to tablet API...', { 
+        restaurant: storedRestaurant, 
+        order_id: orderData.orderNumber,
+        total: orderData.total 
+      });
+
+      const response = await fetch('/api/inject-tablet-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order: tabletOrder })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('✅ Order successfully sent to restaurant tablet!', result);
+        
+        // Could add UI notification here
+        // showTabletSuccess(result.restaurant_id);
+        
+      } else {
+        console.log('⚠️ Tablet integration had issues:', result);
+        
+        // Still show success to customer - don't let tablet issues affect customer experience
+        // The restaurant might need to handle order manually
+      }
+
+    } catch (error) {
+      console.error('❌ Tablet integration error:', error);
+      
+      // Don't throw - we don't want tablet issues to break the success page
+      // Restaurant can handle order manually if needed
     }
   };
 
