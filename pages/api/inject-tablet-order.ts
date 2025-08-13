@@ -16,7 +16,7 @@ const RESTAURANT_CREDENTIALS = {
     rt_designator: 'P41'
   },
   'A19': {
-    rt_key: 'NEED_TO_DISCOVER', // Need to find your tablet's rt_key
+    rt_key: '689c967409cd9', // Test key from discovery - might route to A19
     rt_designator: 'A19'
   },
   // Add more restaurants as we obtain their credentials
