@@ -32,48 +32,55 @@ const RT_API_VERSION = '13';
 /**
  * Format MenuCA order for tablet.menu.ca system
  */
-function formatOrderForTablet(order) {
+function formatOrderForTablet(order: any) {
   const deliveryTime = Math.floor(Date.now() / 1000) + (45 * 60); // 45 minutes from now
   
+  // Safely extract order data with fallbacks
+  const customer = order.customer || {};
+  const address = order.address || {};
+  const items = order.items || [];
+  const totals = order.totals || {};
+  const payment = order.payment || {};
+  
   return {
-    id: order.id,
-    restaurant_id: order.restaurant_id,
+    id: order.id || 'UNKNOWN_ID',
+    restaurant_id: order.restaurant_id || 'UNKNOWN_RESTAURANT',
     delivery_type: 1, // 1 = delivery, 2 = pickup
     customer: {
-      name: order.customer.name,
-      phone: order.customer.phone,
-      email: order.customer.email || ''
+      name: customer.name || 'Test Customer',
+      phone: customer.phone || '555-0000',
+      email: customer.email || 'test@example.com'
     },
     address: {
-      name: order.address.name,
-      address1: order.address.address1,
-      address2: order.address.address2 || '',
-      city: order.address.city,
-      province: order.address.province,
-      postal_code: order.address.postal_code,
-      phone: order.address.phone
+      name: address.name || customer.name || 'Test Customer',
+      address1: address.address1 || '123 Test St',
+      address2: address.address2 || '',
+      city: address.city || 'Test City',
+      province: address.province || 'ON',
+      postal_code: address.postal_code || 'K1A 0A6',
+      phone: address.phone || customer.phone || '555-0000'
     },
-    order: order.items.map(item => ({
-      item: item.name,
+    order: items.map((item: any) => ({
+      item: item.name || 'Test Item',
       type: 'Food', // Generic type, could be categorized better
-      qty: item.quantity,
-      price: item.price,
+      qty: item.quantity || 1,
+      price: item.price || 0,
       special_instructions: item.special_instructions || '',
       ingredients: [] // Could map item options to ingredients
     })),
     price: {
-      subtotal: order.totals.subtotal,
-      tax: order.totals.tax,
-      delivery: order.totals.delivery,
-      tip: order.totals.tip || 0,
-      total: order.totals.total,
+      subtotal: totals.subtotal || 0,
+      tax: totals.tax || 0,
+      delivery: totals.delivery || 0,
+      tip: totals.tip || 0,
+      total: totals.total || 0,
       taxes: {
-        'HST': order.totals.tax
+        'HST': totals.tax || 0
       }
     },
-    payment_method: order.payment.method,
-    payment_status: order.payment.status === 'succeeded' ? 1 : 0,
-    comment: order.delivery_instructions || '',
+    payment_method: payment.method || 'Test',
+    payment_status: payment.status === 'succeeded' ? 1 : 0,
+    comment: order.delivery_instructions || 'Test order',
     delivery_time: deliveryTime,
     time_created: Math.floor(Date.now() / 1000),
     status: 0, // 0 = NEW order
