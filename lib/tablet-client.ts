@@ -152,6 +152,7 @@ export async function sendOrderToTablet(orderData: any, orderId: number): Promis
   message: string;
   order_id: number;
   response_data?: any;
+  endpoint_used?: string;
 }> {
   try {
     console.log(`🚀 Implementing sendOrder() - sending order ${orderId} to tablet.menu.ca...`);
