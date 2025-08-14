@@ -78,7 +78,7 @@ export function formatOrderForTablet(orderData: any, orderId: number): TabletOrd
   
   return {
     ver: 3,
-    id: 19, // TEST 4: Device ID = 19 (numeric)
+    id: "19", // TEST 5: Device ID = "19" (string)
     restaurant_id: 1595, // Confirmed: restaurant_id = 1595
     delivery_type: orderData.delivery_type === 'pickup' ? 2 : 1,
     comment: orderData.delivery_instructions || orderData.notes || '',
