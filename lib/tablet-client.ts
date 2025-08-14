@@ -5,7 +5,7 @@
  * This is the CORRECT approach - we're the CLIENT, not the server!
  */
 
-const TABLET_API_BASE = 'https://tablet.menu.ca';
+const TABLET_API_BASE = 'https://menu.ca'; // Try main domain instead of tablet subdomain
 const TABLET_API_VERSION = '3';
 
 /**
