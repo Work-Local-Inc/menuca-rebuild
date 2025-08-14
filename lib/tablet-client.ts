@@ -78,8 +78,8 @@ export function formatOrderForTablet(orderData: any, orderId: number): TabletOrd
   
   return {
     ver: 3,
-    id: "1595", // REVERSE TEST 7: Device ID = "1595" (string)
-    restaurant_id: "19", // REVERSE: "19" as restaurant
+    id: "A19", // REVERSE TEST 8: Device ID = "A19" 
+    restaurant_id: "A19", // REVERSE: Same as device - both A19
     delivery_type: orderData.delivery_type === 'pickup' ? 2 : 1,
     comment: orderData.delivery_instructions || orderData.notes || '',
     payment_method: orderData.payment?.method || 'Credit Card',
