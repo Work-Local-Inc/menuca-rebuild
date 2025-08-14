@@ -18,7 +18,7 @@ async function getRawBody(req: NextApiRequest): Promise<Buffer> {
 }
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-07-30.basil',
 }) : null;
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
