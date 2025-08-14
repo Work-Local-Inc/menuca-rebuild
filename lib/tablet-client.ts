@@ -13,7 +13,7 @@ const TABLET_API_VERSION = '3';
  */
 interface TabletOrderV3 {
   ver: 3;
-  id: number;
+  id: number | string;
   restaurant_id: number | string;
   delivery_type: number; // 1 = delivery, 2 = pickup
   comment: string;
@@ -78,8 +78,8 @@ export function formatOrderForTablet(orderData: any, orderId: number): TabletOrd
   
   return {
     ver: 3,
-    id: orderId,
-    restaurant_id: "A19", // A19 device ID (string, not numeric)
+    id: "A19", // Try A19 as the ID field (device identifier)
+    restaurant_id: "A19", // And A19 as restaurant_id too
     delivery_type: orderData.delivery_type === 'pickup' ? 2 : 1,
     comment: orderData.delivery_instructions || orderData.notes || '',
     payment_method: orderData.payment?.method || 'Credit Card',
