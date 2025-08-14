@@ -1,0 +1,220 @@
+{
+    "$schema": "http://json-schema.org/draft/2020-12/schema",
+    "$id": "https://tablet.menu.ca/order_v3.schema.json",
+    "title": "Order schema",
+    "description": "Describes the kind of object the Android app can consume.",
+    "type": "object",
+
+    "properties":
+    {
+        "ver":                { "type": "number", "value": 3 },
+        "id":                { "type": "integer", "description": "Order ID." },
+        "restaurant_id":    { "type": "integer" },
+        "delivery_type":    { "type": "integer" },
+        "comment":            { "type": "string"  },
+        "payment_method":    { "type": "string"  },
+        "payment_cc_ends":    { "type": "string"  },
+        "payment_status":    { "type": "boolean" },
+        "order_count":        { "type": "number"  },
+        "delivery_time":    { "type": "number"  },
+        "delivery_time_hr":    { "type": "string"  },
+        "discount_code":    { "type": "string"  },
+
+        "address":
+        {
+            "type": "object",
+            "properties":
+            {
+                "name":            { "type": "string"  },
+                "address1":        { "type": "string"  },
+                "address2":        { "type": "string"  },
+                "postal_code":    { "type": "string"  },
+                "phone":        { "type": "string"  },
+                "extension":    { "type": "string"  }
+            },
+
+            "additionalProperties": false,
+
+            "required": ["name", "address1", "address2", "postal_code", "phone"]
+        },
+
+        "order":
+        {
+            "type": "array",
+            "items":
+            {
+                "anyOf":
+                [
+                    {
+                        "type": "object",
+                        "properties":
+                        {
+                            "item":        { "type": "string"  },
+                            "type":        { "type": "string"  },
+                            "qty":        { "type": "number"  },
+                            "price":    { "type": "number"  },
+                            "special_instructions":        { "type": "string"  },
+
+                            "ingredients":
+                            {
+                                "type": "array",
+                                "items": 
+                                {
+                                    "type": "object",
+                                    "properties":
+                                    {
+                                        "item":     { "type": "string"  },
+                                        "type":     { "type": "string"  },
+                                        "qty":        { "type": ["number", "string"]  },
+                                        "price":    { "type": "number"  }
+                                    },
+
+                                    "additionalProperties": false,
+
+                                    "required": ["item", "type", "qty", "price"]
+                                }
+                            }
+                        },
+
+                        "additionalProperties": false,
+
+                        "required": ["item", "type", "qty", "price"]
+                    },
+                    {
+                        "type": "object",
+                        "properties":
+                        {
+                            "combo":    { "type": "string"  },
+                            "type":        { "type": "string"  },
+                            "qty":        { "type": "number"  },
+                            "price":    { "type": "number"  },
+                            "special_instructions":        { "type": "string"  },
+
+                            "items":
+                            {
+                                "type": "array",
+                                "items":
+                                {
+                                    "type": "object",
+                                    "properties":
+                                    {
+                                        "item":        { "type": "string"  },
+                                        "type":        { "type": "string"  },
+                                        "qty":        { "type": "number"  },
+                                        "price":    { "type": "number"  },
+                                        "special_instructions":        { "type": "string"  },
+            
+                                        "ingredients":
+                                        {
+                                            "type": "array",
+                                            "items": 
+                                            {
+                                                "type": "object",
+                                                "properties":
+                                                {
+                                                    "item":     { "type": "string"  },
+                                                    "type":     { "type": "string"  },
+                                                    "qty":        { "type": ["number", "string"]  },
+                                                    "price":    { "type": "number"  }
+                                                },
+            
+                                                "additionalProperties": false,
+            
+                                                "required": ["item", "type", "qty", "price"]
+                                            }
+                                        }
+                                    },
+            
+                                    "additionalProperties": false,
+            
+                                    "required": ["item", "type", "qty", "price"]
+                                },
+
+                                "minItems": 1
+                            }
+                        },
+
+                        "additionalProperties": false,
+
+                        "required": ["combo", "qty", "price", "items"]
+                    }
+                ]
+            },
+
+            "minItems": 1
+        },
+
+        "price":
+        {
+            "type": "object",
+
+            "properties":
+            {
+                "subtotal":        { "type": "number"  },
+                "delivery":        { "type": "number"  },
+                "convenience":    { "type": "number"  },
+                "discount":        { "type": "number"  },
+                "tip":            { "type": "number"  },
+                "total":        { "type": "number"  },
+
+                "taxes":
+                {
+                    "type": "object",
+                    "additionalProperties":{ "type": "number"  }
+                }
+            },
+
+            "additionalProperties": false,
+
+            "required": ["subtotal", "delivery", "convenience", "discount", "tip", "total"]
+        },
+
+        "deal":
+        {
+            "type": "object",
+
+            "properties":
+            {
+                "name":        { "type": "string"  },
+                "discount": { "type": "number" }
+            },
+
+            "additionalProperties": false,
+            "required": ["name", "discount"]
+        },
+
+        "coupon":
+        {
+            "type": "object",
+
+            "properties":
+            {
+                "name":        { "type": "string"  },
+                "items":
+                {
+                    "type": "array",
+                    "items": { "type": "string"  }
+                }
+            },
+
+            "additionalProperties": false,
+            "required": ["name"]
+        }
+    },
+
+    "additionalProperties": false,
+
+    "required": [
+        "ver",
+        "id",
+        "restaurant_id",
+        "delivery_type",
+        "comment",
+        "payment_method",
+        "payment_status",
+        "delivery_time",
+        "address",
+        "order",
+        "price"
+    ]
+}

@@ -142,7 +142,10 @@ export function formatOrderForTablet(orderData: any, orderId: number): TabletOrd
 }
 
 /**
- * Send order TO tablet.menu.ca (A19 will pick it up)
+ * 🎯 SEND ORDER TO tablet.menu.ca (A19 will pick it up)
+ * 
+ * This implements the developer's sendOrder() function
+ * Sends v3 schema orders TO tablet.menu.ca for A19 polling
  */
 export async function sendOrderToTablet(orderData: any, orderId: number): Promise<{
   success: boolean;
@@ -151,42 +154,66 @@ export async function sendOrderToTablet(orderData: any, orderId: number): Promis
   response_data?: any;
 }> {
   try {
-    console.log(`🚀 Sending order ${orderId} to tablet.menu.ca...`);
+    console.log(`🚀 Implementing sendOrder() - sending order ${orderId} to tablet.menu.ca...`);
     
-    // Format order for tablet API
+    // Format order for v3 schema (NO RT_KEYS!)
     const tabletOrder = formatOrderForTablet(orderData, orderId);
     
-    // Send to tablet.menu.ca
-    const response = await fetch(`${TABLET_API_BASE}/api/v3/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'MenuCA-Platform/1.0'
-      },
-      body: JSON.stringify(tabletOrder)
-    });
+    console.log('📦 Sending v3 schema order:', JSON.stringify(tabletOrder, null, 2));
     
-    const responseData = await response.text();
+    // Try multiple tablet.menu.ca endpoints until we find the right one
+    const endpoints = [
+      '/api/v3/sendOrder',     // Most likely endpoint
+      '/api/orders',           // Alternative
+      '/sendOrder',            // Simple path
+      '/api/v3/orders',        // What we tried before
+      '/action.php'            // Legacy endpoint (but with v3 data)
+    ];
     
-    console.log(`📡 tablet.menu.ca response: ${response.status} - ${responseData}`);
+    let lastError = null;
     
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `tablet.menu.ca returned ${response.status}`,
-        order_id: orderId,
-        response_data: responseData
-      };
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`🎯 Trying endpoint: ${TABLET_API_BASE}${endpoint}`);
+        
+        const response = await fetch(`${TABLET_API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'MenuCA-Platform/1.0'
+          },
+          body: JSON.stringify(tabletOrder)
+        });
+        
+        const responseData = await response.text();
+        
+        console.log(`📡 ${endpoint} response: ${response.status} - ${responseData.substring(0, 200)}...`);
+        
+        if (response.ok && responseData.trim()) {
+          console.log(`✅ SUCCESS! Order ${orderId} sent via ${endpoint}`);
+          
+          return {
+            success: true,
+            message: `Order sent successfully via ${endpoint}`,
+            order_id: orderId,
+            response_data: responseData,
+            endpoint_used: endpoint
+          };
+        }
+        
+      } catch (endpointError) {
+        console.log(`❌ ${endpoint} failed:`, endpointError);
+        lastError = endpointError;
+        continue;
+      }
     }
     
-    console.log(`✅ Order ${orderId} sent successfully to tablet.menu.ca`);
-    
+    // If all endpoints failed, return the last error
     return {
-      success: true,
-      message: 'Order sent to tablet successfully',
-      order_id: orderId,
-      response_data: responseData
+      success: false,
+      message: `All tablet.menu.ca endpoints failed. Last error: ${lastError}`,
+      order_id: orderId
     };
     
   } catch (error) {
@@ -201,37 +228,55 @@ export async function sendOrderToTablet(orderData: any, orderId: number): Promis
 }
 
 /**
- * Accept order on tablet.menu.ca
+ * 🎯 ACCEPT ORDER on tablet.menu.ca
+ * 
+ * Implements the developer's accept(order_id) function
  */
 export async function acceptTabletOrder(orderId: number): Promise<{
   success: boolean;
   message: string;
 }> {
   try {
-    console.log(`✅ Accepting order ${orderId} on tablet.menu.ca...`);
+    console.log(`✅ Implementing accept(${orderId}) on tablet.menu.ca...`);
     
-    const response = await fetch(`${TABLET_API_BASE}/api/v3/orders/${orderId}/accept`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+    const endpoints = [
+      `/api/v3/accept/${orderId}`,      // Most likely
+      `/api/accept/${orderId}`,         // Alternative
+      `/accept?order_id=${orderId}`,    // Query param version
+      `/api/v3/orders/${orderId}/accept` // RESTful version
+    ];
+    
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`🎯 Trying accept endpoint: ${TABLET_API_BASE}${endpoint}`);
+        
+        const response = await fetch(`${TABLET_API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ order_id: orderId })
+        });
+        
+        const responseData = await response.text();
+        
+        if (response.ok) {
+          console.log(`✅ Order ${orderId} accepted via ${endpoint}`);
+          return {
+            success: true,
+            message: `Order accepted via ${endpoint}`
+          };
+        }
+        
+      } catch (endpointError) {
+        continue;
       }
-    });
-    
-    const responseData = await response.text();
-    
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `Failed to accept order: ${response.status}`
-      };
     }
     
-    console.log(`✅ Order ${orderId} accepted on tablet.menu.ca`);
-    
     return {
-      success: true,
-      message: 'Order accepted successfully'
+      success: false,
+      message: 'All accept endpoints failed'
     };
     
   } catch (error) {
@@ -245,40 +290,60 @@ export async function acceptTabletOrder(orderId: number): Promise<{
 }
 
 /**
- * Reject order on tablet.menu.ca
+ * 🎯 REJECT ORDER on tablet.menu.ca  
+ * 
+ * Implements the developer's reject(order_id, reason) function
  */
 export async function rejectTabletOrder(orderId: number, reason?: string): Promise<{
   success: boolean;
   message: string;
 }> {
   try {
-    console.log(`❌ Rejecting order ${orderId} on tablet.menu.ca...`);
+    console.log(`❌ Implementing reject(${orderId}, "${reason}") on tablet.menu.ca...`);
     
-    const response = await fetch(`${TABLET_API_BASE}/api/v3/orders/${orderId}/reject`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        reason: reason || 'Restaurant rejected order'
-      })
-    });
+    const endpoints = [
+      `/api/v3/reject/${orderId}`,        // Most likely
+      `/api/reject/${orderId}`,           // Alternative
+      `/reject?order_id=${orderId}`,      // Query param version
+      `/api/v3/orders/${orderId}/reject`  // RESTful version
+    ];
     
-    const responseData = await response.text();
+    const rejectData = {
+      order_id: orderId,
+      reason: reason || 'Restaurant rejected order'
+    };
     
-    if (!response.ok) {
-      return {
-        success: false,
-        message: `Failed to reject order: ${response.status}`
-      };
+    for (const endpoint of endpoints) {
+      try {
+        console.log(`🎯 Trying reject endpoint: ${TABLET_API_BASE}${endpoint}`);
+        
+        const response = await fetch(`${TABLET_API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(rejectData)
+        });
+        
+        const responseData = await response.text();
+        
+        if (response.ok) {
+          console.log(`❌ Order ${orderId} rejected via ${endpoint}`);
+          return {
+            success: true,
+            message: `Order rejected via ${endpoint}: ${reason}`
+          };
+        }
+        
+      } catch (endpointError) {
+        continue;
+      }
     }
     
-    console.log(`❌ Order ${orderId} rejected on tablet.menu.ca`);
-    
     return {
-      success: true,
-      message: 'Order rejected successfully'
+      success: false,
+      message: 'All reject endpoints failed'
     };
     
   } catch (error) {
