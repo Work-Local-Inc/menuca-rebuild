@@ -164,11 +164,11 @@ export async function sendOrderToTablet(orderData: any, orderId: number): Promis
     
     // Try multiple tablet.menu.ca endpoints until we find the right one
     const endpoints = [
-      '/api/v3/sendOrder',     // Most likely endpoint
-      '/api/orders',           // Alternative
+      '/action.php',           // ✅ CONFIRMED WORKING - Returns 200 OK with rt cookies
+      '/api/v3/sendOrder',     // 404 Not Found
+      '/api/orders',           // 404 Not Found
       '/sendOrder',            // Simple path
       '/api/v3/orders',        // What we tried before
-      '/action.php'            // Legacy endpoint (but with v3 data)
     ];
     
     let lastError = null;
@@ -191,14 +191,15 @@ export async function sendOrderToTablet(orderData: any, orderId: number): Promis
         
         console.log(`📡 ${endpoint} response: ${response.status} - ${responseData.substring(0, 200)}...`);
         
-        if (response.ok && responseData.trim()) {
-          console.log(`✅ SUCCESS! Order ${orderId} sent via ${endpoint}`);
+        // action.php returns 200 OK with empty body - this is SUCCESS!
+        if (response.ok) {
+          console.log(`✅ SUCCESS! Order ${orderId} sent via ${endpoint} (status: ${response.status})`);
           
           return {
             success: true,
-            message: `Order sent successfully via ${endpoint}`,
+            message: `Order sent successfully via ${endpoint} - Status: ${response.status}`,
             order_id: orderId,
-            response_data: responseData,
+            response_data: responseData || 'Empty response (normal for action.php)',
             endpoint_used: endpoint
           };
         }
