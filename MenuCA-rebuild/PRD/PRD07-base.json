@@ -1,7 +1,0 @@
-{
-  "title": "Scalable Performance Infrastructure",
-  "requirement": "Optimize the platform for high performance and scalability to handle increased traffic and restaurant partners without compromising speed.  \n#### Screens:  \nSystem health and performance monitoring dashboard, database management interface, and load testing tools.  \n#### Personas:  \nSystem administrators ensuring infrastructure stability, IT managers planning scale-up operations, and developers optimizing codebase.",
-  "linkedBRDIds": [
-    "BRD07"
-  ]
-}

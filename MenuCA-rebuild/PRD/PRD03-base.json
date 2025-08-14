@@ -1,7 +1,0 @@
-{
-  "title": "Stripe Payment Integration",
-  "requirement": "Integrate Stripe for automated payment processing with support for multiple payment methods, dispute management, and invoice generation.  \n#### Screens:  \nPayment gateway integration page, invoice management console, and dispute resolution interface.  \n#### Personas:  \nFinance department handling transactions, customers processing payments, and technical support resolving payment issues.",
-  "linkedBRDIds": [
-    "BRD03"
-  ]
-}

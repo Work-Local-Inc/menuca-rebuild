@@ -1,4 +1,0 @@
-{
-  "title": "Scalability Requirements",
-  "requirement": "The platform must scale seamlessly to accommodate _up to 1000 restaurants_ without performance degradation."
-}

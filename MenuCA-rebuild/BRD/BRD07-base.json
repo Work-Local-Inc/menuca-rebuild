@@ -1,4 +1,0 @@
-{
-  "title": "Scalability and Performance",
-  "requirement": "Ensure the platform is highly scalable to accommodate increase in traffic and restaurant count. It should be optimized for performance, maintaining speed and reliability under high loads, and include a scalable database infrastructure."
-}

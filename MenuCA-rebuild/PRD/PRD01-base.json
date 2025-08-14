@@ -1,7 +1,0 @@
-{
-  "title": "Commission Tracking System",
-  "requirement": "Implement a reliable commission tracking system that calculates accurately and synchronizes with payment processing in real time, providing comprehensive reporting and insights.  \n#### Screens:  \nDashboard for viewing and managing commission reports, settings for configuring commission rates, and real-time alerts page.  \n#### Personas:  \nMenu.ca owners who need to track revenue, financial team members responsible for reporting, and system administrators managing integration settings.",
-  "linkedBRDIds": [
-    "BRD01"
-  ]
-}

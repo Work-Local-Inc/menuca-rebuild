@@ -1,4 +1,0 @@
-{
-  "title": "Multi-Tenant Architecture",
-  "requirement": "Design and develop a scalable, multi-tenant architecture that supports the onboarding and management of hundreds of restaurant partners. This architecture should ensure data isolation, provide tenant-specific customizations, and support efficient resource allocation."
-}
