@@ -78,8 +78,8 @@ export function formatOrderForTablet(orderData: any, orderId: number): TabletOrd
   
   return {
     ver: 3,
-    id: "A19", // Try A19 as the ID field (device identifier)
-    restaurant_id: "A19", // And A19 as restaurant_id too
+    id: 19, // Try numeric 19 as the ID field
+    restaurant_id: 19, // And numeric 19 as restaurant_id too
     delivery_type: orderData.delivery_type === 'pickup' ? 2 : 1,
     comment: orderData.delivery_instructions || orderData.notes || '',
     payment_method: orderData.payment?.method || 'Credit Card',
