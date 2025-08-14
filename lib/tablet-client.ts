@@ -5,7 +5,7 @@
  * This is the CORRECT approach - we're the CLIENT, not the server!
  */
 
-const TABLET_API_BASE = 'https://menu.ca'; // Try main domain instead of tablet subdomain
+const TABLET_API_BASE = 'https://tablet.menu.ca'; // Back to tablet subdomain
 const TABLET_API_VERSION = '3';
 
 /**
@@ -162,13 +162,18 @@ export async function sendOrderToTablet(orderData: any, orderId: number): Promis
     
     console.log('📦 Sending v3 schema order:', JSON.stringify(tabletOrder, null, 2));
     
-    // Try multiple tablet.menu.ca endpoints until we find the right one
+    // Try multiple possible tablet endpoints with different auth approaches
     const endpoints = [
-      '/action.php',           // ✅ CONFIRMED WORKING - Returns 200 OK with rt cookies
-      '/api/v3/sendOrder',     // 404 Not Found
-      '/api/orders',           // 404 Not Found
-      '/sendOrder',            // Simple path
-      '/api/v3/orders',        // What we tried before
+      '/v3/order',             // Try v3 directly
+      '/v3/orders',            // Plural version
+      '/v3/send',              // Simple v3 send
+      '/order',                // Basic order endpoint
+      '/orders',               // Basic orders endpoint  
+      '/send',                 // Simple send
+      '/api/v3/sendOrder',     // Original v3 path
+      '/api/orders',           // API orders
+      '/sendOrder',            // Simple sendOrder
+      '/action.php',           // Last resort - dummy endpoint
     ];
     
     let lastError = null;
