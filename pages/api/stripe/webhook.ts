@@ -6,8 +6,16 @@
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { buffer } from 'micro';
 import Stripe from 'stripe';
+
+// Utility function to get raw body buffer (replaces micro.buffer)
+async function getRawBody(req: NextApiRequest): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks);
+}
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-12-18.acacia',
@@ -80,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let event: Stripe.Event;
 
   try {
-    const buf = await buffer(req);
+    const buf = await getRawBody(req);
     const sig = req.headers['stripe-signature'] as string;
 
     if (!endpointSecret) {
