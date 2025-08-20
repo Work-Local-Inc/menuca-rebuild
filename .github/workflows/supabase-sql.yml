@@ -1,0 +1,53 @@
+name: Supabase SQL Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      file:
+        description: SQL file relative to repo root (e.g., sql/create-businesses-table.sql)
+        required: true
+        type: string
+
+jobs:
+  run-sql:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install psycopg
+        run: |
+          python -m pip install --upgrade pip
+          pip install psycopg[binary]==3.2.3
+
+      - name: Execute SQL
+        env:
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+        run: |
+          python - << 'PY'
+          import os, sys
+          import psycopg
+          file = os.environ.get('SQL_FILE')
+          if not file or not os.path.exists(file):
+              raise SystemExit(f"SQL file not found: {file}")
+          dsn = os.environ.get('POSTGRES_URL')
+          if not dsn:
+              raise SystemExit('Missing POSTGRES_URL secret')
+          with open(file, 'r', encoding='utf-8') as f:
+              sql = f.read()
+          with psycopg.connect(dsn) as conn:
+              with conn.cursor() as cur:
+                  cur.execute(sql)
+                  conn.commit()
+          print('SQL executed successfully:', file)
+          PY
+        shell: bash
+        env:
+          SQL_FILE: ${{ inputs.file }}
+
+

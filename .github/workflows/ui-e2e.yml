@@ -1,0 +1,64 @@
+name: UI E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: Base URL of the deployed site (e.g., https://v0-menu.vercel.app)
+        required: true
+        type: string
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: |
+          npm ci --legacy-peer-deps
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Smoke tests
+        env:
+          BASE_URL: ${{ inputs.site_url }}
+        run: |
+          node - << 'JS'
+          import fetch from 'node-fetch'
+          const base = process.env.BASE_URL
+          if (!base) throw new Error('Missing BASE_URL')
+          const must = ['/api/env-health', '/dashboard/settings']
+          ;(async () => {
+            for (const path of must) {
+              const url = base + path
+              const res = await fetch(url, { redirect: 'manual' })
+              console.log(path, res.status)
+              if (res.status >= 400) throw new Error(`Fail ${path}: ${res.status}`)
+            }
+          })().catch(e => { console.error(e); process.exit(1) })
+          JS
+
+      - name: Run Playwright Tests
+        env:
+          BASE_URL: ${{ inputs.site_url }}
+        run: |
+          npx playwright test --reporter=line
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            playwright-report
+            test-results
+
+
