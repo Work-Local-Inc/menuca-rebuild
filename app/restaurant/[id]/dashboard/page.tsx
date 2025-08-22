@@ -51,7 +51,7 @@ const MOCK_ORDERS: OrderSummary = {
 export default function RestaurantDashboard() {
   const params = useParams()
   const router = useRouter()
-  const restaurantId = params?.id as string
+  const restaurantId = params.id as string
   
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [orders, setOrders] = useState<OrderSummary | null>(null)

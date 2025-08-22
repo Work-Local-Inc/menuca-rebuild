@@ -108,7 +108,7 @@ const MOCK_MENU: MenuItem[] = [
 
 export default function MenuPage() {
   const params = useParams()
-  const restaurantId = params?.id as string
+  const restaurantId = params.id as string
   
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [menu, setMenu] = useState<MenuItem[]>([])
