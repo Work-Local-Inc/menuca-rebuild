@@ -72,7 +72,7 @@ async function sendOrderToTabletMenuCA(orderData: any, orderId: number) {
     
   } catch (error) {
     console.error('❌ Webhook tablet integration failed:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 
