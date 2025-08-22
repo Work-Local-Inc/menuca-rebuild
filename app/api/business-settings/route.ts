@@ -40,7 +40,7 @@ export async function GET(req: Request) {
   }
 
   const { data, error } = await supabaseAdmin
-    .from<BusinessRecord>('businesses')
+    .from('businesses')
     .select('*')
     .eq('id', businessId)
     .single()
@@ -86,7 +86,7 @@ export async function PUT(req: Request) {
   }
 
   const { data, error } = await supabaseAdmin
-    .from<BusinessRecord>('businesses')
+    .from('businesses')
     .upsert(upsertRecord, { onConflict: 'id' })
     .select('*')
     .single()
