@@ -1,0 +1,11 @@
+# Decompiled Android directories
+menuca-decompiled/
+menuca-restotool-decompiled/
+real-tablet-app-decompiled/
+
+# Node modules and build
+node_modules/
+.next/
+
+# Development files
+.env.local

@@ -1,3 +1,5 @@
+import '../styles/globals.css'
+
 export const metadata = {
 	title: 'MenuCA',
 	description: 'Restaurant management platform'
