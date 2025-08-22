@@ -104,10 +104,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     console.log(`📊 Using ${menuData.categories.length} categories`);
     
-    // Skip menu table for now - directly create categories and items
+    // CORRECT FLOW: Create menu first, then categories, then items
     const tenantId = 'default-tenant';
+    const menuId = uuidv4();
     
-    console.log('📊 Creating categories and items directly...');
+    console.log('📊 Step 1: Creating restaurant menu...');
+    
+    // 1. Create the restaurant menu first (REQUIRED for foreign key)
+    const { data: createdMenu, error: menuError } = await supabase
+      .from('restaurant_menus')
+      .insert({
+        id: menuId,
+        restaurant_id: restaurant_id,
+        tenant_id: tenantId,
+        name: 'Main Menu',
+        description: `Complete menu imported from ${url}`,
+        is_active: true,
+        display_order: 1
+      })
+      .select()
+      .single();
+
+    if (menuError || !createdMenu) {
+      console.error('❌ Menu creation error:', JSON.stringify(menuError, null, 2));
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Failed to create restaurant menu',
+        details: menuError
+      });
+    }
+
+    console.log('✅ Created restaurant menu:', createdMenu.id);
+    console.log('📊 Step 2: Creating categories and items...');
 
     // Create categories and items
     let totalItemsCreated = 0;
@@ -116,12 +144,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const category = menuData.categories[categoryIndex];
       const categoryId = uuidv4();
       
-      // Create category - use .select() to get the created record back
+      // Create category using the ACTUAL menu ID (not restaurant_id)
       const { data: createdCategory, error: categoryError } = await supabase
         .from('menu_categories')
         .insert({
           id: categoryId,
-          menu_id: restaurant_id, // Use menu_id as you confirmed this column exists
+          menu_id: createdMenu.id, // Use the actual menu ID from step 1
           name: category.name,
           description: `${category.name} selection`,
           display_order: categoryIndex,
