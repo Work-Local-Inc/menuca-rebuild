@@ -84,12 +84,35 @@ export default function RestaurantOnboardingPage() {
     try {
       console.log('🔍 Importing menu from:', legacyMenuUrl)
       
+      // CRITICAL FIX: Create restaurant FIRST to get real restaurant_id
+      console.log('🏪 Creating restaurant first...')
+      const restaurantResponse = await fetch('/api/restaurants/onboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profile,
+          legacy_url: legacyMenuUrl
+        })
+      })
+      
+      if (!restaurantResponse.ok) {
+        const errorData = await restaurantResponse.json()
+        throw new Error(errorData.error || 'Failed to create restaurant')
+      }
+      
+      const restaurantResult = await restaurantResponse.json()
+      const realRestaurantId = restaurantResult.restaurant.id
+      setRestaurantId(realRestaurantId)
+      console.log('✅ Restaurant created with ID:', realRestaurantId)
+      
+      // NOW import menu with real restaurant ID
+      console.log('🍕 Importing menu with real restaurant ID...')
       const response = await fetch('/api/admin/import-legacy-menu', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           url: legacyMenuUrl,
-          restaurant_id: 'temp-preview', // Temp ID for preview
+          restaurant_id: realRestaurantId, // Use REAL restaurant ID
           restaurant_name: profile.name
         })
       })
@@ -114,33 +137,17 @@ export default function RestaurantOnboardingPage() {
   const completeOnboarding = async () => {
     setLoading(true)
     try {
-      console.log('🚀 Creating restaurant and importing menu...')
-      
-      // Create restaurant with profile + imported menu
-      const response = await fetch('/api/restaurants/onboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profile,
-          legacy_url: legacyMenuUrl
-        })
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create restaurant')
+      // Restaurant was already created during menu import
+      if (!restaurantId) {
+        throw new Error('Restaurant ID not found. Please complete menu import first.')
       }
       
-      const result = await response.json()
-      const newRestaurantId = result.restaurant.id
-      setRestaurantId(newRestaurantId)
-      
-      console.log('🎉 Restaurant onboarding complete!', result)
+      console.log('🎉 Restaurant onboarding complete! Restaurant ID:', restaurantId)
       
       // Show success and redirect after delay
       setCurrentStep(5) // Success step
       setTimeout(() => {
-        router.push(`/restaurant/${newRestaurantId}/dashboard`)
+        router.push(`/restaurant/${restaurantId}/dashboard`)
       }, 3000)
       
     } catch (error) {
