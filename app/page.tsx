@@ -2,7 +2,11 @@
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50 overflow-hidden">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #fff7ed, #ffffff, #faf5ff)',
+      overflow: 'hidden'
+    }}>
       {/* Floating background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 w-20 h-20 bg-orange-200 rounded-full opacity-20 animate-float"></div>
