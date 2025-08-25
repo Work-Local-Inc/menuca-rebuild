@@ -1,6 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+
+// Import the scraper
+const LegacyPlatformScraper = require(path.join(process.cwd(), 'scripts', 'legacy-platform-scraper.js'));
+const TonyPizzaScraper = require(path.join(process.cwd(), 'scripts', 'tony-pizza-scraper.js'));
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -98,9 +103,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('🔍 Importing menu from:', url);
     console.log('🏪 For restaurant:', restaurant_name);
     
-    // For now, use pre-scraped Xtreme Pizza data
-    // TODO: Implement serverless-compatible scraping
-    const menuData = XTREME_PIZZA_MENU;
+    // Use live scraper based on URL
+    let menuData;
+    
+    try {
+      if (url.includes('tonys-pizza.ca')) {
+        console.log('🍕 Using Tony\'s Pizza specialized scraper');
+        const tonysScraper = new TonyPizzaScraper();
+        const scrapedData = await tonysScraper.scrapeMenu(url);
+        menuData = scrapedData;
+      } else {
+        console.log('🕷️ Using general legacy platform scraper');
+        const generalScraper = new LegacyPlatformScraper();
+        const scrapedData = await generalScraper.scrapeMenu(url);
+        menuData = scrapedData;
+      }
+    } catch (scrapingError) {
+      console.warn('⚠️ Scraping failed, falling back to Xtreme Pizza data:', scrapingError.message);
+      menuData = XTREME_PIZZA_MENU;
+    }
     
     console.log(`📊 Using ${menuData.categories.length} categories`);
     
