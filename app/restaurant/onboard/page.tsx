@@ -117,6 +117,7 @@ export default function RestaurantOnboardingPage() {
       console.log('🚀 Creating restaurant and importing menu...')
       
       // Create restaurant with profile + imported menu
+      console.log('🔍 Sending onboard request with:', { profile, legacy_url: legacyMenuUrl });
       const response = await fetch('/api/restaurants/onboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,6 +137,7 @@ export default function RestaurantOnboardingPage() {
       setRestaurantId(newRestaurantId)
       
       console.log('🎉 Restaurant onboarding complete!', result)
+      console.log('📊 Menu import result:', result.menu_import)
       
       // Show success and redirect after delay
       setCurrentStep(5) // Success step

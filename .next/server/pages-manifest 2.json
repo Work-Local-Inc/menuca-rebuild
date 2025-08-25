@@ -1,0 +1,15 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/api/admin/import-legacy-menu": "pages/api/admin/import-legacy-menu.js",
+  "/api/debug-tablet-order": "pages/api/debug-tablet-order.js",
+  "/api/inject-tablet-order": "pages/api/inject-tablet-order.js",
+  "/api/restaurants/onboard": "pages/api/restaurants/onboard.js",
+  "/api/tablet/accept": "pages/api/tablet/accept.js",
+  "/api/tablet/getOrder": "pages/api/tablet/getOrder.js",
+  "/api/tablet/reject": "pages/api/tablet/reject.js",
+  "/api/stripe/webhook": "pages/api/stripe/webhook.js",
+  "/test-payment": "pages/test-payment.js",
+  "/api/tablet/addOrder": "pages/api/tablet/addOrder.js",
+  "/_document": "pages/_document.js"
+}
