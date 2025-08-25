@@ -132,17 +132,33 @@ export default function MenuPage() {
   const loadRestaurantData = async () => {
     setLoading(true)
     try {
-      // TODO: Replace with actual API calls
-      // const restaurant = await fetch(`/api/restaurants/${restaurantId}`)
-      // const menuData = await fetch(`/api/restaurants/${restaurantId}/menu`)
+      console.log('🔍 Loading restaurant and menu data for:', restaurantId)
       
-      // Mock delay to simulate API
-      await new Promise(resolve => setTimeout(resolve, 800))
+      // Fetch actual restaurant data
+      const restaurantResponse = await fetch(`/api/restaurants/${restaurantId}`)
+      if (!restaurantResponse.ok) {
+        throw new Error('Failed to fetch restaurant data')
+      }
       
+      const restaurantData = await restaurantResponse.json()
+      console.log('✅ Loaded restaurant:', restaurantData.restaurant.name)
+      setRestaurant(restaurantData.restaurant)
+      
+      // Fetch actual menu data
+      const menuResponse = await fetch(`/api/restaurants/${restaurantId}/menu`)
+      if (!menuResponse.ok) {
+        throw new Error('Failed to fetch menu data')
+      }
+      
+      const menuData = await menuResponse.json()
+      console.log(`✅ Loaded ${menuData.menu.length} menu items`)
+      setMenu(menuData.menu)
+      
+    } catch (error) {
+      console.error('❌ Error loading restaurant data:', error)
+      // Fallback to mock data if API fails
       setRestaurant(MOCK_RESTAURANT)
       setMenu(MOCK_MENU)
-    } catch (error) {
-      console.error('Error loading restaurant data:', error)
     } finally {
       setLoading(false)
     }

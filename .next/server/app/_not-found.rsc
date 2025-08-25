@@ -1,5 +1,5 @@
-1:HL["/_next/static/css/6c9b0c14d5db69af.css","style",{"crossOrigin":""}]
-0:["WR6QfGy9WpY3etljsutGa",[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],"$L2",[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/6c9b0c14d5db69af.css","precedence":"next","crossOrigin":""}]],"$L3"]]]]
+1:HL["/_next/static/css/1e8f4611ed15ea4a.css","style",{"crossOrigin":""}]
+0:["o43jOaZn2BCInZ1an-LFv",[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],"$L2",[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/1e8f4611ed15ea4a.css","precedence":"next","crossOrigin":""}]],"$L3"]]]]
 4:I[6954,[],""]
 5:I[7264,[],""]
 3:[["$","meta","0",{"charSet":"utf-8"}],["$","title","1",{"children":"MenuCA"}],["$","meta","2",{"name":"description","content":"Restaurant management platform"}],["$","meta","3",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]

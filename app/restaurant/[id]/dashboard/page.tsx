@@ -67,17 +67,28 @@ export default function RestaurantDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      // TODO: Replace with actual API calls
-      // const restaurantData = await fetch(`/api/restaurants/${restaurantId}`)
-      // const ordersData = await fetch(`/api/restaurants/${restaurantId}/orders/summary`)
+      console.log('🔍 Loading dashboard data for restaurant:', restaurantId)
       
-      // Mock delay
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Fetch actual restaurant data
+      const restaurantResponse = await fetch(`/api/restaurants/${restaurantId}`)
+      if (!restaurantResponse.ok) {
+        throw new Error('Failed to fetch restaurant data')
+      }
       
+      const restaurantData = await restaurantResponse.json()
+      console.log('✅ Loaded restaurant data:', restaurantData.restaurant.name)
+      
+      setRestaurant(restaurantData.restaurant)
+      
+      // TODO: Implement orders API
+      // For now, use mock orders data
+      setOrders(MOCK_ORDERS)
+      
+    } catch (error) {
+      console.error('❌ Error loading dashboard data:', error)
+      // Fallback to mock data if API fails
       setRestaurant(MOCK_RESTAURANT)
       setOrders(MOCK_ORDERS)
-    } catch (error) {
-      console.error('Error loading dashboard data:', error)
     } finally {
       setLoading(false)
     }
