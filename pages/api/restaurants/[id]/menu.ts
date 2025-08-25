@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get all menu items for these categories
     const categoryIds = categories?.map(cat => cat.id) || [];
     
-    let allMenuItems = [];
+    let allMenuItems: any[] = [];
     
     if (categoryIds.length > 0) {
       const { data: menuItems, error: itemsError } = await supabase
