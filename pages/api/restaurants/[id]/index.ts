@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Fetch restaurant data
     const { data: restaurant, error: restaurantError } = await supabase
-      .from('businesses')
+      .from('restaurants')
       .select('*')
       .eq('id', restaurantId)
       .single();
