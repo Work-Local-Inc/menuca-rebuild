@@ -166,6 +166,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log(`✅ Created category: ${category.name} with ID: ${createdCategory.id}`);
 
       // Create items for this category
+      console.log(`📦 Creating ${category.items.length} items for category: ${category.name}`);
+      
       for (let itemIndex = 0; itemIndex < category.items.length; itemIndex++) {
         const item = category.items[itemIndex];
         
@@ -173,24 +175,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const basePrice = Array.isArray(item.prices) ? item.prices[0] : item.prices;
         const itemId = uuidv4();
         
+        console.log(`🔍 Attempting to create item: ${item.name} (${itemIndex + 1}/${category.items.length})`);
+        console.log(`📊 Item data: category_id=${createdCategory.id}, price=${basePrice}, description="${item.description || ''}"`);
+        
+        // Prepare the item data with all possible required fields
+        const itemData = {
+          id: itemId,
+          category_id: createdCategory.id,
+          name: item.name,
+          description: item.description || '',
+          price: basePrice || 0,
+          // Add common fields that might be required
+          is_active: true,
+          display_order: itemIndex,
+          // tenant_id might be required if using RLS
+          tenant_id: 'default-tenant'
+        };
+        
+        console.log(`🚀 Inserting item with data:`, JSON.stringify(itemData, null, 2));
+        
         // Use the CONFIRMED category ID from the created record
         const { data: createdItem, error: itemError } = await supabase
           .from('menu_items')
-          .insert({
-            id: itemId,
-            category_id: createdCategory.id, // Use the actual created category ID
-            name: item.name,
-            description: item.description || '',
-            price: basePrice || 0
-            // Only the absolute minimum required columns
-          })
+          .insert(itemData)
           .select()
           .single();
 
         if (itemError) {
           console.error(`❌ Item creation error for ${item.name}:`, JSON.stringify(itemError, null, 2));
+          console.error(`❌ Failed item data was:`, JSON.stringify(itemData, null, 2));
+          console.error(`❌ Category ID used: ${createdCategory.id}`);
+          console.error(`❌ Menu ID in category: ${createdCategory.menu_id}`);
         } else {
-          console.log(`✅ Created item: ${item.name} - $${basePrice}`);
+          console.log(`✅ Created item: ${item.name} - $${basePrice} (ID: ${createdItem?.id})`);
           totalItemsCreated++;
         }
       }
