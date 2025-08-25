@@ -178,18 +178,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(`🔍 Attempting to create item: ${item.name} (${itemIndex + 1}/${category.items.length})`);
         console.log(`📊 Item data: category_id=${createdCategory.id}, price=${basePrice}, description="${item.description || ''}"`);
         
-        // Prepare the item data with all possible required fields
+        // Prepare the item data with only fields that exist in the table
         const itemData = {
           id: itemId,
           category_id: createdCategory.id,
           name: item.name,
           description: item.description || '',
-          price: basePrice || 0,
-          // Add common fields that might be required
-          is_active: true,
-          display_order: itemIndex,
-          // tenant_id might be required if using RLS
-          tenant_id: 'default-tenant'
+          price: basePrice || 0
+          // Note: Removed tenant_id and optional fields that may not exist
+          // Will add back incrementally based on actual table schema
         };
         
         console.log(`🚀 Inserting item with data:`, JSON.stringify(itemData, null, 2));
