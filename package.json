@@ -33,6 +33,10 @@
     "@stripe/stripe-js": "^7.8.0",
     "@supabase/supabase-js": "^2.54.0",
     "@types/stripe": "^8.0.416",
+    "@types/node": "^24.3.0",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.9.2",
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
@@ -70,10 +74,7 @@
     "@types/jest": "^29.5.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^24.3.0",
     "@types/pg": "^8.10.2",
-    "@types/react": "^18.3.24",
-    "@types/react-dom": "^18.2.0",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.2.0",
@@ -87,8 +88,7 @@
     "tailwindcss": "^3.3.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.2"
+    "tsconfig-paths": "^4.2.0"
   },
   "keywords": [
     "saas",
