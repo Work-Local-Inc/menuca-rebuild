@@ -35,7 +35,7 @@ interface Restaurant {
   delivery_fee: number
   min_order: number
   address: string
-  phone?: string
+  phone?: string | null
   is_open: boolean
 }
 
@@ -51,6 +51,7 @@ const MOCK_RESTAURANT: Restaurant = {
   delivery_fee: 2.99,
   min_order: 15.00,
   address: '123 Bank Street, Ottawa, ON',
+  phone: '(613) 555-0123',
   is_open: true
 }
 
