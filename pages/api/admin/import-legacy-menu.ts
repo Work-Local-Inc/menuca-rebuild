@@ -80,6 +80,8 @@ function extractMenuCategories(content: string): MenuCategory[] {
   let currentCategory: string | null = null;
   let currentItems: MenuItem[] = [];
   
+  console.log(`🔍 Parsing ${lines.length} lines of content...`);
+  
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     
@@ -335,8 +337,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       if (scrapedData && (scrapedData.markdown || scrapedData.html)) {
         console.log('✅ Firecrawl succeeded, parsing menu data...');
+        console.log('🔍 Scraped data preview:', {
+          markdownLength: scrapedData.markdown?.length || 0,
+          htmlLength: scrapedData.html?.length || 0,
+          firstLines: scrapedData.markdown?.split('\n').slice(0, 10) || []
+        });
+        
         menuData = parseMenuFromScrapedData(scrapedData, url);
         console.log(`📊 Parsed ${menuData.categories.length} categories with ${countTotalItems(menuData.categories)} items`);
+        console.log('🔍 Categories found:', menuData.categories.map(c => ({ name: c.name, items: c.items.length })));
       } else {
         throw new Error('Firecrawl failed to scrape the menu');
       }
