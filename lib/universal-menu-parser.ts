@@ -70,11 +70,11 @@ export function parseUniversalMenu(markdown: string, url: string): ParsedMenu {
   
   // Convert map to array and filter out empty categories
   const categories: MenuCategory[] = [];
-  for (const [name, items] of categoriesMap) {
+  categoriesMap.forEach((items, name) => {
     if (items.length > 0) {
       categories.push({ name, items });
     }
-  }
+  });
   
   // Merge similar categories
   const mergedCategories = mergeSimilarCategories(categories);
@@ -163,13 +163,14 @@ function extractMenuItem(lines: string[], startIndex: number): MenuItem & { line
     
     // Extract prices from table format: | » Size | $ Price | [Link] |
     if (nextLine.includes('$') && nextLine.includes('|')) {
-      const priceMatches = [...nextLine.matchAll(/»\s*([^|]+?)\s*\|\s*\$\s*([\d.]+)/g)];
-      for (const match of priceMatches) {
-        prices.push({
-          size: match[1].trim(),
-          price: parseFloat(match[2])
-        });
-      }
+                const priceRegex = /»\s*([^|]+?)\s*\|\s*\$\s*([\d.]+)/g;
+          let match;
+          while ((match = priceRegex.exec(nextLine)) !== null) {
+            prices.push({
+              size: match[1].trim(),
+              price: parseFloat(match[2])
+            });
+          }
       linesProcessed = j;
     }
     
@@ -232,39 +233,38 @@ function mergeSimilarCategories(categories: MenuCategory[]): MenuCategory[] {
   };
   
   // Merge categories
-  for (const category of categories) {
+  categories.forEach(category => {
     let targetCategory = category.name;
     
     // Check if this category should be merged
-    for (const [pattern, target] of Object.entries(categoryMappings)) {
+    Object.entries(categoryMappings).forEach(([pattern, target]) => {
       if (category.name.toLowerCase().includes(pattern.toLowerCase())) {
         targetCategory = target;
-        break;
       }
-    }
+    });
     
     if (!merged.has(targetCategory)) {
       merged.set(targetCategory, []);
     }
     merged.get(targetCategory)!.push(...category.items);
-  }
+  });
   
   // Convert back to array
   const result: MenuCategory[] = [];
-  for (const [name, items] of merged) {
+  merged.forEach((items, name) => {
     // Remove duplicates based on item name
     const uniqueItems = new Map<string, MenuItem>();
-    for (const item of items) {
+    items.forEach(item => {
       if (!uniqueItems.has(item.name)) {
         uniqueItems.set(item.name, item);
       }
-    }
+    });
     
     result.push({
       name,
       items: Array.from(uniqueItems.values())
     });
-  }
+  });
   
   return result;
 }
