@@ -3,6 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 import FirecrawlApp from '@mendable/firecrawl-js';
 
+// CRITICAL DEBUG: Log Supabase connection details
+console.log('🔍 Supabase Connection Debug:', {
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+  keyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0
+});
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   (process.env.SUPABASE_SERVICE_ROLE_KEY || '').replace(/\s/g, '')
