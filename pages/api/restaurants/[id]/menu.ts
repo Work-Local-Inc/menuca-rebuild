@@ -70,7 +70,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           )
         `)
         .in('category_id', categoryIds)
-        .eq('is_available', true)
         .order('display_order', { ascending: true });
 
       if (itemsError) {
