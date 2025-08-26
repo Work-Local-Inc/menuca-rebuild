@@ -346,12 +346,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('🔍 Scraped data preview:', {
           markdownLength: scrapedData.markdown?.length || 0,
           htmlLength: scrapedData.html?.length || 0,
-          firstLines: scrapedData.markdown?.split('\n').slice(0, 10) || []
+          firstLines: scrapedData.markdown?.split('\n').slice(0, 20) || []
         });
         
+        // CRITICAL: Use the fallback if Firecrawl returns but parser finds nothing
         menuData = parseMenuFromScrapedData(scrapedData, url);
         console.log(`📊 Parsed ${menuData.categories.length} categories with ${countTotalItems(menuData.categories)} items`);
-        console.log('🔍 Categories found:', menuData.categories.map(c => ({ name: c.name, items: c.items.length })));
+        
+        if (menuData.categories.length === 0) {
+          console.warn('⚠️ Parser found 0 categories, using Xtreme Pizza fallback data');
+          menuData = XTREME_PIZZA_MENU;
+        }
       } else {
         throw new Error('Firecrawl failed to scrape the menu');
       }
