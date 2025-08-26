@@ -402,6 +402,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('📊 Step 2: Creating menu directly in database...');
     
     // Create menu
+    console.log('🔍 Attempting to create menu with data:', {
+      restaurant_id: restaurant_id,
+      name: 'Main Menu',
+      description: `Complete menu imported from ${url}`,
+      is_active: true,
+      display_order: 1,
+      tenant_id: 'default-tenant'
+    });
+
     const { data: menuResult, error: menuError } = await supabase
       .from('restaurant_menus')
       .insert({
