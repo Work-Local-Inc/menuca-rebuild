@@ -328,6 +328,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     console.log('🔍 Importing menu from:', url);
     console.log('🏪 For restaurant:', restaurant_name);
+    console.log('🆔 Restaurant ID:', restaurant_id);
+    
+    // Check if this is a preview request
+    if (restaurant_id === 'temp-preview') {
+      console.log('👁️ Preview mode detected - returning scraped data without saving');
+    }
     
     // Use Firecrawl to scrape the actual menu data
     let menuData;
@@ -384,22 +390,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     console.log(`📊 Using Edge Function to import ${menuData.categories.length} categories`);
     
-    // Use new Edge Function for reliable menu import
-    const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/import-menu`;
+    // If this is a preview, return the scraped data without saving
+    if (restaurant_id === 'temp-preview') {
+      return res.status(200).json({
+        success: true,
+        categories: menuData.categories.length,
+        items: menuData.categories.reduce((total, cat) => total + cat.items.length, 0),
+        restaurant_id: restaurant_id,
+        preview: menuData.categories.slice(0, 3), // Return first 3 categories as preview
+        isPreview: true
+      });
+    }
     
-    // Prepare data for Edge Function
-    const edgeFunctionData = {
-      restaurant_id: restaurant_id,
-      name: 'Main Menu',
-      description: `Complete menu imported from ${url}`,
-      display_order: 1,
-      categories: menuData.categories
-    };
+    // For real imports, first get the restaurant's tenant_id
+    console.log('🔍 Fetching restaurant details to get tenant_id...');
+    const { data: restaurantData, error: restaurantError } = await supabase
+      .from('restaurants')
+      .select('id, tenant_id')
+      .eq('id', restaurant_id)
+      .single();
     
-    console.log('📊 Step 1: Calling Edge Function for menu import...');
+    if (restaurantError || !restaurantData) {
+      console.error('❌ Failed to fetch restaurant:', restaurantError);
+      return res.status(404).json({
+        success: false,
+        error: 'Restaurant not found',
+        details: restaurantError
+      });
+    }
+    
+    const tenantId = restaurantData.tenant_id;
+    console.log('✅ Found tenant_id:', tenantId);
     
     // Import directly using our own database logic (bypass Edge Function)
-    console.log('📊 Step 2: Creating menu directly in database...');
+    console.log('📊 Creating menu directly in database...');
     
     // Create menu
     console.log('🔍 Attempting to create menu with data:', {
@@ -408,7 +432,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       description: `Complete menu imported from ${url}`,
       is_active: true,
       display_order: 1,
-      tenant_id: 'default-tenant'
+      tenant_id: tenantId
     });
 
     const { data: menuResult, error: menuError } = await supabase
@@ -419,7 +443,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         description: `Complete menu imported from ${url}`,
         is_active: true,
         display_order: 1,
-        tenant_id: 'default-tenant'
+        tenant_id: tenantId
       })
       .select()
       .single();
@@ -483,7 +507,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             name: item.name,
             description: item.description || '',
             price: basePrice || 0,
-            tenant_id: 'default-tenant'
+            tenant_id: tenantId
           })
           .select()
           .single();
