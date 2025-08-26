@@ -35,6 +35,7 @@ interface Restaurant {
   delivery_fee: number
   min_order: number
   address: string
+  phone?: string
   is_open: boolean
 }
 
