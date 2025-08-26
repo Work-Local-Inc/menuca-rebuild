@@ -75,39 +75,117 @@ interface MenuItem {
 function extractMenuCategories(content: string): MenuCategory[] {
   const categories: MenuCategory[] = [];
   
-  // Split content into sections based on headers
-  const sections = content.split(/\n(?=#{1,4}\s)/);
+  // This menu uses a different format - look for category headers and price tables
+  const lines = content.split('\n');
+  let currentCategory: string | null = null;
+  let currentItems: MenuItem[] = [];
   
-  for (const section of sections) {
-    const lines = section.split('\n').filter(line => line.trim());
-    if (lines.length === 0) continue;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
     
-    const firstLine = lines[0].trim();
+    // Skip empty lines and tables
+    if (!line || line.startsWith('|') || line.startsWith('-')) continue;
     
-    // Check if this looks like a menu category
-    if (firstLine.startsWith('#') && !isIgnoredSection(firstLine)) {
-      const categoryName = firstLine.replace(/^#+\s*/, '').trim();
-      const items = extractItemsFromSection(lines.slice(1));
-      
-      if (items.length > 0) {
+    // Look for category headers (standalone lines that look like menu sections)
+    if (isPotentialCategoryHeader(line)) {
+      // Save previous category if it has items
+      if (currentCategory && currentItems.length > 0) {
         categories.push({
-          name: categoryName,
-          items: items
+          name: currentCategory,
+          items: [...currentItems]
+        });
+      }
+      
+      currentCategory = line;
+      currentItems = [];
+      continue;
+    }
+    
+    // Look for menu items (lines followed by price tables)
+    if (currentCategory && isPotentialMenuItem(line, lines, i)) {
+      const price = extractPriceFromNextLines(lines, i);
+      if (price > 0) {
+        currentItems.push({
+          name: line,
+          description: getItemDescription(lines, i),
+          price: price,
+          prices: [price]
         });
       }
     }
   }
   
+  // Don't forget the last category
+  if (currentCategory && currentItems.length > 0) {
+    categories.push({
+      name: currentCategory,
+      items: currentItems
+    });
+  }
+  
   return categories;
 }
 
-function isIgnoredSection(headerText: string): boolean {
-  const ignored = [
-    'english', 'français', 'accueil', 'menu', 'contactez', 'contact',
-    'home', 'about', 'location', 'hours', 'phone', 'address'
+function isPotentialCategoryHeader(line: string): boolean {
+  // Category headers in this format
+  const categoryPatterns = [
+    /^Spécial/i,
+    /Pizza/i,
+    /Poutine/i,
+    /Sandwich/i,
+    /Nachos/i,
+    /Pâtes/i,
+    /Dessert/i,
+    /Breuvage/i,
+    /Accompagnement/i,
+    /Trempettes/i,
+    /^Menu/i,
+    /^Offres/i
   ];
   
-  return ignored.some(word => headerText.toLowerCase().includes(word));
+  // Should be a standalone line, not too long
+  if (line.length > 50 || line.length < 3) return false;
+  
+  return categoryPatterns.some(pattern => pattern.test(line));
+}
+
+function isPotentialMenuItem(line: string, lines: string[], index: number): boolean {
+  // Skip obvious non-items
+  if (line.includes('$') || line.includes('|') || line.includes('---')) return false;
+  if (line.toLowerCase().includes('haut') || line.toLowerCase().includes('choisissez')) return false;
+  
+  // Look for a price in the next few lines
+  for (let i = index + 1; i < Math.min(index + 5, lines.length); i++) {
+    if (lines[i].includes('$') && extractPriceFromLine(lines[i]) > 0) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+function extractPriceFromNextLines(lines: string[], startIndex: number): number {
+  for (let i = startIndex + 1; i < Math.min(startIndex + 5, lines.length); i++) {
+    const price = extractPriceFromLine(lines[i]);
+    if (price > 0) return price;
+  }
+  return 0;
+}
+
+function extractPriceFromLine(line: string): number {
+  const priceMatch = line.match(/\$\s*(\d+\.?\d*)/);
+  return priceMatch ? parseFloat(priceMatch[1]) : 0;
+}
+
+function getItemDescription(lines: string[], index: number): string {
+  // Look for description in the next line
+  if (index + 1 < lines.length) {
+    const nextLine = lines[index + 1].trim();
+    if (nextLine && !nextLine.includes('$') && !nextLine.startsWith('|') && nextLine.length > 10) {
+      return nextLine;
+    }
+  }
+  return '';
 }
 
 function extractItemsFromSection(lines: string[]): MenuItem[] {
