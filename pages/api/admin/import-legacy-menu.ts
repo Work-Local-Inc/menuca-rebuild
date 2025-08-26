@@ -272,31 +272,86 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     console.log('📊 Step 1: Calling Edge Function for menu import...');
     
-    // Call the Edge Function
-    const edgeResponse = await fetch(edgeFunctionUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
-      },
-      body: JSON.stringify(edgeFunctionData)
-    });
+    // Import directly using our own database logic (bypass Edge Function)
+    console.log('📊 Step 2: Creating menu directly in database...');
+    
+    // Create menu
+    const { data: menuResult, error: menuError } = await supabase
+      .from('restaurant_menus')
+      .insert({
+        restaurant_id: restaurant_id,
+        name: 'Main Menu',
+        description: `Complete menu imported from ${url}`,
+        is_active: true,
+        display_order: 1,
+        tenant_id: 'default-tenant'
+      })
+      .select()
+      .single();
 
-    if (!edgeResponse.ok) {
-      const edgeError = await edgeResponse.text();
-      console.error('❌ Edge Function failed:', edgeError);
+    if (menuError || !menuResult) {
+      console.error('❌ Menu creation failed:', menuError);
       return res.status(500).json({ 
         success: false, 
-        error: 'Failed to import menu via Edge Function',
-        details: edgeError 
+        error: 'Failed to create restaurant menu',
+        details: menuError 
       });
     }
 
-    const edgeResult = await edgeResponse.json();
-    console.log('✅ Edge Function completed:', edgeResult);
+    console.log('✅ Menu created:', menuResult.id);
     
-    const totalCategoriesCreated = edgeResult.stats?.total_categories || 0;
-    const totalItemsCreated = edgeResult.stats?.total_items || 0;
+    let totalCategoriesCreated = 0;
+    let totalItemsCreated = 0;
+    
+    // Process categories and items
+    for (const [categoryIndex, category] of menuData.categories.entries()) {
+      console.log(`🔍 Processing category ${categoryIndex + 1}/${menuData.categories.length}: ${category.name}`);
+      
+      // Create category
+      const { data: categoryResult, error: categoryError } = await supabase
+        .from('menu_categories')
+        .insert({
+          menu_id: menuResult.id,
+          name: category.name,
+          description: category.description || `${category.name} items`,
+          display_order: categoryIndex,
+          is_active: true
+        })
+        .select()
+        .single();
+
+      if (categoryError || !categoryResult) {
+        console.error(`❌ Category creation failed for ${category.name}:`, categoryError);
+        continue;
+      }
+
+      console.log(`✅ Category created: ${category.name} (${category.items.length} items)`);
+      totalCategoriesCreated++;
+
+      // Create items for this category
+      for (const [itemIndex, item] of category.items.entries()) {
+        const basePrice = Array.isArray(item.prices) ? item.prices[0] : item.price;
+        
+        const { data: itemResult, error: itemError } = await supabase
+          .from('menu_items')
+          .insert({
+            category_id: categoryResult.id,
+            name: item.name,
+            description: item.description || '',
+            price: basePrice || 0,
+            tenant_id: 'default-tenant'
+          })
+          .select()
+          .single();
+
+        if (itemError) {
+          console.error(`❌ Item creation error for ${item.name}:`, itemError);
+        } else {
+          console.log(`✅ Created item: ${item.name} - $${basePrice}`);
+          totalItemsCreated++;
+        }
+      }
+    }
     
     console.log(`✅ Menu import completed: ${totalItemsCreated} items created`);
 
