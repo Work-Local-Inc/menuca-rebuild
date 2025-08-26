@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 import FirecrawlApp from '@mendable/firecrawl-js';
+import { parseMilanoMenu } from '@/lib/milano-parser';
 
 // CRITICAL DEBUG: Log Supabase connection details
 console.log('🔍 Supabase Connection Debug:', {
@@ -349,8 +350,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           firstLines: scrapedData.markdown?.split('\n').slice(0, 20) || []
         });
         
-        // CRITICAL: Use the fallback if Firecrawl returns but parser finds nothing
-        menuData = parseMenuFromScrapedData(scrapedData, url);
+        // Use the new Milano parser if it's a Milano URL
+        if (url.includes('milanopizzeria')) {
+          console.log('🍕 Using Milano-specific parser...');
+          const parsedCategories = parseMilanoMenu(scrapedData.markdown || '');
+          menuData = {
+            restaurant: {
+              name: 'Milano Pizzeria',
+              cuisine: 'Italian Pizza',
+              website: url
+            },
+            categories: parsedCategories.map(cat => ({
+              name: cat.name,
+              items: cat.items.map(item => ({
+                name: item.name,
+                description: item.description,
+                price: item.prices[0]?.price || 0,
+                prices: item.prices.map(p => p.price)
+              }))
+            }))
+          };
+        } else {
+          menuData = parseMenuFromScrapedData(scrapedData, url);
+        }
+        
         console.log(`📊 Parsed ${menuData.categories.length} categories with ${countTotalItems(menuData.categories)} items`);
         
         if (menuData.categories.length === 0) {
