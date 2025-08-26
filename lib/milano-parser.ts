@@ -1,9 +1,20 @@
 // Simplified Milano Pizza parser that actually works
-export function parseMilanoMenu(markdown: string) {
+interface MenuItem {
+  name: string;
+  description: string;
+  prices: Array<{ size: string; price: number }>;
+}
+
+interface MenuCategory {
+  name: string;
+  items: MenuItem[];
+}
+
+export function parseMilanoMenu(markdown: string): MenuCategory[] {
   const lines = markdown.split('\n');
-  const categories = [];
-  let currentCategory = null;
-  let currentItem = null;
+  const categories: MenuCategory[] = [];
+  let currentCategory: MenuCategory | null = null;
+  let currentItem: MenuItem | null = null;
   let inPriceTable = false;
   
   for (let i = 0; i < lines.length; i++) {

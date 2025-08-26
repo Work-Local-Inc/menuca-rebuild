@@ -364,7 +364,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               name: cat.name,
               items: cat.items.map(item => ({
                 name: item.name,
-                description: item.description,
+                description: item.description || '',
                 price: item.prices[0]?.price || 0,
                 prices: item.prices.map(p => p.price)
               }))
