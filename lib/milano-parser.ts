@@ -1,4 +1,4 @@
-// Milano Pizza parser - handles their specific table-based menu format
+// Milano Pizza parser - SIMPLE VERSION THAT ACTUALLY WORKS
 interface MenuItem {
   name: string;
   description: string;
@@ -12,118 +12,89 @@ interface MenuCategory {
 
 export function parseMilanoMenu(markdown: string): MenuCategory[] {
   const lines = markdown.split('\n');
-  const categories: MenuCategory[] = [];
-  let currentCategory: MenuCategory | null = null;
-  let currentItem: MenuItem | null = null;
-  let collectingDescription = false;
-  
-  // Milano categories we're looking for
-  const categoryNames = [
-    'Spécial Lundi & Mardi',
-    'Prix de Groupe', 
-    'Spécial 2 Pizzas',
-    'Pizza et Poutine',
-    'Pizzas et Accompagnements',
-    'Offres Duo',
-    'Accompagnement',
-    'Trempettes',
-    'Poutine',
-    'Nos Poutines Végétaliennes',
-    'Les Sandwiches',
-    'Nos Nachos',
-    'Menu Pizza',
-    'Nos Pizza Végétalienne',
-    'Nos Pâtes',
-    'Dessert',
-    'Breuvage'
-  ];
+  const categoriesMap = new Map<string, MenuItem[]>();
+  let currentCategory = 'Menu Items';
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    const nextLine = lines[i + 1]?.trim() || '';
-    const prevLine = lines[i - 1]?.trim() || '';
     
-    // Skip empty lines and junk
-    if (!line || line === '|' || line.includes('| ---') || line.includes('[Haut]')) {
+    // Skip empty and table header lines
+    if (!line || line.includes('| ---')) continue;
+    
+    // Simple category detection
+    if (line.length < 50 && line.length > 3 && 
+        !line.includes('$') && !line.includes('|') && !line.includes('[') &&
+        (line.includes('Pizza') || line.includes('Poutine') || line.includes('Sandwich') ||
+         line.includes('Nachos') || line.includes('Pâtes') || line.includes('Dessert') ||
+         line.includes('Breuvage') || line.includes('Accompagnement') || line.includes('Menu') ||
+         line.includes('Spécial') || line.includes('Offres'))) {
+      currentCategory = line;
       continue;
     }
     
-    // Category detection
-    if (categoryNames.includes(line) && prevLine === '') {
-      // Save previous data
-      if (currentItem && currentItem.prices.length > 0 && currentCategory) {
-        currentCategory.items.push(currentItem);
-      }
-      if (currentCategory && currentCategory.items.length > 0) {
-        categories.push(currentCategory);
-      }
+    // Find items - non-price lines that have prices in next few lines
+    if (!line.includes('$') && !line.includes('|') && line.length > 5 && 
+        !line.toLowerCase().includes('choisissez') && !line.includes('[')) {
       
-      currentCategory = {
-        name: line,
-        items: []
-      };
-      currentItem = null;
-      collectingDescription = false;
-      continue;
-    }
-    
-    // Item name detection - look for patterns in Milano menu
-    if (currentCategory && !line.includes('$') && !line.includes('|') && 
-        prevLine === '' && nextLine !== '' && line.length > 3 && line.length < 100) {
+      // Look for prices in next 5 lines
+      const prices: Array<{ size: string; price: number }> = [];
+      let foundPrice = false;
+      let description = '';
       
-      // Check if this looks like an item name
-      const looksLikeItem = !line.toLowerCase().includes('choisissez') &&
-                           !line.startsWith('»') &&
-                           !line.match(/^\d/) &&
-                           !categoryNames.includes(line);
-      
-      if (looksLikeItem) {
-        // Save previous item
-        if (currentItem && currentItem.prices.length > 0) {
-          currentCategory.items.push(currentItem);
+      for (let j = 1; j <= 5; j++) {
+        const checkLine = lines[i + j]?.trim() || '';
+        
+        // Description is usually the first non-empty line after item name
+        if (j === 1 && checkLine && !checkLine.includes('$') && !checkLine.includes('|')) {
+          description = checkLine;
         }
         
-        currentItem = {
-          name: line,
-          description: '',
-          prices: []
-        };
-        collectingDescription = true;
-        continue;
-      }
-    }
-    
-    // Description collection
-    if (currentItem && collectingDescription && !line.includes('$') && !line.includes('|')) {
-      currentItem.description = line;
-      collectingDescription = false;
-      continue;
-    }
-    
-    // Price extraction from table rows
-    if (currentItem && line.includes('$') && line.includes('|')) {
-      const parts = line.split('|');
-      for (const part of parts) {
-        if (part.includes('»') && part.includes('$')) {
-          const sizeMatch = part.match(/»\s*([^$]+)/);
-          const priceMatch = part.match(/\$\s*([\d.]+)/);
-          if (sizeMatch && priceMatch) {
-            currentItem.prices.push({
-              size: sizeMatch[1].trim(),
-              price: parseFloat(priceMatch[1])
+        // Look for price tables
+        if (checkLine.includes('$') && checkLine.includes('|')) {
+          // Extract all prices from table row
+          const priceMatches = checkLine.matchAll(/»\s*([^|]+?)\s*\|\s*\$\s*([\d.]+)/g);
+          for (const match of priceMatches) {
+            prices.push({
+              size: match[1].trim(),
+              price: parseFloat(match[2])
             });
+            foundPrice = true;
           }
         }
+        // Also handle simple price format
+        else if (checkLine.includes('$')) {
+          const simpleMatch = checkLine.match(/\$\s*([\d.]+)/);
+          if (simpleMatch) {
+            prices.push({
+              size: 'Regular',
+              price: parseFloat(simpleMatch[1])
+            });
+            foundPrice = true;
+          }
+        }
+      }
+      
+      if (foundPrice && prices.length > 0) {
+        const item: MenuItem = {
+          name: line,
+          description: description,
+          prices: prices
+        };
+        
+        if (!categoriesMap.has(currentCategory)) {
+          categoriesMap.set(currentCategory, []);
+        }
+        categoriesMap.get(currentCategory)!.push(item);
       }
     }
   }
   
-  // Don't forget the last ones
-  if (currentItem && currentItem.prices.length > 0 && currentCategory) {
-    currentCategory.items.push(currentItem);
-  }
-  if (currentCategory && currentCategory.items.length > 0) {
-    categories.push(currentCategory);
+  // Convert map to array
+  const categories: MenuCategory[] = [];
+  for (const [name, items] of categoriesMap) {
+    if (items.length > 0) {
+      categories.push({ name, items });
+    }
   }
   
   return categories;
