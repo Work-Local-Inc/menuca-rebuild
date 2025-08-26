@@ -60,8 +60,20 @@ function extractRestaurantName(url: string, content: string): string {
   return domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
 }
 
-function extractMenuCategories(content: string) {
-  const categories = [];
+interface MenuCategory {
+  name: string;
+  items: MenuItem[];
+}
+
+interface MenuItem {
+  name: string;
+  description: string;
+  price: number;
+  prices: number[];
+}
+
+function extractMenuCategories(content: string): MenuCategory[] {
+  const categories: MenuCategory[] = [];
   
   // Split content into sections based on headers
   const sections = content.split(/\n(?=#{1,4}\s)/);
@@ -98,8 +110,8 @@ function isIgnoredSection(headerText: string): boolean {
   return ignored.some(word => headerText.toLowerCase().includes(word));
 }
 
-function extractItemsFromSection(lines: string[]) {
-  const items = [];
+function extractItemsFromSection(lines: string[]): MenuItem[] {
+  const items: MenuItem[] = [];
   let currentItem = null;
   
   for (const line of lines) {
@@ -236,16 +248,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       console.log('🕷️ Using Firecrawl to scrape menu...');
       
-      const scrapedData = await firecrawl.scrapeUrl(url, {
+      const scrapedData = await firecrawl.scrape(url, {
         formats: ['markdown', 'html'],
         includeTags: ['h1', 'h2', 'h3', 'h4', 'table', 'div', 'span', 'p'],
         excludeTags: ['script', 'style'],
         waitFor: 3000
       });
       
-      if (scrapedData.success) {
+      if (scrapedData && (scrapedData.markdown || scrapedData.html)) {
         console.log('✅ Firecrawl succeeded, parsing menu data...');
-        menuData = parseMenuFromScrapedData(scrapedData.data, url);
+        menuData = parseMenuFromScrapedData(scrapedData, url);
         console.log(`📊 Parsed ${menuData.categories.length} categories with ${countTotalItems(menuData.categories)} items`);
       } else {
         throw new Error('Firecrawl failed to scrape the menu');
@@ -365,7 +377,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         items: cat.items.length
       })),
       message: `Successfully imported ${totalItemsCreated} menu items across ${totalCategoriesCreated} categories`,
-      edge_function_result: edgeResult
+      categories_created: totalCategoriesCreated,
+      items_created: totalItemsCreated
     });
 
   } catch (error) {
