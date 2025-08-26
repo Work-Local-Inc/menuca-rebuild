@@ -17,7 +17,6 @@ function parseMenuFromScrapedData(scrapedData: any, url: string) {
   
   try {
     const content = scrapedData.markdown || scrapedData.html || '';
-    const categories = [];
     
     // Extract restaurant name from URL or content
     const restaurantName = extractRestaurantName(url, content);
@@ -389,11 +388,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .single();
 
     if (menuError || !menuResult) {
-      console.error('❌ Menu creation failed:', menuError);
+      console.error('❌ Menu creation failed:', {
+        error: menuError,
+        code: menuError?.code,
+        message: menuError?.message,
+        details: menuError?.details,
+        hint: menuError?.hint,
+        restaurant_id: restaurant_id
+      });
       return res.status(500).json({ 
         success: false, 
         error: 'Failed to create restaurant menu',
-        details: menuError 
+        details: menuError,
+        errorCode: menuError?.code,
+        errorMessage: menuError?.message
       });
     }
 
