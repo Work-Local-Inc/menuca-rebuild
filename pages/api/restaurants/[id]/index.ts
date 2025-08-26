@@ -47,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       delivery_time: '25-35 min', // TODO: Add to database
       delivery_fee: 2.99, // TODO: Add to database
       min_order: 15.00, // TODO: Add to database
-      address: restaurant.address || '',
+      address: typeof restaurant.address === 'string' ? restaurant.address : '',
       phone: restaurant.phone || '',
       email: restaurant.email || '',
       is_open: true // TODO: Add business hours logic
