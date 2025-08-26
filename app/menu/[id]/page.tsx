@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { 
   Star, Clock, MapPin, Search, Filter, ShoppingCart, 
-  Plus, Minus, Heart, Share, ChefHat, Truck 
+  Plus, Minus, Heart, Share, ChefHat, Truck, Phone 
 } from 'lucide-react'
 
 interface MenuItem {
@@ -255,6 +255,12 @@ export default function MenuPage() {
                       <MapPin className="h-4 w-4 text-gray-400" />
                       <span>{restaurant.address}</span>
                     </div>
+                    {restaurant.phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="h-4 w-4 text-gray-400" />
+                        <span>{restaurant.phone}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
