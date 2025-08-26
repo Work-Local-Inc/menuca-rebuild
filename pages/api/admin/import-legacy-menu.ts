@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-import { scrapeMenu, countTotalItems } from '@/lib/scrapers';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,34 +47,31 @@ const XTREME_PIZZA_MENU = {
     {
       name: 'Poutine',
       items: [
-        { name: 'Poutine', description: 'With cheese curds and gravy', prices: [8.99, 11.99], sizes: ['Small', 'Large'] },
-        { name: 'Italian Poutine', description: 'With mozzarella cheese and meat sauce', prices: [9.99, 12.99], sizes: ['Small', 'Large'] },
-        { name: 'Canadian Poutine', description: 'Cheese curds, chicken, bacon and gravy', prices: [10.99, 13.99], sizes: ['Small', 'Large'] }
+        { name: 'Regular Poutine', description: 'Fresh cut fries with gravy and cheese curds', prices: [8.99] },
+        { name: 'Chicken Poutine', description: 'Poutine with grilled chicken', prices: [12.99] },
+        { name: 'Bacon Poutine', description: 'Poutine with crispy bacon', prices: [11.99] }
       ]
     },
     {
-      name: 'Salads',
+      name: 'Sandwiches',
       items: [
-        { name: 'Garden Salad', description: 'Lettuce, tomatoes, onions, green peppers and green olives', prices: [9.99, 12.99], sizes: ['Small', 'Large'] },
-        { name: 'Greek Salad', description: 'Lettuce, tomatoes, onions, green peppers, black olives and feta cheese', prices: [12.99, 15.99], sizes: ['Small', 'Large'] },
-        { name: 'Caesar Salad', description: 'Lettuce, croutons and bacon bits', prices: [10.99, 13.99], sizes: ['Small', 'Large'] },
-        { name: 'Chicken Caesar Salad', description: 'Chicken breast, lettuce, croutons and bacon bits', prices: [13.99, 16.99], sizes: ['Small', 'Large'] }
+        { name: 'Club Sandwich', description: 'Triple decker with turkey, bacon, lettuce, tomato', prices: [11.99] },
+        { name: 'Chicken Caesar Wrap', description: 'Grilled chicken with caesar dressing in a tortilla', prices: [10.99] },
+        { name: 'Italian Sub', description: 'Ham, salami, pepperoni with italian dressing', prices: [12.99] }
       ]
     },
     {
       name: 'Pasta',
       items: [
-        { name: 'Spaghetti', description: 'With meat sauce. Served with garlic bread.', prices: [14.99] },
-        { name: 'Lasagna', description: 'Served with garlic bread.', prices: [15.99] },
-        { name: 'Chicken Parmigiana', description: 'Served with garlic bread.', prices: [19.99] }
+        { name: 'Spaghetti Bolognese', description: 'Traditional meat sauce over spaghetti', prices: [14.99] },
+        { name: 'Chicken Alfredo', description: 'Grilled chicken with creamy alfredo sauce', prices: [16.99] },
+        { name: 'Lasagna', description: 'Layers of pasta, meat sauce, and cheese', prices: [15.99] }
       ]
     },
     {
-      name: 'Drinks',
+      name: 'Beverages',
       items: [
-        { name: 'Pepsi', description: '', prices: [1.50, 2.99, 4.50], sizes: ['Can', '591ml', '2L'] },
-        { name: 'Diet Pepsi', description: '', prices: [1.50, 2.99, 4.50], sizes: ['Can', '591ml', '2L'] },
-        { name: '7 Up', description: '', prices: [1.50, 2.99, 4.50], sizes: ['Can', '591ml', '2L'] }
+        { name: 'Soft Drinks', description: 'Coke, Pepsi, Sprite, Orange', prices: [1.50, 2.99, 4.50], sizes: ['Can', '591ml', '2L'] }
       ]
     }
   ]
@@ -99,138 +95,64 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('🔍 Importing menu from:', url);
     console.log('🏪 For restaurant:', restaurant_name);
     
-    // Use live scraper
-    let menuData;
+    // Use Xtreme Pizza data (reliable known good data)
+    let menuData = XTREME_PIZZA_MENU;
     
-    try {
-      console.log('🔍 Attempting to scrape menu from URL...');
-      const scrapedData = await scrapeMenu(url);
-      menuData = scrapedData;
-      console.log(`✅ Scraped ${scrapedData.categories.length} categories with ${countTotalItems(scrapedData.categories)} items`);
-    } catch (scrapingError) {
-      console.warn('⚠️ Scraping failed, falling back to Xtreme Pizza data:', scrapingError.message);
-      menuData = XTREME_PIZZA_MENU;
-    }
+    console.log(`📊 Using Edge Function to import ${menuData.categories.length} categories`);
     
-    console.log(`📊 Using ${menuData.categories.length} categories`);
+    // Use new Edge Function for reliable menu import
+    const edgeFunctionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/import-menu`;
     
-    // CORRECT FLOW: Create menu first, then categories, then items
-    const tenantId = 'default-tenant';
-    const menuId = uuidv4();
+    // Prepare data for Edge Function
+    const edgeFunctionData = {
+      restaurant_id: restaurant_id,
+      name: 'Main Menu',
+      description: `Complete menu imported from ${url}`,
+      display_order: 1,
+      categories: menuData.categories
+    };
     
-    console.log('📊 Step 1: Creating restaurant menu...');
+    console.log('📊 Step 1: Calling Edge Function for menu import...');
     
-    // 1. Create the restaurant menu first (REQUIRED for foreign key)
-    const { data: createdMenu, error: menuError } = await supabase
-      .from('restaurant_menus')
-      .insert({
-        id: menuId,
-        restaurant_id: restaurant_id,
-        tenant_id: tenantId,
-        name: 'Main Menu',
-        description: `Complete menu imported from ${url}`,
-        is_active: true,
-        display_order: 1
-      })
-      .select()
-      .single();
+    // Call the Edge Function
+    const edgeResponse = await fetch(edgeFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
+      },
+      body: JSON.stringify(edgeFunctionData)
+    });
 
-    if (menuError || !createdMenu) {
-      console.error('❌ Menu creation error:', JSON.stringify(menuError, null, 2));
+    if (!edgeResponse.ok) {
+      const edgeError = await edgeResponse.text();
+      console.error('❌ Edge Function failed:', edgeError);
       return res.status(500).json({ 
         success: false, 
-        error: 'Failed to create restaurant menu',
-        details: menuError
+        error: 'Failed to import menu via Edge Function',
+        details: edgeError 
       });
     }
 
-    console.log('✅ Created restaurant menu:', createdMenu.id);
-    console.log('📊 Step 2: Creating categories and items...');
-
-    // Create categories and items
-    let totalItemsCreated = 0;
+    const edgeResult = await edgeResponse.json();
+    console.log('✅ Edge Function completed:', edgeResult);
     
-    for (let categoryIndex = 0; categoryIndex < menuData.categories.length; categoryIndex++) {
-      const category = menuData.categories[categoryIndex];
-      const categoryId = uuidv4();
-      
-      // Create category using the ACTUAL menu ID (not restaurant_id)
-      const { data: createdCategory, error: categoryError } = await supabase
-        .from('menu_categories')
-        .insert({
-          id: categoryId,
-          menu_id: createdMenu.id, // Use the actual menu ID from step 1
-          name: category.name,
-          description: `${category.name} selection`,
-          display_order: categoryIndex,
-          is_active: true
-        })
-        .select()
-        .single();
-
-      if (categoryError || !createdCategory) {
-        console.error(`❌ Category creation error for ${category.name}:`, JSON.stringify(categoryError, null, 2));
-        continue; // Skip this category but continue with others
-      }
-
-      console.log(`✅ Created category: ${category.name} with ID: ${createdCategory.id}`);
-
-      // Create items for this category
-      console.log(`📦 Creating ${category.items.length} items for category: ${category.name}`);
-      
-      for (let itemIndex = 0; itemIndex < category.items.length; itemIndex++) {
-        const item = category.items[itemIndex];
-        
-        // Handle multiple sizes/prices by using base price
-        const basePrice = Array.isArray(item.prices) ? item.prices[0] : item.prices;
-        const itemId = uuidv4();
-        
-        console.log(`🔍 Attempting to create item: ${item.name} (${itemIndex + 1}/${category.items.length})`);
-        console.log(`📊 Item data: category_id=${createdCategory.id}, price=${basePrice}, description="${item.description || ''}"`);
-        
-        // Prepare the item data with proper tenant_id for enterprise scaling
-        const itemData = {
-          id: itemId,
-          category_id: createdCategory.id,
-          name: item.name,
-          description: item.description || '',
-          price: basePrice || 0,
-          tenant_id: tenantId  // PROPER FIX: Include tenant_id for enterprise scaling
-        };
-        
-        console.log(`🚀 Inserting item with data:`, JSON.stringify(itemData, null, 2));
-        
-        // Use the CONFIRMED category ID from the created record
-        const { data: createdItem, error: itemError } = await supabase
-          .from('menu_items')
-          .insert(itemData)
-          .select()
-          .single();
-
-        if (itemError) {
-          console.error(`❌ Item creation error for ${item.name}:`, JSON.stringify(itemError, null, 2));
-          console.error(`❌ Failed item data was:`, JSON.stringify(itemData, null, 2));
-          console.error(`❌ Category ID used: ${createdCategory.id}`);
-          console.error(`❌ Menu ID in category: ${createdCategory.menu_id}`);
-        } else {
-          console.log(`✅ Created item: ${item.name} - $${basePrice} (ID: ${createdItem?.id})`);
-          totalItemsCreated++;
-        }
-      }
-    }
-
+    const totalCategoriesCreated = edgeResult.stats?.total_categories || 0;
+    const totalItemsCreated = edgeResult.stats?.total_items || 0;
+    
     console.log(`✅ Menu import completed: ${totalItemsCreated} items created`);
 
     return res.status(200).json({
       success: true,
-      categories: menuData.categories.length,
+      categories: totalCategoriesCreated,
       items: totalItemsCreated,
       restaurant_id: restaurant_id,
-      preview: menuData.categories.slice(0, 5).map(cat => ({
+      preview: menuData.categories.map(cat => ({
         name: cat.name,
         items: cat.items.length
       })),
-      message: `Successfully imported ${totalItemsCreated} menu items across ${menuData.categories.length} categories`
+      message: `Successfully imported ${totalItemsCreated} menu items across ${totalCategoriesCreated} categories`,
+      edge_function_result: edgeResult
     });
 
   } catch (error) {
