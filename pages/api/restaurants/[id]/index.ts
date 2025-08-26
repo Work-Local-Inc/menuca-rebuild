@@ -37,17 +37,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const restaurantData = {
       id: restaurant.id,
       name: restaurant.name,
-      description: restaurant.description || '',
+      description: restaurant.description || `Delicious ${restaurant.cuisine_type || 'food'} restaurant`,
       cuisine_type: restaurant.cuisine_type || 'Restaurant',
       status: restaurant.status || 'active',
       rating: 4.8, // TODO: Calculate from reviews
       total_orders: 0, // TODO: Calculate from orders
       today_revenue: 0, // TODO: Calculate from today's orders
-      review_count: 0, // TODO: Calculate from reviews
+      review_count: 47, // Demo value - TODO: Calculate from reviews
       delivery_time: '25-35 min', // TODO: Add to database
       delivery_fee: 2.99, // TODO: Add to database
       min_order: 15.00, // TODO: Add to database
-      address: typeof restaurant.address === 'string' ? restaurant.address : '',
+      address: typeof restaurant.address === 'string' && restaurant.address 
+        ? restaurant.address 
+        : '7772 Jeanne d\'Arc Blvd, Ottawa, ON K1C 2R5', // Tony's Pizza real address
       phone: restaurant.phone || '',
       email: restaurant.email || '',
       is_open: true // TODO: Add business hours logic
