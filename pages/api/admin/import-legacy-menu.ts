@@ -188,15 +188,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(`🔍 Attempting to create item: ${item.name} (${itemIndex + 1}/${category.items.length})`);
         console.log(`📊 Item data: category_id=${createdCategory.id}, price=${basePrice}, description="${item.description || ''}"`);
         
-        // Prepare the item data with only fields that exist in the table
+        // Prepare the item data with proper tenant_id for enterprise scaling
         const itemData = {
           id: itemId,
           category_id: createdCategory.id,
           name: item.name,
           description: item.description || '',
-          price: basePrice || 0
-          // Note: Removed tenant_id and optional fields that may not exist
-          // Will add back incrementally based on actual table schema
+          price: basePrice || 0,
+          tenant_id: tenantId  // PROPER FIX: Include tenant_id for enterprise scaling
         };
         
         console.log(`🚀 Inserting item with data:`, JSON.stringify(itemData, null, 2));
