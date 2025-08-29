@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -60,6 +60,9 @@ export default function RestaurantDashboard() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [orders, setOrders] = useState<OrderSummary | null>(null)
   const [loading, setLoading] = useState(true)
+  const [navFixed, setNavFixed] = useState(false)
+  const navRef = useRef<HTMLDivElement | null>(null)
+  const spacerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     loadDashboardData()
@@ -102,6 +105,20 @@ export default function RestaurantDashboard() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    const sentinel = document.getElementById('nav-sentinel')
+    if (!sentinel) return
+    const obs = new IntersectionObserver(([entry]) => {
+      setNavFixed(!entry.isIntersecting)
+      if (navRef.current && spacerRef.current) {
+        const h = navRef.current.getBoundingClientRect().height
+        spacerRef.current.style.height = entry.isIntersecting ? '0px' : `${h}px`
+      }
+    }, { rootMargin: '0px 0px 0px 0px', threshold: 0 })
+    obs.observe(sentinel)
+    return () => obs.disconnect()
+  }, [])
 
   if (loading) {
     return (
@@ -183,8 +200,10 @@ export default function RestaurantDashboard() {
         </div>
       </div>
 
-      {/* Sticky primary navigation - OUTSIDE header so it persists while scrolling */}
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-y border-gray-100">
+      {/* Fixed-on-scroll navigation */}
+      <div id="nav-sentinel" />
+      <div ref={spacerRef} aria-hidden="true" />
+      <div ref={navRef} className={`${navFixed ? 'fixed top-0 left-0 right-0 z-50' : ''} bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-y border-gray-100`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Button 
             onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
