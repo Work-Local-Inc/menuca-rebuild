@@ -203,7 +203,7 @@ export default function RestaurantDashboard() {
       {/* Fixed-on-scroll navigation */}
       <div id="nav-sentinel" />
       <div ref={spacerRef} aria-hidden="true" />
-      <div ref={navRef} className={`${navFixed ? 'fixed top-0 left-0 right-0 z-50' : ''} bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-y border-gray-100`}>
+      <div ref={navRef} className={`sticky top-0 z-40 ${navFixed ? 'fixed top-0 left-0 right-0 z-50' : ''} bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-y border-gray-100`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Button 
             onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
