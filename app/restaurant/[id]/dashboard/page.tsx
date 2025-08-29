@@ -163,44 +163,51 @@ export default function RestaurantDashboard() {
           </div>
 
           {/* Info row */}
-          <div className="mt-8 flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{restaurant.name}</h1>
-              {restaurant.description && (
-                <p className="text-gray-600 mb-4">{restaurant.description}</p>
-              )}
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <Badge className={restaurant.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                  {restaurant.status === 'active' ? '🟢 Live' : '🔴 Offline'}
-                </Badge>
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{restaurant.rating}</span>
-                </div>
-                <span className="text-gray-600">{restaurant.cuisine_type}</span>
+          <div className="mt-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{restaurant.name}</h1>
+            {restaurant.description && (
+              <p className="text-gray-600 mb-4">{restaurant.description}</p>
+            )}
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <Badge className={restaurant.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                {restaurant.status === 'active' ? '🟢 Live' : '🔴 Offline'}
+              </Badge>
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span className="font-semibold">{restaurant.rating}</span>
               </div>
+              <span className="text-gray-600">{restaurant.cuisine_type}</span>
             </div>
-            <div className="flex gap-2">
+
+            {/* Primary navigation under hero */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <Button 
-                variant="outline" 
-                onClick={() => router.push(`/menu/${restaurantId}`)}
-                className="flex items-center gap-2"
+                onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
+                className="h-12 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
               >
-                <Eye className="h-4 w-4" />
-                View Menu
+                <ShoppingCart className="h-4 w-4" />
+                Manage Orders
               </Button>
               <Button 
                 variant="outline"
                 onClick={() => router.push(`/restaurant/${restaurantId}/menu`)}
-                className="flex items-center gap-2"
+                className="h-12 flex items-center justify-center gap-2"
               >
                 <Edit className="h-4 w-4" />
                 Edit Menu
               </Button>
               <Button 
+                variant="outline" 
+                onClick={() => router.push(`/menu/${restaurantId}`)}
+                className="h-12 flex items-center justify-center gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                View Live Menu
+              </Button>
+              <Button 
                 variant="outline"
                 onClick={() => router.push(`/restaurant/${restaurantId}/settings`)}
-                className="flex items-center gap-2"
+                className="h-12 flex items-center justify-center gap-2"
               >
                 <Settings className="h-4 w-4" />
                 Settings
@@ -349,43 +356,7 @@ export default function RestaurantDashboard() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Button 
-            onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
-            className="h-20 flex flex-col items-center justify-center bg-orange-600 hover:bg-orange-700"
-          >
-            <ShoppingCart className="h-6 w-6 mb-1" />
-            <span>Manage Orders</span>
-          </Button>
-
-          <Button 
-            variant="outline"
-            onClick={() => router.push(`/restaurant/${restaurantId}/menu`)}
-            className="h-20 flex flex-col items-center justify-center"
-          >
-            <Menu className="h-6 w-6 mb-1" />
-            <span>Edit Menu</span>
-          </Button>
-
-          <Button 
-            variant="outline"
-            onClick={() => router.push(`/menu/${restaurantId}`)}
-            className="h-20 flex flex-col items-center justify-center"
-          >
-            <Eye className="h-6 w-6 mb-1" />
-            <span>View Live Menu</span>
-          </Button>
-
-          <Button 
-            variant="outline"
-            onClick={() => router.push(`/restaurant/${restaurantId}/settings`)}
-            className="h-20 flex flex-col items-center justify-center"
-          >
-            <Settings className="h-6 w-6 mb-1" />
-            <span>Settings</span>
-          </Button>
-        </div>
+        {/* Quick Actions removed – consolidated into top navigation under hero */}
 
         {/* Welcome Message for New Restaurants */}
         <Card className="mt-8 bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
