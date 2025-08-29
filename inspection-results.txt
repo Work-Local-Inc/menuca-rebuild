@@ -1,0 +1,158 @@
+🔍 Inspecting Xtreme Pizza menu page with Puppeteer...
+
+📍 Loading page: https://ottawa.xtremepizzaottawa.com/?p=menu
+❌ Console Error: This site overrides Array.from() with an implementation that doesn't support iterables, which could cause Google Maps JavaScript API v3 to not work correctly.
+⏳ Waiting for page to fully load...
+
+📊 Page Analysis:
+Title: Menu | Xtreme Pizza
+
+Element Counts:
+  alternate: 101
+  menuItem: 0
+  itemClass: 0
+  productClass: 0
+  tables: 107
+  forms: 102
+
+🌐 Menu-Related Network Requests:
+  GET document: https://ottawa.xtremepizzaottawa.com/?p=menu
+  GET stylesheet: https://fonts.googleapis.com/css?family=Oxygen:300,400
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/loader.gif
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/close.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/facebook.png
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/logo.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/menu_map.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/order.png
+  GET script: https://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyDku-ytX0gRFBkRJN4zwuPp5o8UnRZBaC8
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/facebook-2.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/poweredby_whitetext.png
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/header/header_bg.png
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/header/_header.png
+  GET xhr: https://maps.googleapis.com/maps/api/mapsjs/gen_204?csp_test=true
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/footer/footer_bg.png
+  POST xhr: https://www.google-analytics.com/j/collect?v=1&_v=j102&a=386041363&t=pageview&_s=1&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&ul=en-us&dt=Menu%20%7C%20Xtreme%20Pizza&sr=800x600&vp=800x600&_u=IEBAAAABCAAAACAAI~&jid=342749820&gjid=1285095583&cid=688868733.1756233148&tid=UA-165885549-1&_gid=937141002.1756233148&_r=1&_slc=1&z=735819799
+  GET image: https://www.facebook.com/tr/?id=539930543369818&ev=PageView&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&rl=&if=false&ts=1756233148646&sw=800&sh=600&v=2.9.226&r=stable&ec=0&o=4254&fbp=fb.1.1756233148645.45403989027934007&ler=empty&pmd[title]=Menu%20%7C%20Xtreme%20Pizza&plt=809&it=1756233148601&coo=false&cdl=&exp=r1&expv2%5B%5D=pl0&expv2%5B%5D=el1&expv2%5B%5D=bc0&rqm=GET
+  GET image: https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=539930543369818&ev=PageView&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&rl=&if=false&ts=1756233148646&sw=800&sh=600&v=2.9.226&r=stable&ec=0&o=4254&fbp=fb.1.1756233148645.45403989027934007&ler=empty&pmd[title]=Menu%20%7C%20Xtreme%20Pizza&plt=809&it=1756233148601&coo=false&cdl=&exp=r1&expv2%5B%5D=pl0&expv2%5B%5D=el1&expv2%5B%5D=bc0&rqm=FGET
+  GET image: https://www.facebook.com/tr/?id=539930543369818&ev=AddToCart&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&rl=&if=false&ts=1756233148647&sw=800&sh=600&v=2.9.226&r=stable&ec=1&o=4254&fbp=fb.1.1756233148645.45403989027934007&ler=empty&plt=809&it=1756233148601&coo=false&cdl=&exp=r1&expv2%5B%5D=pl0&expv2%5B%5D=el1&expv2%5B%5D=bc0&rqm=GET
+  GET image: https://www.facebook.com/privacy_sandbox/pixel/register/trigger/?id=539930543369818&ev=AddToCart&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&rl=&if=false&ts=1756233148647&sw=800&sh=600&v=2.9.226&r=stable&ec=1&o=4254&fbp=fb.1.1756233148645.45403989027934007&ler=empty&plt=809&it=1756233148601&coo=false&cdl=&exp=r1&expv2%5B%5D=pl0&expv2%5B%5D=el1&expv2%5B%5D=bc0&rqm=FGET
+  POST fetch: https://www.google-analytics.com/g/collect?v=2&tid=G-P6MS4DMH8H&gtm=45je58p0v9126524353za200&_p=1756233148319&gcd=13l3l3l3l2l1&npa=0&dma=0&tag_exp=101509157~103116026~103200004~103233427~104527907~104528500~104684208~104684211~104948813~105399921~105399923~105427542~105427544&ul=en-us&sr=800x600&cid=688868733.1756233148&uaa=arm&uab=64&uafvl=Chromium%3B139.0.7258.138%7CNot%253BA%253DBrand%3B99.0.0.0&uamb=0&uam=&uap=macOS&uapv=14.6.1&uaw=0&are=1&frm=0&pscdl=&_eu=ABAI&_s=1&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&dt=Menu%20%7C%20Xtreme%20Pizza&sid=1756233148&sct=1&seg=0&_tu=wAQ&en=page_view&_fv=1&_ss=1&_ee=1&tfd=1275
+  POST fetch: https://www.google-analytics.com/g/collect?v=2&tid=G-3928JC53Y1&gtm=45je58p0h1v9115277169za200&_p=1756233148319&gcd=13l3l3l3l1l1&npa=0&dma=0&tag_exp=101509157~103116026~103200004~103233427~104527907~104528501~104684208~104684211~104948813~105399921~105399923&cid=688868733.1756233148&ul=en-us&sr=800x600&ir=1&uaa=arm&uab=64&uafvl=Chromium%3B139.0.7258.138%7CNot%253BA%253DBrand%3B99.0.0.0&uamb=0&uam=&uap=macOS&uapv=14.6.1&uaw=0&are=1&frm=0&pscdl=&_eu=EAAI&_s=1&sid=1756233149&sct=1&seg=0&dl=https%3A%2F%2Fottawa.xtremepizzaottawa.com%2F%3Fp%3Dmenu&dt=Menu%20%7C%20Xtreme%20Pizza&en=page_view&_fv=1&_ss=1&tfd=1507
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/menu/home_white.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/menu/menu_white.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/menu/contact_white.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/menu/createaccount_white.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/menu/signin_white.png
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/landing/delivery_rr.png
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/landing/takeout_rr.png
+  GET image: https://menu-v1.storage.googleapis.com/xtremepizzaottawa/landing/reorder_rr.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/orderbox_yourorder.png
+  GET image: https://menu-v1.storage.googleapis.com/themes/theme_303/orderbox_placeorder.png
+  GET script: https://maps.googleapis.com/maps-api-v3/api/js/62/1/common.js
+  GET script: https://maps.googleapis.com/maps-api-v3/api/js/62/1/util.js
+
+📄 HTML Samples:
+
+--- Price Item ---
+<div id="messages" class="warning" style="display: none">
+			<div class="cnt">
+				<p class="head"></p>
+				<p id="putMessage" class="putMessage"></p>
+				<a href="#" style="position: absolute; top:-23px; right: -23px;" id="aescToClose"><img src="https://menu-v1.storage.googleapis.com/themes/theme_303/close.png" alt=""></a>				<script type="text/javascript">
+					$('aescToClose').observe('click',function(event){ $('putMessage').update();$('messages').hide();hideOrderForm(); event.stop(); })
+				
+
+📜 JavaScript Variables:
+
+        	var userLanguage = 'EN';
+			var noDeliveryUntil7 = false;
+			var hasDelivery = true;
+            var IMAGES_DIR = 'https://menu-v1.storage.googleapis.com/themes/theme_303/';
+			var images = 
+
+													$('a_signin').observe('click', function(event){ showLogin('menu'); event.stop(); });
+													$('a_signin').writeAttribute('rel', 'nofollow');
+												
+
+            	$('menuTypeTd').show();
+         	
+
+🍕 Sample Menu Items Found:
+
+Item 1:
+Text: 
+	    		
+	    		    
+	    			
+					Xtreme Platter										    
+											    
+						    			
+	    	
+HTML: <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Xtr
+
+Item 2:
+Text: 
+	    		
+	    		    
+	    			
+					Cheese Sticks										    
+											    
+						    			
+	    		
+HTML: <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Che
+
+Item 3:
+Text: 
+	    		
+	    		    
+	    			
+					Jalapeno Slammers										    
+											    
+						    			
+	  
+HTML: <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Jal
+
+Item 4:
+Text: 
+	    		
+	    		    
+	    			
+					Zucchini										    
+											    
+						    			
+	    			
+	  
+HTML: <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Zuc
+
+Item 5:
+Text: 
+	    		
+	    		    
+	    			
+					Garlic Bread										    
+											    
+						    			
+	    			
+HTML: <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Gar
+
+📸 Screenshot saved as menu-page-screenshot.png

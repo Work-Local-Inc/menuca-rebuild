@@ -8,5 +8,5 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // For server-side operations
 export const supabaseAdmin = createClient(
   supabaseUrl,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder_service_role_key'
+  (process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder_service_role_key').replace(/\s/g, '')
 )

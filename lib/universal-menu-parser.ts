@@ -163,14 +163,20 @@ function extractMenuItem(lines: string[], startIndex: number): MenuItem & { line
     
     // Extract prices from table format: | » Size | $ Price | [Link] |
     if (nextLine.includes('$') && nextLine.includes('|')) {
-                const priceRegex = /»\s*([^|]+?)\s*\|\s*\$\s*([\d.]+)/g;
-          let match;
-          while ((match = priceRegex.exec(nextLine)) !== null) {
+      // Split by | and process each segment
+      const parts = nextLine.split('|');
+      for (let k = 0; k < parts.length - 1; k++) {
+        if (parts[k].includes('»') && parts[k + 1].includes('$')) {
+          const size = parts[k].replace('»', '').trim();
+          const priceMatch = parts[k + 1].match(/\$\s*([\d.]+)/);
+          if (priceMatch) {
             prices.push({
-              size: match[1].trim(),
-              price: parseFloat(match[2])
+              size: size,
+              price: parseFloat(priceMatch[1])
             });
           }
+        }
+      }
       linesProcessed = j;
     }
     

@@ -1,0 +1,4356 @@
+<!DOCTYPE html><html>
+
+	<body>
+		
+				<div id="indicator" style="position: fixed; top: 50%; left: 50%; z-index: 5001; height: 35px; margin-top: -17.5px; width: 35px; margin-left: -17.5px; display: none;">
+			<img src="https://menu-v1.storage.googleapis.com/themes/theme_303/loader.gif" alt="Loading ... ">
+		</div>
+		<div id="oc" style="opacity:.7;position:fixed;top:0px;width:100%;height:100%; background-color: #000;z-index:4999;display:none;filter:alpha(opacity=70);"></div>
+
+		<div id="o" style="padding:10px;display: none;position: fixed;top:50%;left:50%; background: #fff;z-index:5000;border:1px solid #000"></div>
+
+		<div id="messages" class="warning" style="display: none">
+			<div class="cnt">
+				<p class="head"></p>
+				<p id="putMessage" class="putMessage"></p>
+				<a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="position: absolute; top:-23px; right: -23px;" id="aescToClose"><img src="https://menu-v1.storage.googleapis.com/themes/theme_303/close.png" alt=""></a>				
+			</div>
+		</div>
+		<!-- // -->
+
+		<div class="wraper ">
+            
+
+			<div class="subWraper" id="subWraper">
+				<div class="menu_left" id="menu_left">
+    <div id="ml" style="position:relative">
+        <div id="loadCart"><img src="https://menu-v1.storage.googleapis.com/themes/theme_303/orderbox_yourorder.png" alt=""><hr style="margin:5px 0; border-style: dashed; border-width:1px 0 0 0;border-color: #000; "><table class="cartDisplay" cellspacing="0" cellpadding="0"><tbody><tr style="vertical-align: top"><td style="font-weight: bold">Taxes</td><td style="text-align: right"><ul style="list-style-type: none"><li>HST: $0</li></ul></td></tr></tbody></table><table class="cartDisplay" style="position: relative" cellspacing="0" cellpadding="0"><tbody><tr><td colspan="2">&nbsp;</td></tr><tr><td style="width: 178px">
+	<a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="aCoupon" style="font-size:11px;">Coupon</a>
+	<div id="divCouponDetail" style="width: 100%; position: absolute;z-index:1; bottom: 15px; left:0; background-color: #fff;display: none;font-size:11px">You can use coupons on checkout page</div>
+	
+    </td><td style="text-align: right"><span style="font-weight: bold; margin-right:10px">Total</span>$0</td></tr></tbody></table><p id="cartMessages" style="color: #f00;padding:5px 0;margin-left:10px"></p><table class="cartDisplay"><tbody><tr><td colspan="3" style="text-align: center"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#"><img src="https://menu-v1.storage.googleapis.com/themes/theme_303/orderbox_placeorder.png" alt=""></a></td></tr><tr><td colspan="3" style="text-align: right;padding-right:2px;"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #000;padding-right: 2px" id="aCancelOrder">Cancel order</a></td></tr><tr><td colspan="3">&nbsp;</td></tr><tr><td colspan="3" style="font-size: 11px;text-align: justify"> Special Instructions. Please list any modifications, and/or<br>allergies if applicable, in the box below.<br>Not to be used for extras or dish item substitutions</td></tr><tr><td colspan="3"><textarea name="comments" rows="1" cols="1" id="commentsFld" style="width:264px; height:100px; border:1px solid #000; margin: 5px 0;padding:5px">Comments</textarea></td></tr><tr><td colspan="3" style="text-align: right; font-size: 10px;"><span id="commentCount">255</span> characters left</td></tr></tbody></table>
+
+</div>
+                </div>
+</div>
+
+<div class="menu_right">
+	
+<div class="menu_container" id="menu_container">
+    <div class="menu_container_nav">
+        <table style="margin:10px 0 25px 10px; width: 99%">
+			            <tbody><tr>
+                <td style="width: 32%">
+                    <select style="height:30px; border:1px solid #000; padding: 5px; margin-right:10px;" id="jumpToMenu">
+                         							<option value="0">-- Jump to course --</option>
+                                                                            <option value="6716">Appetizers</option>
+                                                    <option value="11829">Poutine</option>
+                                                    <option value="6717">Wings</option>
+                                                    <option value="6715">Pizza</option>
+                                                    <option value="6718">Donairs and Shawarma</option>
+                                                    <option value="6719">Hot Subs</option>
+                                                    <option value="10039">Cold Subs</option>
+                                                    <option value="6720">Platters</option>
+                                                    <option value="6721">Salads</option>
+                                                    <option value="6722">Pasta</option>
+                                                    <option value="6890">Twin Pizzas</option>
+                                                    <option value="6891">Xtreme Pizza Deals</option>
+                                                    <option value="6892">Pasta Deals</option>
+                                                    <option value="6893">Xtreme Sub Deal</option>
+                                                    <option value="6723">Desserts</option>
+                                                    <option value="6895">Drinks</option>
+                                            </select>
+                </td>
+
+
+                                <td style="width: 32%;" id="menuTypeTd">
+                    <form method="post" action="https://ottawa.xtremepizzaottawa.com/?p=menu" id="tpForm">
+                        <select style="height:30px; border:1px solid #000; padding: 5px; margin-left:10px" id="tp" name="tp">
+                        	<option value="0">-- Select Menu Type --</option>
+                                                                                                                                    <option selected="" value="1">Lunch Specials</option>
+                                                                                                                                                                                                            </select>
+                    </form>
+
+                </td>
+                <td style="text-align: right">
+                	                </td>
+            </tr>
+        </tbody></table>
+                  	
+             </div>
+    <div id="dealsDiv"></div>
+
+    
+	
+	
+
+
+
+	
+    
+    
+
+    
+    
+	
+
+    
+	
+	
+
+
+	
+	
+	
+                        <div id="f_6716">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6716">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Appetizers</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49964" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Xtreme Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Comes with zucchini, chicken fingers, onion rings, fries and breaded shrimps.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 19.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49964"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49965" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Cheese Sticks										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 8 Pcs</td>
+		    				<td style="width:20%">$ 12.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49965_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49966" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Jalapeno Slammers										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 6 Pcs</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49966_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49967" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Zucchini										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 13.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49967"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49968" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Garlic Bread										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Regular</td>
+		    				<td style="width:20%">$ 6.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49968_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» With Cheese</td>
+		    				<td style="width:20%">$ 7.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49968_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» With Cheese and Bacon</td>
+		    				<td style="width:20%">$ 8.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49968_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49969" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Hamburger										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes, pickles, ketchup, mayo.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 7.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49969"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49970" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Cheeseburger										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes, pickles, ketchup, mayo.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 8.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49970"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49971" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Bacon Cheeseburger										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes, pickles, ketchup, mayo.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 9.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49971"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49972" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Nachos										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Comes with green peppers, onions and green olives.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49972"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49974" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Super Nachos										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Comes with ground beef, green peppers, onions and green olives.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 17.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49974"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49973" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Xtreme Nachos										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Comes with chicken, green peppers, onions and green olives.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 17.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49973"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49975" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Fries										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 6.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49975_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 8.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49975_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49976" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Onion Rings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 7.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49976_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 9.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49976_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6716"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_11829">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_11829">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Poutine</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49977" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Poutine										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With cheese curds and gravy.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 8.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49977_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 11.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49977_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49978" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Italian Poutine										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With mozzarella cheese and meat sauce.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 9.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49978_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 12.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49978_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49979" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Canadian Poutine										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Cheese curds, chicken, bacon and gravy.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 10.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49979_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49979_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49980" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Donair Poutine										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With mozzarella cheese, donair meat and sweet sauce.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 10.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49980_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49980_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_11829"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6717">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6717">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Wings</p>
+    	    <p style="color: #666;line-height: 1.5">Served with choice of red hot, sweet heat, honey garlic, mild, medium, suicide sauce.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49981" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Wings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 10 Pcs</td>
+		    				<td style="width:20%">$ 14.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49981_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 20 Pcs</td>
+		    				<td style="width:20%">$ 27.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49981_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 30 Pcs</td>
+		    				<td style="width:20%">$ 36.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49981_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49982" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Boneless Dippers										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 10 Pcs</td>
+		    				<td style="width:20%">$ 16.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49982_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 20 Pcs</td>
+		    				<td style="width:20%">$ 29.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49982_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 30 Pcs</td>
+		    				<td style="width:20%">$ 38.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49982_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6717"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6715">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6715">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Pizza</p>
+    	    <p style="color: #666;line-height: 1.5">Gluten free crust available only for medium size for 4.00.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51331" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Plain Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51331_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 19.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51331_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51331_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-Large</td>
+		    				<td style="width:20%">$ 31.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51331_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51332" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					1 Topping 										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 14.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51332_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 21.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51332_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 27.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51332_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-Large</td>
+		    				<td style="width:20%">$ 34.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51332_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51333" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Toppings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 15.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51333_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 22.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51333_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 29.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51333_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-Large</td>
+		    				<td style="width:20%">$ 36.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51333_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51334" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					3 Toppings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 16.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51334_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 24.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51334_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 31.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51334_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-Large</td>
+		    				<td style="width:20%">$ 39.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51334_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49951" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Hawaiian 										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Ham, pineapple.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 15.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49951_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 22.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49951_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 29.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49951_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 36.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49951_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49952" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Canadian										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pepperoni, mushrooms, bacon strips.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 16.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49952_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 24.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49952_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 31.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49952_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 39.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49952_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49953" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Combination										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pepperoni, mushrooms, green peppers.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 16.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49953_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 24.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49953_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 31.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49953_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 39.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49953_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49954" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Meat Lovers										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pepperoni, ham, sausage, bacon strips.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49954_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49954_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49954_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49954_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49955" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					House Special Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pepperoni, mushrooms, green peppers, onions, green olives, bacon strips.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 18.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49955_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 27.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49955_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 35.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49955_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 44.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49955_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_74469" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Vegetarian Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Mushrooms, green peppers, onions, olives, tomatoes.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_74469_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_74469_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_74469_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-Large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_74469_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49956" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Chicken, green peppers, onions, black olives.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49956_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49956_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49956_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49956_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49957" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Donair Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Donair meat, mushrooms, green peppers, onions.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49957_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49957_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49957_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49957_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49958" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Steak Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Steak, mushrooms, green peppers, onions.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49958_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49958_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49958_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49958_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49959" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Greek Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Green peppers, onions, hot peppers, feta cheese, tomatoes, black olives.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 18.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49959_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 27.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49959_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 35.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49959_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 44.49</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49959_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49960" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Italian Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Italian sausage, onions, green peppers, tomatoes.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49960_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49960_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49960_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49960_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49961" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Hot Spicy Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Italian sausage, hot peppers, onions, ham, BBQ sauce on top.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49961_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49961_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49961_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49961_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49962" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					New York Style Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Extra thin crust, pepperoni on top.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 17.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49962_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 25.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49962_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 33.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49962_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 41.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49962_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49963" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Xtreme Supreme Pizza										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pepperoni, mushrooms, green peppers, ham, sausage, olives, onions, bacon.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 19.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49963_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Medium</td>
+		    				<td style="width:20%">$ 28.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49963_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 37.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49963_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» X-large</td>
+		    				<td style="width:20%">$ 46.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49963_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6715"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6718">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6718">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Donairs and Shawarma</p>
+    	    <p style="color: #666;line-height: 1.5">Platters are served with fries and gravy.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49983" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Donair Sandwich										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 9.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49983_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 14.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49983_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49984" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Donair Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With lettuce, onion, tomatoes and your choice of garlic or sweet sauce.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 14.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49984_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 18.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49984_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49985" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Shawarma Sandwich										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes and garlic sauce.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 9.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49985_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 14.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49985_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49986" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Shawarma Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 14.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49986_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 18.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49986_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51341" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Large Donairs Deal										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 26.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51341"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51342" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Large Shawarma Deal										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 26.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51342"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6718"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6719">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6719">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Hot Subs</p>
+    	    <p style="color: #666;line-height: 1.5">All subs are 12" and served with cheese, lettuce, tomatoes, pickles and mayonnaise.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49987" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Breaded Chicken Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49987"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49988" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Spicy Breaded Chicken Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49988"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49989" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Steak Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Mushrooms and onions.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49989"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49990" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Steak and Pepperoni Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49990"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49991" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Meatball Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Tomato sauce and cheese only.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49991"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49992" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Bacon Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49992"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49993" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Veggie Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Mushrooms, olives, onions and green peper.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 13.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49993"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49994" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Donair Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Donair meat with your choice of sweet or garlic sauce.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49994"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49995" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Xtreme Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pepperoni, ham, salami, turkey and bacon.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49995"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49996" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Pizza Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Pizza sauce, pepperoni, mushrooms, green pepper and cheese.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49996"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49997" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Club Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49997"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6719"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_10039">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_10039">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Cold Subs</p>
+    	    <p style="color: #666;line-height: 1.5">All subs are 12" and served with cheese, lettuce, tomatoes, pickles and mayonnaise.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49998" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49998"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_49999" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Ham Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_49999"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50000" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Turkey Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50000"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50001" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Cold Cut Sub										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Turkey, ham, salami.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50001"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_10039"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6720">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6720">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Platters</p>
+    	    <p style="color: #666;line-height: 1.5">All platters are served with fries and gravy.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50002" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Hamburger Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50002"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50003" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Cheeseburger Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50003"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50004" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Bacon Cheeseburger Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50004"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50005" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Burger Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50005"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50006" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Crispy Chicken Burger Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50006"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50007" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Club Sandwich Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With turkey.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50007"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50008" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Club Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50008"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50009" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Fish and Chips Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With tartar sauce and gravy.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50009"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50010" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Finger Platter 										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50010"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_87814" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Shrimp in a Basket Platter										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 16.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_87814"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6720"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6721">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6721">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Salads</p>
+    	    <p style="color: #666;line-height: 1.5">Dressing available: ranch, italian, greek and creamy garlic.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50014" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Garden Salad										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes, onions, green peppers and green olives.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 9.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50014_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 12.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50014_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50015" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Greek Salad										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes, onions, green peppers, black olives and feta cheese.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 12.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50015_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 15.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50015_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50016" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Caesar Salad										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, croutons and bacon bits.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 10.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50016_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50016_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50017" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Caesar Salad										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Chicken breast, lettuce, croutons and bacon bits.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50017_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 16.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50017_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50018" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Xtreme Salad										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Lettuce, tomatoes, green olives, onions, croutons, cheese and sliced turkey.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Small</td>
+		    				<td style="width:20%">$ 13.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50018_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Large</td>
+		    				<td style="width:20%">$ 16.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50018_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6721"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6722">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6722">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Pasta</p>
+    	    <p style="color: #666;line-height: 1.5">All pastas are served with a piece of garlic bread.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50011" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Spaghetti										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">With meat sauce.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 14.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50011"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50012" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Lasagna										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 15.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50012"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50013" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chicken Parmigiana										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 19.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50013"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6722"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6890">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6890">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Twin Pizzas</p>
+    	    <p style="color: #666;line-height: 1.5">2, 4, 6 toppings split between 2 pizzas.</p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51335" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Toppings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 2 x Small</td>
+		    				<td style="width:20%">$ 26.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51335_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 x Medium</td>
+		    				<td style="width:20%">$ 36.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51335_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 x Large</td>
+		    				<td style="width:20%">$ 45.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51335_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51336" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					4 Toppings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 2 x Small</td>
+		    				<td style="width:20%">$ 28.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51336_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 x Medium</td>
+		    				<td style="width:20%">$ 38.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51336_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 x Large</td>
+		    				<td style="width:20%">$ 48.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51336_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51337" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					6 Toppings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 2 x Small</td>
+		    				<td style="width:20%">$ 30.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51337_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 x Medium</td>
+		    				<td style="width:20%">$ 40.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51337_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 x Large</td>
+		    				<td style="width:20%">$ 51.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51337_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6890"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6891">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6891">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Xtreme Pizza Deals</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51338" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Deal 1- Large Pizza &amp; Wings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">1 large pizza with 3 toppings, 15 wings, 3 cans of pop.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 45.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51338"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51339" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Deal 2- Medium Pizza &amp; Wings										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">1 medium pizza with 3 toppings, 12 wings and 2 cans of pop.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 38.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51339"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51340" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Deal 3 - XTreme 3S										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">3 small pizzas with 3 toppings each, Large fries, 3 dipping sauces, 3 cans of pop.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 45.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51340"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6891"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6892">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6892">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Pasta Deals</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_74467" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Spaghetti with 2 Cans of Pop										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 26.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_74467"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_74468" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Lasagna with 2 Cans of Pop										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 26.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_74468"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6892"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6893">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6893">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Xtreme Sub Deal</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51349" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					2 Subs and Small Fries										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5">Any 2 subs and small fries.</p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 29.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51349"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6893"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6723">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6723">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Desserts</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50019" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Chocolate Cheesecake										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 7.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50019"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_50020" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Strawberry Cheesecake										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    <tbody><tr>
+						<td style="width: 70%;">&nbsp;</td>
+						<td style="width: 20%"> $ 7.99 </td>
+						<td>
+		    				    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_50020"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+
+						    
+						</td>
+					    </tr>
+						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6723"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+                    <div id="f_6895">
+    	<div style="margin-bottom:20px;padding-left:15px" id="cname_6895">
+    	    <p style="font-size: 17px;color:#f30016;font-weight: bold">Drinks</p>
+    	    <p style="color: #666;line-height: 1.5"></p>
+    	</div>
+
+
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51350" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Pepsi										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51350_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 591 ml</td>
+		    				<td style="width:20%">$ 2.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51350_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 L</td>
+		    				<td style="width:20%">$ 4.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51350_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51351" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Diet Pepsi										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51351_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 591 ml</td>
+		    				<td style="width:20%">$ 2.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51351_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 L</td>
+		    				<td style="width:20%">$ 4.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51351_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51352" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Pepsi Max										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51352_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51353" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					7 Up										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51353_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 591 ml</td>
+		    				<td style="width:20%">$ 2.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51353_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 L</td>
+		    				<td style="width:20%">$ 4.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51353_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51357" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Ginger Ale										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51357_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 591 ml</td>
+		    				<td style="width:20%">$ 2.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51357_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» 2 L</td>
+		    				<td style="width:20%">$ 4.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51357_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51354" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Orange Crush										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51354_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51355" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Grape Crush										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51355_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51356" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Cream Soda										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51356_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_94453" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Brisk										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94453_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_94454" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Dr.Pepper										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94454_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_94455" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Mountain Dew										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94455_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_51358" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Root Beer										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Can</td>
+		    				<td style="width:20%">$ 1.50</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_51358_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_94456" style="margin-left:15px">
+	    	    <div class="alternate_2" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Aquafina										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» 591 ml</td>
+		    				<td style="width:20%">$ 2.99</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94456_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    		                                	    	<form action="https://ottawa.xtremepizzaottawa.com/?p=menu#" method="post" id="form_94465" style="margin-left:15px">
+	    	    <div class="alternate_1" style="line-height:1.5">
+	    		<div style="padding:5px; margin-bottom:10px;">
+	    		    <div style="float:left;width: 250px;">
+	    			<p style="font-weight: bold">
+					Snapple Bottled Juice 										    <span>
+											    </span>
+						    			</p>
+	    			<p style="line-height:1.5"></p>
+	    		    </div>
+
+	    		    <div style="margin-left:250px;padding-left: 10px;">
+
+				    	    			<table style="width:100%;" cellspacing="0" cellpadding="0">
+										    		    			    <tbody><tr>
+		    				<td style="width:70%">» Strawberry Kiwi</td>
+		    				<td style="width:20%">$ 3.25</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94465_0"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Peach</td>
+		    				<td style="width:20%">$ 3.25</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94465_1"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Ice Tea</td>
+		    				<td style="width:20%">$ 3.25</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94465_2"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Mango</td>
+		    				<td style="width:20%">$ 3.25</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94465_3"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Lemonade</td>
+		    				<td style="width:20%">$ 3.25</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94465_4"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    		    			    <tr>
+		    				<td style="width:70%">» Raspberry </td>
+		    				<td style="width:20%">$ 3.25</td>
+		    				<td>
+						    <a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" id="m_94465_5"><img alt="Order this item" src="https://menu-v1.storage.googleapis.com/themes/theme_303/order.png" style="border: none;vertical-align: middle"></a>
+							
+		    				</td>
+		    			    </tr>
+
+					    						    			</tbody></table>
+	    		    </div>
+	    		</div>
+
+	    		<div style="clear:both;font-size:10px"></div>
+	    	    </div>
+	    	</form>
+		                		
+	    
+        </div>
+
+
+        <p style="text-align:right" id="top_6895"><a href="https://ottawa.xtremepizzaottawa.com/?p=menu#" style="color: #ff0000">Top</a></p>
+
+        
+    
+
+</div>
+
+
+
+
+</div>			</div>
+
+			
+
+			
+		</div>
+
+		
+		
+ 		<!-- fbp -->
+        	
+        <!-- //fbp -->
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+
+
+	
+
+
+
+</body></html>

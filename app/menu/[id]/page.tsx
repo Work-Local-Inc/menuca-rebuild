@@ -10,6 +10,7 @@ import {
   Star, Clock, MapPin, Search, Filter, ShoppingCart, 
   Plus, Minus, Heart, Share, ChefHat, Truck, Phone 
 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface MenuItem {
   id: string
@@ -29,6 +30,8 @@ interface Restaurant {
   name: string
   description: string
   cuisine_type: string
+  logo_url?: string | null
+  banner_url?: string | null
   rating: number
   review_count: number
   delivery_time: string
@@ -115,10 +118,13 @@ export default function MenuPage() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [menu, setMenu] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [cart, setCart] = useState<{[key: string]: number}>({})
   const [favorites, setFavorites] = useState<string[]>([])
+  const [isAuthed, setIsAuthed] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   const categories = ['All', ...Array.from(new Set(menu.map(item => item.category)))]
   const cartItemCount = Object.values(cart).reduce((sum, count) => sum + count, 0)
@@ -129,7 +135,44 @@ export default function MenuPage() {
 
   useEffect(() => {
     loadRestaurantData()
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        setIsAuthed(!!data.session)
+        setUserEmail(data.session?.user?.email ?? null)
+      })
+      .catch(() => setIsAuthed(false))
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setIsAuthed(!!session)
+      setUserEmail(session?.user?.email ?? null)
+    })
+    return () => { sub.subscription.unsubscribe() }
   }, [restaurantId])
+
+  useEffect(() => {
+    // Load persisted cart for this restaurant
+    if (!restaurantId) return
+    try {
+      const saved = localStorage.getItem(`cart_${restaurantId}`)
+      if (saved) setCart(JSON.parse(saved))
+    } catch {}
+  }, [restaurantId])
+
+  useEffect(() => {
+    // Persist cart map and denormalized items for checkout
+    if (!restaurantId) return
+    try {
+      localStorage.setItem(`cart_${restaurantId}`, JSON.stringify(cart))
+      // denormalize into array with name/price/quantity for checkout page
+      const cartItems = Object.entries(cart).map(([itemId, quantity]) => {
+        const item = menu.find(m => m.id === itemId)
+        return item ? { id: itemId, name: item.name, price: item.price, quantity } : null
+      }).filter(Boolean)
+      localStorage.setItem(`cart_items_${restaurantId}`, JSON.stringify(cartItems))
+      // Also store lastRestaurantId for cross-page context
+      localStorage.setItem('lastRestaurantId', restaurantId)
+      document.cookie = `last_restaurant_id=${restaurantId}; path=/; max-age=2592000`
+    } catch {}
+  }, [cart, restaurantId, menu])
 
   const loadRestaurantData = async () => {
     setLoading(true)
@@ -158,9 +201,8 @@ export default function MenuPage() {
       
     } catch (error) {
       console.error('❌ Error loading restaurant data:', error)
-      // Fallback to mock data if API fails
-      setRestaurant(MOCK_RESTAURANT)
-      setMenu(MOCK_MENU)
+      // NO MOCK DATA - Show error instead
+      setError(error.message || 'Failed to load menu')
     } finally {
       setLoading(false)
     }
@@ -223,67 +265,94 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {isAuthed && (
+        <div className="w-full bg-black text-white text-sm py-2 px-4 flex items-center justify-between sticky top-0 z-50">
+          <div>Admin Toolbar</div>
+          <div className="space-x-2">
+            <Button size="sm" variant="outline" className="bg-white text-black" onClick={() => window.location.href = `/restaurant/${restaurantId}/menu`}>
+              Edit Menu
+            </Button>
+            <Button size="sm" variant="outline" className="bg-white text-black" onClick={() => window.location.href = `/restaurant/${restaurantId}/dashboard`}>
+              Dashboard
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Restaurant Header */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Restaurant Image */}
-            <div className="w-full md:w-64 h-48 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center">
-              <ChefHat className="h-16 w-16 text-white/80" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+          {/* Hero banner with logo outside overflow */}
+          <div className="relative">
+            <div className="w-full h-40 md:h-56 rounded-xl overflow-hidden bg-gradient-to-br from-orange-400 to-red-500">
+              {restaurant?.banner_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={restaurant.banner_url} alt="Banner" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center"><ChefHat className="h-16 w-16 text-white/80" /></div>
+              )}
             </div>
+            {/* Flexible logo overlay card */}
+            <div className="absolute -bottom-6 left-4 z-10 rounded-lg bg-white/95 shadow-md ring-1 ring-black/5 px-3 py-2">
+              {restaurant?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={restaurant.logo_url}
+                  alt="Logo"
+                  className="object-contain max-h-14 md:max-h-20 max-w-[240px]"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-14 md:h-20 min-w-[80px]">
+                  <ChefHat className="h-8 w-8 text-gray-400" />
+                </div>
+              )}
+            </div>
+          </div>
 
-            {/* Restaurant Info */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{restaurant.name}</h1>
-                  <p className="text-gray-600 mb-4">{restaurant.description}</p>
-                  
-                  <div className="flex flex-wrap items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-semibold">{restaurant.rating}</span>
-                      <span className="text-gray-500">({restaurant.review_count} reviews)</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <span>{restaurant.delivery_time}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Truck className="h-4 w-4 text-gray-400" />
-                      <span>${restaurant.delivery_fee} delivery</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4 text-gray-400" />
-                      <span>{restaurant.address}</span>
-                    </div>
-                    {restaurant.phone && (
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <span>{restaurant.phone}</span>
-                      </div>
-                    )}
+          {/* Info row */}
+          <div className="mt-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{restaurant?.name}</h1>
+              <p className="text-gray-600 mb-4">{restaurant?.description}</p>
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="font-semibold">{restaurant?.rating}</span>
+                  <span className="text-gray-500">({restaurant?.review_count} reviews)</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  <span>{restaurant?.delivery_time}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Truck className="h-4 w-4 text-gray-400" />
+                  <span>${restaurant?.delivery_fee} delivery</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4 text-gray-400" />
+                  <span>{restaurant?.address}</span>
+                </div>
+                {restaurant?.phone && (
+                  <div className="flex items-center gap-1">
+                    <Phone className="h-4 w-4 text-gray-400" />
+                    <span>{restaurant.phone}</span>
                   </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Share className="h-4 w-4 mr-1" />
-                    Share
-                  </Button>
-                </div>
-              </div>
-
-              {/* Status & Minimum Order */}
-              <div className="flex items-center gap-4">
-                <Badge className={restaurant.is_open ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                  {restaurant.is_open ? "🟢 Open" : "🔴 Closed"}
-                </Badge>
-                <span className="text-sm text-gray-600">
-                  Minimum order: ${restaurant.min_order.toFixed(2)}
-                </span>
+                )}
               </div>
             </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Share className="h-4 w-4 mr-1" />
+                Share
+              </Button>
+            </div>
+          </div>
+
+          {/* Status & Minimum Order */}
+          <div className="mt-2 flex items-center gap-4">
+            <Badge className={restaurant?.is_open ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+              {restaurant?.is_open ? '🟢 Open' : '🔴 Closed'}
+            </Badge>
+            <span className="text-sm text-gray-600">Minimum order: ${restaurant?.min_order.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -332,10 +401,15 @@ export default function MenuPage() {
                 <Card key={item.id} className="hover:shadow-lg transition-all duration-300">
                   <CardContent className="p-0">
                     <div className="flex">
-                      {/* Item Image */}
-                      <div className="w-32 h-32 bg-gradient-to-br from-orange-200 to-red-300 flex items-center justify-center">
-                        <ChefHat className="h-8 w-8 text-orange-600" />
-                      </div>
+                      {/* Item Image (only when available) */}
+                      {Boolean((item as any).image_url) ? (
+                        <div className="w-32 h-32 overflow-hidden rounded-md">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={(item as any).image_url} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-3" />
+                      )}
 
                       {/* Item Details */}
                       <div className="flex-1 p-4">
@@ -495,6 +569,7 @@ export default function MenuPage() {
                       <Button 
                         className="w-full bg-orange-600 hover:bg-orange-700"
                         disabled={cartTotal < restaurant.min_order}
+                        onClick={() => { if (cartTotal >= restaurant.min_order) window.location.href = `/checkout?rid=${restaurantId}` }}
                       >
                         {cartTotal < restaurant.min_order 
                           ? `Minimum order $${restaurant.min_order.toFixed(2)}`
@@ -513,7 +588,7 @@ export default function MenuPage() {
       {/* Mobile Cart Button */}
       {cartItemCount > 0 && (
         <div className="lg:hidden fixed bottom-4 left-4 right-4">
-          <Button className="w-full bg-orange-600 hover:bg-orange-700 h-12 text-lg font-semibold shadow-lg">
+          <Button className="w-full bg-orange-600 hover:bg-orange-700 h-12 text-lg font-semibold shadow-lg" onClick={() => window.location.href = `/checkout?rid=${restaurantId}`}>
             <ShoppingCart className="h-5 w-5 mr-2" />
             View Cart ({cartItemCount}) • ${cartTotal.toFixed(2)}
           </Button>

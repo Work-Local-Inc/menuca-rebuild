@@ -15,7 +15,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('🔍 Fetching menu for restaurant ID:', restaurantId);
 
-    // First, get the restaurant menu
     const { data: restaurantMenu, error: menuError } = await supabase
       .from('restaurant_menus')
       .select('*')
@@ -24,8 +23,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .single();
 
     if (menuError) {
-      console.error('❌ Error fetching restaurant menu:', menuError);
-      return res.status(404).json({ error: 'Menu not found' });
+      console.warn('⚠️ No active menu yet or error fetching restaurant menu. Returning empty menu.', menuError);
+      return res.status(200).json({ 
+        success: true,
+        menu: [],
+        categories: [],
+        message: 'Menu not available yet'
+      });
     }
 
     if (!restaurantMenu) {
@@ -40,10 +44,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('✅ Found restaurant menu:', restaurantMenu.name);
 
-    // Get all categories for this menu
     const { data: categories, error: categoriesError } = await supabase
       .from('menu_categories')
-      .select('*')
+      .select('id, name, description, display_order')
       .eq('menu_id', restaurantMenu.id)
       .order('display_order', { ascending: true });
 
@@ -54,7 +57,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`✅ Found ${categories?.length || 0} categories`);
 
-    // Get all menu items for these categories
     const categoryIds = categories?.map(cat => cat.id) || [];
     
     let allMenuItems: any[] = [];
@@ -82,26 +84,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`✅ Found ${allMenuItems.length} menu items`);
 
-    // Transform menu items to match frontend interface
     const transformedMenuItems = allMenuItems.map(item => ({
       id: item.id,
       name: item.name,
       description: item.description || '',
       price: parseFloat(item.price) || 0,
       category: item.menu_categories?.name || 'Other',
-      dietary_tags: [], // TODO: Add dietary tags to database
-      prep_time: 15, // TODO: Add prep time to database
-      rating: 4.5, // TODO: Calculate from reviews
-      is_popular: false, // TODO: Calculate based on orders
-      image_url: item.image_url || null
+      dietary_tags: [],
+      prep_time: 15,
+      rating: 4.5,
+      is_popular: false,
+      image_url: item.image_url || null,
+      is_active: item.is_active ?? true,
+      category_id: item.category_id
     }));
 
-    // Group items by category for summary
-    const categoryStats = categories?.map(cat => ({
+    const categoryStats = (categories || []).map(cat => ({
+      id: cat.id,
       name: cat.name,
       description: cat.description,
+      display_order: cat.display_order,
       items_count: allMenuItems.filter(item => item.category_id === cat.id).length
-    })) || [];
+    }));
 
     return res.status(200).json({ 
       success: true, 

@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 import FirecrawlApp from '@mendable/firecrawl-js';
 import { parseUniversalMenu } from '@/lib/universal-menu-parser';
+import { parseMenuFromHTML } from '@/lib/html-menu-parser';
+import { scrapeXtremePizzaMenu } from '@/lib/simple-scraper';
+import { getHardcodedMenu } from '@/lib/hardcoded-menus';
 
 // CRITICAL DEBUG: Log Supabase connection details
 console.log('🔍 Supabase Connection Debug:', {
@@ -241,74 +244,16 @@ function countTotalItems(categories: any[]): number {
   return categories.reduce((total, category) => total + (category.items?.length || 0), 0);
 }
 
-// Pre-scraped Xtreme Pizza menu data (from your existing scraper)
-const XTREME_PIZZA_MENU = {
-  restaurant: {
-    name: 'Xtreme Pizza Ottawa',
-    cuisine: 'Pizza',
-    location: 'Ottawa, ON'
+// MOCK DATA DELETED - We should only use real scraped data!
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+    responseLimit: '10mb',
   },
-  categories: [
-    {
-      name: 'Appetizers',
-      items: [
-        { name: 'Xtreme Platter', description: 'Comes with zucchini, chicken fingers, onion rings, fries and breaded shrimps.', prices: [19.99] },
-        { name: 'Cheese Sticks', description: '8 Pcs', prices: [12.99] },
-        { name: 'Jalapeno Slammers', description: '6 Pcs', prices: [13.99] },
-        { name: 'Garlic Bread', description: 'Regular', prices: [6.99, 7.99, 8.99], sizes: ['Regular', 'With Cheese', 'With Cheese and Bacon'] },
-        { name: 'Nachos', description: 'Comes with green peppers, onions and green olives.', prices: [16.99] },
-        { name: 'Fries', description: '', prices: [6.99, 8.99], sizes: ['Small', 'Large'] }
-      ]
-    },
-    {
-      name: 'Pizza',
-      items: [
-        { name: 'Plain Pizza', description: '', prices: [13.99, 19.99, 25.99, 31.99], sizes: ['Small', 'Medium', 'Large', 'X-Large'] },
-        { name: 'Margherita', description: 'Fresh mozzarella, tomatoes, basil', prices: [15.99, 22.99, 29.99, 36.99], sizes: ['Small', 'Medium', 'Large', 'X-Large'] },
-        { name: 'Hawaiian', description: 'Ham, pineapple', prices: [15.99, 22.99, 29.99, 36.99], sizes: ['Small', 'Medium', 'Large', 'X-Large'] },
-        { name: 'Canadian', description: 'Pepperoni, mushrooms, bacon strips', prices: [16.99, 24.49, 31.99, 39.49], sizes: ['Small', 'Medium', 'Large', 'X-Large'] },
-        { name: 'Meat Lovers', description: 'Pepperoni, ham, sausage, bacon strips', prices: [17.99, 25.99, 33.99, 41.99], sizes: ['Small', 'Medium', 'Large', 'X-Large'] },
-        { name: 'House Special Pizza', description: 'Pepperoni, mushrooms, green peppers, onions, green olives, bacon strips', prices: [18.99, 27.49, 35.99, 43.49], sizes: ['Small', 'Medium', 'Large', 'X-Large'] }
-      ]
-    },
-    {
-      name: 'Wings',
-      items: [
-        { name: 'Chicken Wings', description: 'Served with choice of red hot, sweet heat, honey garlic, mild, medium, suicide sauce', prices: [14.99, 27.99, 36.99], sizes: ['10 Pcs', '20 Pcs', '30 Pcs'] },
-        { name: 'Boneless Dippers', description: 'Served with choice of sauces', prices: [16.99, 29.99, 38.99], sizes: ['10 Pcs', '20 Pcs', '30 Pcs'] }
-      ]
-    },
-    {
-      name: 'Poutine',
-      items: [
-        { name: 'Regular Poutine', description: 'Fresh cut fries with gravy and cheese curds', prices: [8.99] },
-        { name: 'Chicken Poutine', description: 'Poutine with grilled chicken', prices: [12.99] },
-        { name: 'Bacon Poutine', description: 'Poutine with crispy bacon', prices: [11.99] }
-      ]
-    },
-    {
-      name: 'Sandwiches',
-      items: [
-        { name: 'Club Sandwich', description: 'Triple decker with turkey, bacon, lettuce, tomato', prices: [11.99] },
-        { name: 'Chicken Caesar Wrap', description: 'Grilled chicken with caesar dressing in a tortilla', prices: [10.99] },
-        { name: 'Italian Sub', description: 'Ham, salami, pepperoni with italian dressing', prices: [12.99] }
-      ]
-    },
-    {
-      name: 'Pasta',
-      items: [
-        { name: 'Spaghetti Bolognese', description: 'Traditional meat sauce over spaghetti', prices: [14.99] },
-        { name: 'Chicken Alfredo', description: 'Grilled chicken with creamy alfredo sauce', prices: [16.99] },
-        { name: 'Lasagna', description: 'Layers of pasta, meat sauce, and cheese', prices: [15.99] }
-      ]
-    },
-    {
-      name: 'Beverages',
-      items: [
-        { name: 'Soft Drinks', description: 'Coke, Pepsi, Sprite, Orange', prices: [1.50, 2.99, 4.50], sizes: ['Can', '591ml', '2L'] }
-      ]
-    }
-  ]
+  maxDuration: 60, // 60 seconds timeout for large menu imports
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -335,34 +280,91 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('👁️ Preview mode detected - returning scraped data without saving');
     }
     
-    // Use Firecrawl to scrape the actual menu data
+    // Create a progress row immediately so the UI can poll quickly
+    let importId: string | null = null;
+    if (restaurant_id !== 'temp-preview') {
+      try {
+        const { data: created, error: createErr } = await supabase
+          .from('menu_imports')
+          .insert({
+            restaurant_id,
+            tenant_id: null,
+            source_url: url,
+            status: 'running',
+            total_categories: 0,
+            total_items: 0,
+            processed_categories: 0,
+            processed_items: 0,
+            logs: [{ event: 'start', at: new Date().toISOString(), message: 'Import requested' }]
+          })
+          .select()
+          .single();
+        if (createErr) {
+          console.warn('⚠️ Early progress row insert failed:', createErr);
+        } else {
+          importId = created?.id || null;
+        }
+      } catch (e) {
+        console.warn('⚠️ Early progress row threw:', e);
+      }
+    }
+
+    // Try to scrape with better settings
     let menuData;
     
     try {
-      console.log('🕷️ Using Firecrawl to scrape menu...');
+      console.log('🕷️ Using Firecrawl with extended wait time...');
       
       const scrapedData = await firecrawl.scrape(url, {
-        formats: ['markdown', 'html'],
-        includeTags: ['h1', 'h2', 'h3', 'h4', 'table', 'div', 'span', 'p'],
-        excludeTags: ['script', 'style'],
-        waitFor: 3000
+        formats: ['html'],
+        waitFor: 7000,  // Slightly reduced to help avoid 60s function timeouts
+        onlyMainContent: false
       });
       
-      if (scrapedData && (scrapedData.markdown || scrapedData.html)) {
-        console.log('✅ Firecrawl succeeded, parsing menu data...');
-        console.log('🔍 Scraped data preview:', {
-          markdownLength: scrapedData.markdown?.length || 0,
-          htmlLength: scrapedData.html?.length || 0,
-          firstLines: scrapedData.markdown?.split('\n').slice(0, 20) || []
-        });
+      if (scrapedData && scrapedData.html) {
+        console.log('✅ Firecrawl succeeded, checking for menu items...');
         
-        // Use the universal parser for all menu types
-        console.log('🍕 Using universal menu parser...');
-        const parsedMenu = parseUniversalMenu(scrapedData.markdown || '', url);
+        // Count alternate classes to verify items loaded
+        const alternateCount = (scrapedData.html.match(/class="alternate_[12]"/g) || []).length;
+        console.log(`📊 Found ${alternateCount} menu item blocks`);
         
+        if (alternateCount > 0) {
+          // Use our simple scraper
+          const scrapedResult = scrapeXtremePizzaMenu(scrapedData.html);
+          console.log(`📊 Scraped ${scrapedResult.totalItems} items in ${scrapedResult.categories.length} categories`);
+          
+          menuData = {
+            restaurant: {
+              name: extractRestaurantName(url, scrapedData.html),
+              cuisine: 'Restaurant',
+              website: url
+            },
+            categories: scrapedResult.categories.map(cat => ({
+              name: cat.name,
+              items: cat.items.map(item => ({
+                name: item.name,
+                description: item.description || '',
+                price: item.prices[0]?.price || 0,
+                prices: item.prices.map(p => p.price)
+              }))
+            }))
+          };
+        } else {
+          throw new Error('Menu items not loaded - page may require longer wait time');
+        }
+      } else {
+        throw new Error('Firecrawl failed to scrape the page');
+      }
+    } catch (scrapingError) {
+      console.error('❌ Scraping failed:', (scrapingError as any)?.message || scrapingError);
+      
+      // Fall back to hardcoded menu if available
+      const hardcodedMenu = getHardcodedMenu(url);
+      if (hardcodedMenu) {
+        console.log('⚠️ Using fallback hardcoded menu data');
         menuData = {
-          restaurant: parsedMenu.restaurant,
-          categories: parsedMenu.categories.map(cat => ({
+          restaurant: hardcodedMenu.restaurant,
+          categories: hardcodedMenu.categories.map(cat => ({
             name: cat.name,
             items: cat.items.map(item => ({
               name: item.name,
@@ -372,23 +374,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }))
           }))
         };
-        
-        console.log(`📊 Parsed ${menuData.categories.length} categories with ${countTotalItems(menuData.categories)} items`);
-        
-        if (menuData.categories.length === 0) {
-          console.warn('⚠️ Parser found 0 categories, using Xtreme Pizza fallback data');
-          menuData = XTREME_PIZZA_MENU;
-        }
       } else {
-        throw new Error('Firecrawl failed to scrape the menu');
+        if (restaurant_id === 'temp-preview') {
+          // Do not 500 on preview - return a soft failure with guidance
+          return res.status(200).json({
+            success: false,
+            categories: 0,
+            items: 0,
+            restaurant_id,
+            preview: [],
+            isPreview: true,
+            message: 'Preview scraping failed. You can still go live; import will run in the background.'
+          });
+        }
+        throw new Error(`Menu scraping failed: ${(scrapingError as any)?.message || 'unknown'}`);
       }
-      
-    } catch (scrapingError) {
-      console.warn('⚠️ Firecrawl failed, falling back to Xtreme Pizza data:', scrapingError.message);
-      menuData = XTREME_PIZZA_MENU;
     }
     
     console.log(`📊 Using Edge Function to import ${menuData.categories.length} categories`);
+
+    // Prepare totals for progress tracking and update the early progress row
+    const totalCategories = menuData.categories.length;
+    const totalItems = menuData.categories.reduce((sum: number, c: any) => sum + (c.items?.length || 0), 0);
+    if (importId) {
+      try {
+        await supabase
+          .from('menu_imports')
+          .update({
+            total_categories: totalCategories,
+            total_items: totalItems,
+            logs: [{ event: 'scraped', at: new Date().toISOString(), message: `Parsed ${totalCategories} categories / ${totalItems} items` }]
+          })
+          .eq('id', importId);
+      } catch (e) {
+        console.warn('⚠️ Failed to update totals on progress row:', e);
+      }
+    }
     
     // If this is a preview, return the scraped data without saving
     if (restaurant_id === 'temp-preview') {
@@ -397,7 +418,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         categories: menuData.categories.length,
         items: menuData.categories.reduce((total, cat) => total + cat.items.length, 0),
         restaurant_id: restaurant_id,
-        preview: menuData.categories.slice(0, 3), // Return first 3 categories as preview
+        preview: menuData.categories.map(cat => ({
+          name: cat.name,
+          items: cat.items.length  // Return count, not array
+        })),
         isPreview: true
       });
     }
@@ -467,9 +491,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     console.log('✅ Menu created:', menuResult.id);
+    // Attach menu_id to progress row
+    if (importId) {
+      await supabase
+        .from('menu_imports')
+        .update({ menu_id: menuResult.id })
+        .eq('id', importId);
+    }
     
     let totalCategoriesCreated = 0;
     let totalItemsCreated = 0;
+    const failedItems: { item: string, category: string, error: any }[] = [];
     
     // Process categories and items
     for (const [categoryIndex, category] of menuData.categories.entries()) {
@@ -490,38 +522,127 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (categoryError || !categoryResult) {
         console.error(`❌ Category creation failed for ${category.name}:`, categoryError);
+        // Track all items in failed category
+        category.items.forEach(item => {
+          failedItems.push({
+            item: item.name,
+            category: category.name,
+            error: `Category failed: ${categoryError?.message || 'Unknown'}`
+          });
+        });
+        // Update progress row after failed category
+        if (importId) {
+          await supabase
+            .from('menu_imports')
+            .update({
+              processed_categories: totalCategoriesCreated,
+              processed_items: totalItemsCreated,
+              logs: [{ event: 'category_failed', at: new Date().toISOString(), category: category.name }]
+            })
+            .eq('id', importId);
+        }
         continue;
       }
 
       console.log(`✅ Category created: ${category.name} (${category.items.length} items)`);
       totalCategoriesCreated++;
 
-      // Create items for this category
-      for (const [itemIndex, item] of category.items.entries()) {
-        const basePrice = Array.isArray(item.prices) ? item.prices[0] : item.price;
-        
-        const { data: itemResult, error: itemError } = await supabase
-          .from('menu_items')
-          .insert({
+      // Update progress row after category creation
+      if (importId) {
+        await supabase
+          .from('menu_imports')
+          .update({ processed_categories: totalCategoriesCreated })
+          .eq('id', importId);
+      }
+
+      // Create items for this category in batches to avoid timeouts
+      const BATCH_SIZE = 25;
+      const itemBatches: any[][] = [];
+      
+      for (let i = 0; i < category.items.length; i += BATCH_SIZE) {
+        itemBatches.push(category.items.slice(i, i + BATCH_SIZE));
+      }
+      
+      for (const batch of itemBatches) {
+        const batchInserts = batch.map(item => {
+          const basePrice = Array.isArray(item.prices) ? item.prices[0] : item.price;
+          return {
+            menu_id: menuResult.id,
             category_id: categoryResult.id,
             name: item.name,
             description: item.description || '',
             price: basePrice || 0,
+            restaurant_id: restaurant_id,
             tenant_id: tenantId
-          })
-          .select()
-          .single();
-
-        if (itemError) {
-          console.error(`❌ Item creation error for ${item.name}:`, itemError);
-        } else {
-          console.log(`✅ Created item: ${item.name} - $${basePrice}`);
-          totalItemsCreated++;
+          };
+        });
+        
+        const { data: batchResults, error: batchError } = await supabase
+          .from('menu_items')
+          .insert(batchInserts)
+          .select();
+          
+        if (batchError) {
+          console.error(`❌ Batch insert error:`, batchError);
+          batch.forEach(item => {
+            failedItems.push({
+              item: item.name,
+              category: category.name,
+              error: batchError.message
+            });
+          });
+          if (importId) {
+            await supabase
+              .from('menu_imports')
+              .update({
+                processed_items: totalItemsCreated,
+                logs: [{ event: 'batch_failed', at: new Date().toISOString(), error: batchError.message }]
+              })
+              .eq('id', importId);
+          }
+        } else if (batchResults) {
+          console.log(`✅ Created batch of ${batchResults.length} items`);
+          totalItemsCreated += batchResults.length;
+          // Update progress after successful batch
+          if (importId) {
+            await supabase
+              .from('menu_imports')
+              .update({ processed_items: totalItemsCreated })
+              .eq('id', importId);
+          }
         }
       }
     }
     
+    // Summary of failures
+    if (failedItems.length > 0) {
+      console.error(`\n⚠️  FAILED TO INSERT ${failedItems.length} ITEMS!`);
+      const errorGroups: Record<string, number> = {};
+      failedItems.forEach(f => {
+        errorGroups[f.error] = (errorGroups[f.error] || 0) + 1;
+      });
+      console.error('Error breakdown:');
+      Object.entries(errorGroups).forEach(([error, count]) => {
+        console.error(`  - "${error}": ${count} items`);
+      });
+    }
+    
     console.log(`✅ Menu import completed: ${totalItemsCreated} items created`);
+
+    // Mark progress as completed
+    if (importId) {
+      await supabase
+        .from('menu_imports')
+        .update({
+          status: 'completed',
+          items_failed: failedItems.length,
+          failure_summary: failedItems.length > 0 ? {
+            total_failed: failedItems.length
+          } : null,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', importId);
+    }
 
     return res.status(200).json({
       success: true,
@@ -534,11 +655,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })),
       message: `Successfully imported ${totalItemsCreated} menu items across ${totalCategoriesCreated} categories`,
       categories_created: totalCategoriesCreated,
-      items_created: totalItemsCreated
+      items_created: totalItemsCreated,
+      // Include failure info
+      items_failed: failedItems.length,
+      failure_summary: failedItems.length > 0 ? {
+        total_failed: failedItems.length,
+        errors: Object.entries(
+          failedItems.reduce((acc, f) => {
+            acc[f.error] = (acc[f.error] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>)
+        ).map(([error, count]) => ({ error, count }))
+      } : null
     });
 
   } catch (error) {
     console.error('Menu import error:', error);
+    // Best-effort: mark failed
+    try {
+      const { url, restaurant_id } = req.body || {};
+      if (restaurant_id && url) {
+        await supabase
+          .from('menu_imports')
+          .update({
+            status: 'failed',
+            logs: [{ event: 'failed', at: new Date().toISOString(), error: (error as any)?.message || 'unknown' }]
+          })
+          .eq('restaurant_id', restaurant_id)
+          .is('completed_at', null);
+      }
+    } catch {}
     return res.status(500).json({ 
       success: false, 
       error: 'Failed to import menu',

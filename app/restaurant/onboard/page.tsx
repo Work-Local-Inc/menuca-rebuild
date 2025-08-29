@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -38,6 +38,7 @@ export default function RestaurantOnboardingPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState<string[]>([])
   
   // Restaurant profile data
   const [profile, setProfile] = useState<RestaurantProfile>({
@@ -59,6 +60,12 @@ export default function RestaurantOnboardingPage() {
   const [menuImportResult, setMenuImportResult] = useState<MenuImportResult | null>(null)
   const [importLoading, setImportLoading] = useState(false)
   const [restaurantId, setRestaurantId] = useState('')
+  const [importStatus, setImportStatus] = useState<{
+    status: string
+    totals: { categories: number; items: number }
+    processed: { categories: number; items: number }
+  } | null>(null)
+  const pollRef = useRef<any>(null)
   
   // File uploads (mock for now)
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -95,13 +102,23 @@ export default function RestaurantOnboardingPage() {
       })
       
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to import menu')
+        try {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to import menu')
+        } catch {
+          const text = await response.text()
+          throw new Error(text || 'Failed to import menu')
+        }
       }
       
       const result = await response.json()
       setMenuImportResult(result)
-      console.log('✅ Menu import preview successful:', result)
+      if (result?.success === false) {
+        console.warn('⚠️ Preview import soft-failed:', result?.message)
+        alert('Preview did not load, but you can still continue. The import will run on Go Live.')
+      } else {
+        console.log('✅ Menu import preview successful:', result)
+      }
       
     } catch (error) {
       console.error('Menu import failed:', error)
@@ -111,12 +128,86 @@ export default function RestaurantOnboardingPage() {
     }
   }
 
+  // Fire-and-forget real import, then rely on polling
+  const startRealImport = (rid: string) => {
+    if (!legacyMenuUrl?.trim()) return
+    try {
+      void fetch('/api/admin/import-legacy-menu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: legacyMenuUrl,
+          restaurant_id: rid,
+          restaurant_name: profile.name || 'New Restaurant'
+        })
+      })
+    } catch (e) {
+      console.warn('Failed to start import:', e)
+    }
+  }
+
+  const startPollingStatus = (rid: string) => {
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/restaurants/${rid}/import-status`)
+        if (!res.ok) return
+        const data = await res.json()
+        setImportStatus(data)
+
+        const total = data?.totals?.items || 0
+        const done = data?.processed?.items || 0
+        const status = data?.status || 'unknown'
+        setProgress(prev => {
+          const withoutDynamic = prev.filter(p => !p.startsWith('Progress:'))
+          return [...withoutDynamic, `Progress: ${done}/${total} items (${status})`]
+        })
+
+        if (status === 'completed' || status === 'failed') {
+          clearInterval(pollRef.current)
+          pollRef.current = null
+          setCurrentStep(5)
+          setTimeout(() => router.push(`/menu/${rid}`), 800)
+        }
+      } catch {}
+    }, 2000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
+  }, [])
+
+  const uploadIfBlob = async (dataUrl: string | null, file: File | null, rid?: string) => {
+    if (!dataUrl || !dataUrl.startsWith('blob:') || !file) return dataUrl
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result))
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const resp = await fetch('/api/upload-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, filename: file.name, restaurantId: rid || 'temp' })
+      })
+      if (!resp.ok) return null
+      const json = await resp.json()
+      return json.url as string
+    } catch { return null }
+  }
+
   const completeOnboarding = async () => {
     setLoading(true)
     try {
-      console.log('🚀 Creating restaurant and importing menu...')
+      console.log('🚀 Creating restaurant and starting import...')
+      setProgress([])
+      setProgress(prev => [...prev, 'Creating restaurant record...'])
+      if (legacyMenuUrl?.trim()) setProgress(prev => [...prev, 'Starting menu import...'])
       
-      // Create restaurant with profile + imported menu
+      // Create restaurant (fast return)
       console.log('🔍 Sending onboard request with:', { profile, legacy_url: legacyMenuUrl });
       const response = await fetch('/api/restaurants/onboard', {
         method: 'POST',
@@ -128,26 +219,80 @@ export default function RestaurantOnboardingPage() {
       })
       
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create restaurant')
+        let message = 'Failed to create restaurant'
+        try {
+          const errorData = await response.json()
+          message = errorData.error || message
+        } catch {
+          try { message = await response.text() } catch {}
+        }
+        throw new Error(message)
       }
       
       const result = await response.json()
       const newRestaurantId = result.restaurant.id
       setRestaurantId(newRestaurantId)
+      try {
+        localStorage.setItem('lastRestaurantId', newRestaurantId)
+        document.cookie = `last_restaurant_id=${newRestaurantId}; path=/; max-age=2592000`
+      } catch {}
       
-      console.log('🎉 Restaurant onboarding complete!', result)
-      console.log('📊 Menu import result:', result.menu_import)
-      
-      // Show success and redirect after delay
-      setCurrentStep(5) // Success step
-      setTimeout(() => {
-        router.push(`/restaurant/${newRestaurantId}/dashboard`)
-      }, 3000)
+      // Upload images if the user selected local files
+      const uploadedLogo = await uploadIfBlob(profile.logo_url || null, logoFile, newRestaurantId)
+      const uploadedHeader = await uploadIfBlob(profile.header_image_url || null, headerImageFile, newRestaurantId)
+      if (uploadedLogo || uploadedHeader) {
+        try {
+          await fetch(`/api/restaurants/${newRestaurantId}/images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              logo_url: uploadedLogo || profile.logo_url || null,
+              banner_url: uploadedHeader || profile.header_image_url || null
+            })
+          })
+        } catch {}
+      }
+
+      console.log('🎉 Restaurant created, starting background import')
+      setProgress(prev => [...prev, '✓ Restaurant created'])
+      if (legacyMenuUrl?.trim()) {
+        startRealImport(newRestaurantId)
+        startPollingStatus(newRestaurantId)
+      } else {
+        // No import; go straight to success
+        setCurrentStep(5)
+        setTimeout(() => router.push(`/menu/${newRestaurantId}`), 800)
+      }
       
     } catch (error) {
       console.error('Restaurant creation failed:', error)
       alert(`Failed to create restaurant: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      // Keep loading true; we'll turn it off when polling completes
+    }
+  }
+
+  const attachImagesForExisting = async () => {
+    if (!restaurantId) return
+    setLoading(true)
+    try {
+      const uploadedLogo = await uploadIfBlob(profile.logo_url || null, logoFile, restaurantId)
+      const uploadedHeader = await uploadIfBlob(profile.header_image_url || null, headerImageFile, restaurantId)
+      if (uploadedLogo || uploadedHeader) {
+        await fetch(`/api/restaurants/${restaurantId}/images`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            logo_url: uploadedLogo || profile.logo_url || null,
+            banner_url: uploadedHeader || profile.header_image_url || null
+          })
+        })
+        alert('Images updated!')
+      } else {
+        alert('Please upload images above first, then click Update Images Only')
+      }
+    } catch (e) {
+      alert('Failed to update images')
     } finally {
       setLoading(false)
     }
@@ -399,6 +544,7 @@ export default function RestaurantOnboardingPage() {
               </CardTitle>
               <p className="text-gray-600">
                 🚀 Paste your current menu website URL and we'll automatically import ALL items!
+                <span className="ml-2 text-xs text-gray-500">(Preview optional — import runs on Go Live)</span>
               </p>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -491,7 +637,6 @@ export default function RestaurantOnboardingPage() {
                 </Button>
                 <Button 
                   onClick={nextStep}
-                  disabled={!menuImportResult}
                   className="bg-orange-600 hover:bg-orange-700"
                 >
                   Review & Go Live <ArrowRight className="ml-2 h-4 w-4" />
@@ -512,6 +657,19 @@ export default function RestaurantOnboardingPage() {
               <p className="text-gray-600">Confirm your restaurant details and menu import</p>
             </CardHeader>
             <CardContent className="space-y-6">
+              {loading && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                    <span className="font-medium text-blue-800">Working...</span>
+                  </div>
+                  <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
+                    {progress.map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {/* Restaurant Preview */}
               <div className="bg-white border rounded-lg overflow-hidden">
                 {profile.header_image_url && (

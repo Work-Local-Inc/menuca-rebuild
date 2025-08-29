@@ -56,6 +56,16 @@ export default function Home() {
               >
                 🚀 Start Restaurant Onboarding
               </button>
+              <button
+                onClick={() => {
+                  const id = typeof window !== 'undefined' ? localStorage.getItem('lastRestaurantId') : null
+                  if (id) window.location.href = `/restaurant/${id}/dashboard`
+                  else alert('No recent restaurant found. Please onboard first.')
+                }}
+                className="inline-flex items-center justify-center whitespace-nowrap font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-gray-900 h-11 rounded-md text-lg px-8 py-6 bg-white hover:bg-gray-100"
+              >
+                🔧 Manage my last restaurant
+              </button>
             </div>
           </div>
         </div>
