@@ -179,39 +179,41 @@ export default function RestaurantDashboard() {
               <span className="text-gray-600">{restaurant.cuisine_type}</span>
             </div>
 
-            {/* Primary navigation under hero */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Button 
-                onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
-                className="h-12 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-              >
-                <ShoppingCart className="h-4 w-4" />
-                Manage Orders
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => router.push(`/restaurant/${restaurantId}/menu`)}
-                className="h-12 flex items-center justify-center gap-2"
-              >
-                <Edit className="h-4 w-4" />
-                Edit Menu
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => router.push(`/menu/${restaurantId}`)}
-                className="h-12 flex items-center justify-center gap-2"
-              >
-                <Eye className="h-4 w-4" />
-                View Live Menu
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => router.push(`/restaurant/${restaurantId}/settings`)}
-                className="h-12 flex items-center justify-center gap-2"
-              >
-                <Settings className="h-4 w-4" />
-                Settings
-              </Button>
+            {/* Primary navigation under hero - sticky */}
+            <div className="mt-6 sticky top-0 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-y border-gray-100">
+              <div className="py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <Button 
+                  onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
+                  className="h-10 sm:h-12 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Manage Orders
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => router.push(`/restaurant/${restaurantId}/menu`)}
+                  className="h-10 sm:h-12 flex items-center justify-center gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit Menu
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push(`/menu/${restaurantId}`)}
+                  className="h-10 sm:h-12 flex items-center justify-center gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  View Live Menu
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => router.push(`/restaurant/${restaurantId}/settings`)}
+                  className="h-10 sm:h-12 flex items-center justify-center gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Button>
+              </div>
             </div>
           </div>
         </div>
