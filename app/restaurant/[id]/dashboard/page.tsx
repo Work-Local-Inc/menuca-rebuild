@@ -20,6 +20,8 @@ interface Restaurant {
   rating: number
   total_orders: number
   today_revenue: number
+  logo_url?: string | null
+  banner_url?: string | null
 }
 
 interface OrderSummary {
@@ -135,8 +137,13 @@ export default function RestaurantDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
-                <ChefHat className="h-6 w-6 text-white" />
+              <div className="w-12 h-12 rounded-lg overflow-hidden bg-white ring-1 ring-black/5 flex items-center justify-center">
+                {restaurant.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={restaurant.logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
+                ) : (
+                  <ChefHat className="h-6 w-6 text-orange-600" />
+                )}
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{restaurant.name}</h1>
@@ -174,6 +181,16 @@ export default function RestaurantDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Hero / Banner */}
+      {restaurant.banner_url && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="w-full h-40 md:h-52 rounded-xl overflow-hidden ring-1 ring-black/5 bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={restaurant.banner_url} alt="Banner" className="w-full h-full object-cover" />
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
