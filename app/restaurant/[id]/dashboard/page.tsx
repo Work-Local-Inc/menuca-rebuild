@@ -22,6 +22,7 @@ interface Restaurant {
   today_revenue: number
   logo_url?: string | null
   banner_url?: string | null
+  description?: string | null
 }
 
 interface OrderSummary {
@@ -132,34 +133,53 @@ export default function RestaurantDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header - match menu branding with hero and overlay logo */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-white ring-1 ring-black/5 flex items-center justify-center">
-                {restaurant.logo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={restaurant.logo_url} alt="Logo" className="w-full h-full object-contain p-1" />
-                ) : (
-                  <ChefHat className="h-6 w-6 text-orange-600" />
-                )}
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{restaurant.name}</h1>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <Badge className="bg-green-100 text-green-800">
-                    {restaurant.status === 'active' ? '🟢 Live' : '🔴 Offline'}
-                  </Badge>
-                  <span>{restaurant.cuisine_type}</span>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span>{restaurant.rating}</span>
-                  </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
+          {/* Hero banner with logo overlay */}
+          <div className="relative">
+            <div className="w-full h-40 md:h-56 rounded-xl overflow-hidden bg-gradient-to-br from-orange-400 to-red-500">
+              {restaurant?.banner_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={restaurant.banner_url} alt="Banner" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center"><ChefHat className="h-16 w-16 text-white/80" /></div>
+              )}
+            </div>
+            <div className="absolute -bottom-6 left-4 z-10 rounded-lg bg-white/95 shadow-md ring-1 ring-black/5 px-3 py-2">
+              {restaurant?.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={restaurant.logo_url}
+                  alt="Logo"
+                  className="object-contain max-h-14 md:max-h-20 max-w-[240px]"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-14 md:h-20 min-w-[80px]">
+                  <ChefHat className="h-8 w-8 text-gray-400" />
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* Info row */}
+          <div className="mt-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{restaurant.name}</h1>
+              {restaurant.description && (
+                <p className="text-gray-600 mb-4">{restaurant.description}</p>
+              )}
+              <div className="flex flex-wrap items-center gap-4 text-sm">
+                <Badge className={restaurant.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                  {restaurant.status === 'active' ? '🟢 Live' : '🔴 Offline'}
+                </Badge>
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="font-semibold">{restaurant.rating}</span>
+                </div>
+                <span className="text-gray-600">{restaurant.cuisine_type}</span>
               </div>
             </div>
-            
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
@@ -177,20 +197,20 @@ export default function RestaurantDashboard() {
                 <Edit className="h-4 w-4" />
                 Edit Menu
               </Button>
+              <Button 
+                variant="outline"
+                onClick={() => router.push(`/restaurant/${restaurantId}/settings`)}
+                className="flex items-center gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Hero / Banner */}
-      {restaurant.banner_url && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-          <div className="w-full h-40 md:h-52 rounded-xl overflow-hidden ring-1 ring-black/5 bg-gray-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={restaurant.banner_url} alt="Banner" className="w-full h-full object-cover" />
-          </div>
-        </div>
-      )}
+      
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
