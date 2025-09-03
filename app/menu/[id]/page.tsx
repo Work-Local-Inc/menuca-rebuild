@@ -11,6 +11,7 @@ import {
   Plus, Minus, Heart, Share, ChefHat, Truck, Phone 
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import RestaurantAdminNav from '@/components/RestaurantAdminNav'
 
 interface MenuItem {
   id: string
@@ -265,19 +266,7 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {isAuthed && (
-        <div className="w-full bg-black text-white text-sm py-2 px-4 flex items-center justify-between sticky top-0 z-50">
-          <div>Admin Toolbar</div>
-          <div className="space-x-2">
-            <Button size="sm" variant="outline" className="bg-white text-black" onClick={() => window.location.href = `/restaurant/${restaurantId}/menu`}>
-              Edit Menu
-            </Button>
-            <Button size="sm" variant="outline" className="bg-white text-black" onClick={() => window.location.href = `/restaurant/${restaurantId}/dashboard`}>
-              Dashboard
-            </Button>
-          </div>
-        </div>
-      )}
+      {isAuthed && <RestaurantAdminNav restaurantId={restaurantId} />}
       {/* Restaurant Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">

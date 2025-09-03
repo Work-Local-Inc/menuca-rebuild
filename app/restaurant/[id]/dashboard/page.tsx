@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import RestaurantAdminNav from '@/components/RestaurantAdminNav'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
@@ -150,6 +151,7 @@ export default function RestaurantDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {<RestaurantAdminNav restaurantId={restaurantId} />}
       {/* Header - match menu branding with hero and overlay logo */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">
@@ -200,44 +202,7 @@ export default function RestaurantDashboard() {
         </div>
       </div>
 
-      {/* Fixed-on-scroll navigation */}
-      <div id="nav-sentinel" />
-      <div ref={spacerRef} aria-hidden="true" />
-      <div ref={navRef} className={`sticky top-0 z-40 ${navFixed ? 'fixed top-0 left-0 right-0 z-50' : ''} bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-y border-gray-100`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Button 
-            onClick={() => router.push(`/restaurant/${restaurantId}/orders`)}
-            className="h-10 sm:h-12 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Manage Orders
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => router.push(`/restaurant/${restaurantId}/menu`)}
-            className="h-10 sm:h-12 flex items-center justify-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Edit Menu
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => router.push(`/menu/${restaurantId}`)}
-            className="h-10 sm:h-12 flex items-center justify-center gap-2"
-          >
-            <Eye className="h-4 w-4" />
-            View Live Menu
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => router.push(`/restaurant/${restaurantId}/settings`)}
-            className="h-10 sm:h-12 flex items-center justify-center gap-2"
-          >
-            <Settings className="h-4 w-4" />
-            Settings
-          </Button>
-        </div>
-      </div>
+      {/* Old fixed-on-scroll nav removed in favor of shared Admin Toolbar */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
