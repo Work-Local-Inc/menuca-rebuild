@@ -67,6 +67,13 @@ export default function RestaurantDashboard() {
 
   useEffect(() => {
     loadDashboardData()
+    // Persist per-user last restaurant in Supabase user metadata if authed
+    supabase.auth.getUser().then(async ({ data }) => {
+      const user = data.user
+      if (user && (user.user_metadata as any)?.last_restaurant_id !== restaurantId) {
+        try { await supabase.auth.updateUser({ data: { last_restaurant_id: restaurantId } }) } catch {}
+      }
+    })
     
     // Auto-refresh every 30 seconds
     const interval = setInterval(loadDashboardData, 30000)
@@ -151,7 +158,7 @@ export default function RestaurantDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {<RestaurantAdminNav restaurantId={restaurantId} />}
+      {/* Global AdminNav via AuthInit handles display; avoid duplicate here */}
       {/* Header - match menu branding with hero and overlay logo */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">

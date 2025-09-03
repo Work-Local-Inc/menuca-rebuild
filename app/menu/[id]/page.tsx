@@ -136,6 +136,13 @@ export default function MenuPage() {
 
   useEffect(() => {
     loadRestaurantData()
+    // Persist per-user last restaurant in Supabase user metadata if authed
+    supabase.auth.getUser().then(async ({ data }) => {
+      const user = data.user
+      if (user && (user.user_metadata as any)?.last_restaurant_id !== restaurantId) {
+        try { await supabase.auth.updateUser({ data: { last_restaurant_id: restaurantId } }) } catch {}
+      }
+    })
     supabase.auth.getSession()
       .then(({ data }) => {
         setIsAuthed(!!data.session)
@@ -266,7 +273,7 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {isAuthed && <RestaurantAdminNav restaurantId={restaurantId} />}
+      {/* Global AdminNav will render via AuthInit; avoid duplicate here */}
       {/* Restaurant Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2">

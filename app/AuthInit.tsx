@@ -13,17 +13,31 @@ export default function AuthInit() {
     supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session))
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthed(!!session)
+      if (session?.user) {
+        const metaRid = (session.user.user_metadata as any)?.last_restaurant_id || null
+        if (metaRid) setRestaurantId(metaRid)
+      }
     })
     return () => sub.subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
-    try {
-      const rid = localStorage.getItem('lastRestaurantId') || document.cookie.match(/last_restaurant_id=([^;]+)/)?.[1] || null
-      setRestaurantId(rid)
-    } catch {
-      setRestaurantId(null)
-    }
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser()
+        const metaRid = (data.user?.user_metadata as any)?.last_restaurant_id || null
+        if (metaRid) {
+          setRestaurantId(metaRid)
+          return
+        }
+      } catch {}
+      try {
+        const rid = localStorage.getItem('lastRestaurantId') || document.cookie.match(/last_restaurant_id=([^;]+)/)?.[1] || null
+        setRestaurantId(rid)
+      } catch {
+        setRestaurantId(null)
+      }
+    })()
   }, [])
 
   if (!authed || !restaurantId) return null
