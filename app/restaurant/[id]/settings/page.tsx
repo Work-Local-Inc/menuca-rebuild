@@ -23,6 +23,7 @@ export default function RestaurantSettingsPage() {
   const [bannerUrl, setBannerUrl] = useState<string>('')
   const [logoUploading, setLogoUploading] = useState(false)
   const [bannerUploading, setBannerUploading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -115,6 +116,22 @@ export default function RestaurantSettingsPage() {
     } catch (e) {
       console.error(e)
       alert('Failed to update branding')
+    }
+  }
+
+  const hardDelete = async () => {
+    if (!confirm('Permanently delete this restaurant and all of its menu data?')) return
+    setDeleting(true)
+    try {
+      const r = await fetch(`/api/restaurants/${restaurantId}`, { method: 'DELETE' })
+      if (!r.ok) throw new Error(await r.text())
+      alert('Restaurant deleted')
+      window.location.href = '/restaurant/onboard'
+    } catch (e) {
+      console.error(e)
+      alert('Failed to delete restaurant')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -215,6 +232,18 @@ export default function RestaurantSettingsPage() {
           {saving ? 'Saving…' : 'Save Settings'}
         </Button>
       </div>
+
+      <Card className="border-red-200">
+        <CardHeader>
+          <CardTitle>Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button onClick={hardDelete} disabled={deleting} variant="outline" className="border-red-500 text-red-600 hover:bg-red-50">
+            {deleting ? 'Deleting…' : 'Hard Delete Restaurant'}
+          </Button>
+          <p className="text-sm text-gray-600">This permanently removes the restaurant, menus, categories, and items.</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

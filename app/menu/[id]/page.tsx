@@ -141,6 +141,7 @@ export default function MenuPage() {
       const user = data.user
       if (user && (user.user_metadata as any)?.last_restaurant_id !== restaurantId) {
         try { await supabase.auth.updateUser({ data: { last_restaurant_id: restaurantId } }) } catch {}
+        try { await supabase.from('user_preferences').upsert({ user_id: user.id, last_restaurant_id: restaurantId, updated_at: new Date().toISOString() }, { onConflict: 'user_id' }) } catch {}
       }
     })
     supabase.auth.getSession()

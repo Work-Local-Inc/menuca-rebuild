@@ -94,6 +94,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ success: true, restaurant: data })
     }
 
+    if (req.method === 'DELETE') {
+      // Hard delete restaurant and related data (menu items, categories, menus)
+      try {
+        // Fetch menus for restaurant
+        const { data: menus } = await supabaseAdmin
+          .from('restaurant_menus')
+          .select('id')
+          .eq('restaurant_id', restaurantId)
+
+        const menuIds = (menus || []).map((m: any) => m.id)
+
+        // Delete menu items (by restaurant_id)
+        await supabaseAdmin.from('menu_items').delete().eq('restaurant_id', restaurantId)
+
+        // Delete categories (by menu_id)
+        if (menuIds.length > 0) {
+          await supabaseAdmin.from('menu_categories').delete().in('menu_id', menuIds)
+        }
+
+        // Delete menus
+        await supabaseAdmin.from('restaurant_menus').delete().eq('restaurant_id', restaurantId)
+
+        // Finally delete restaurant
+        const { error: delErr } = await supabaseAdmin.from('restaurants').delete().eq('id', restaurantId)
+        if (delErr) throw delErr
+        return res.status(200).json({ success: true })
+      } catch (e: any) {
+        console.error('❌ Hard delete failed:', e)
+        return res.status(500).json({ error: 'delete_failed', details: e?.message || String(e) })
+      }
+    }
+
     return res.status(405).json({ error: 'Method not allowed' });
 
   } catch (error) {

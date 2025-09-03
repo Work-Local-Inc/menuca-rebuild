@@ -25,10 +25,23 @@ export default function AuthInit() {
     (async () => {
       try {
         const { data } = await supabase.auth.getUser()
-        const metaRid = (data.user?.user_metadata as any)?.last_restaurant_id || null
-        if (metaRid) {
-          setRestaurantId(metaRid)
-          return
+        const user = data.user
+        // Try DB-backed preference first
+        if (user) {
+          const { data: pref } = await supabase
+            .from('user_preferences')
+            .select('last_restaurant_id')
+            .eq('user_id', user.id)
+            .maybeSingle()
+          if (pref?.last_restaurant_id) {
+            setRestaurantId(pref.last_restaurant_id as string)
+            return
+          }
+          const metaRid = (user.user_metadata as any)?.last_restaurant_id || null
+          if (metaRid) {
+            setRestaurantId(metaRid)
+            return
+          }
         }
       } catch {}
       try {
