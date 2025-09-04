@@ -27,7 +27,7 @@ export default function AuthContinue() {
           }
         } catch {}
       })()
-      router.replace(`/restaurant/${rid}/dashboard`)
+      router.replace(`/menu/${rid}`)
     }
     else router.replace('/restaurant/onboard')
   }, [])
