@@ -785,9 +785,37 @@ export default function RestaurantOnboardingPage() {
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-500 mb-6">
-                  Redirecting to your restaurant dashboard in 3 seconds...
-                </p>
+                {/* Claim panel */}
+                <div className="text-left max-w-xl mx-auto bg-white border rounded-lg p-4 mb-6">
+                  <h3 className="font-semibold mb-2">Claim your restaurant (owner login)</h3>
+                  <p className="text-sm text-gray-600 mb-3">Enter an owner account email to manage this restaurant. We'll email a sign‑in link.</p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="owner@restaurant.com"
+                      value={profile.email}
+                      onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                    />
+                    <Button
+                      onClick={async () => {
+                        try {
+                          const redirectTo = `${window.location.origin}/auth/continue?rid=${restaurantId}`
+                          const { error } = await (await import('@/lib/supabase')).supabase.auth.signInWithOtp({ email: profile.email, options: { emailRedirectTo: redirectTo } })
+                          if (error) throw error
+                          alert('Magic link sent. Check your email to finish claiming this restaurant.')
+                        } catch (e) {
+                          alert('Failed to send magic link')
+                        }
+                      }}
+                      className="bg-orange-600 hover:bg-orange-700"
+                    >
+                      Send magic link
+                    </Button>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button variant="outline" onClick={() => window.location.href = `/login?rid=${restaurantId}`}>I already have an account</Button>
+                    <Button variant="outline" onClick={() => window.location.href = `/menu/${restaurantId}`}>View Live Menu</Button>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3">
