@@ -24,8 +24,22 @@ export default function AdminPage() {
         router.push('/login')
         return
       }
-      if (user.email !== 'brian@worklocal.ca') {
-        router.push('/')
+      const email = (user.email || '').toLowerCase().trim()
+      let ok = email === 'brian@worklocal.ca'
+
+      if (!ok) {
+        // Also allow users with admin role
+        const { data: roles } = await supabase
+          .from('user_restaurant_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .limit(1)
+        ok = !!roles && roles.length > 0
+      }
+
+      if (!ok) {
+        router.push('/login')
         return
       }
       setAuthorized(true)
