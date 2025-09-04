@@ -457,7 +457,9 @@ export default function RestaurantOnboardingPage() {
                     <label htmlFor="logo-upload" className="cursor-pointer">
                       {profile.logo_url ? (
                         <div className="space-y-2">
-                          <img src={profile.logo_url} alt="Logo preview" className="w-24 h-24 object-cover mx-auto rounded-lg" />
+                          <div className="w-full h-16 md:h-20 rounded-lg overflow-hidden bg-white ring-1 ring-black/5 flex items-center justify-center p-2">
+                            <img src={profile.logo_url} alt="Logo preview" className="max-h-full max-w-full object-contain" />
+                          </div>
                           <p className="text-sm text-green-600">Logo uploaded ✓</p>
                         </div>
                       ) : (
@@ -473,8 +475,8 @@ export default function RestaurantOnboardingPage() {
                   {profile.logo_url && (
                     <div className="flex items-center justify-center">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center mx-auto mb-2">
-                          <img src={profile.logo_url} alt="Logo" className="w-12 h-12 object-cover rounded-full" />
+                        <div className="w-full max-w-xs h-16 md:h-20 rounded-lg bg-white/95 shadow-md ring-1 ring-black/5 flex items-center justify-center px-3 py-2 mx-auto mb-2">
+                          <img src={profile.logo_url} alt="Logo" className="object-contain max-h-full max-w-full" />
                         </div>
                         <p className="text-sm text-gray-600">How it appears</p>
                       </div>
