@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('✅ Found restaurant menu:', restaurantMenu.name);
 
     const { data: categories, error: categoriesError } = await supabase
-      .from('menu_categories')
+      .from('menu_categories_v')
       .select('id, name, description, display_order')
       .eq('menu_id', restaurantMenu.id)
       .order('display_order', { ascending: true });
@@ -63,15 +63,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     if (categoryIds.length > 0) {
       const { data: menuItems, error: itemsError } = await supabase
-        .from('menu_items')
+        .from('menu_items_v')
         .select(`
-          *,
-          menu_categories (
-            name,
-            display_order
-          )
+          *
         `)
-        .in('category_id', categoryIds)
+        .in('section_id', categoryIds)
         .order('display_order', { ascending: true });
 
       if (itemsError) {
@@ -89,14 +85,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       name: item.name,
       description: item.description || '',
       price: parseFloat(item.price) || 0,
-      category: item.menu_categories?.name || 'Other',
+      category: (categories?.find(c => c.id === (item.section_id || item.category_id))?.name) || 'Other',
       dietary_tags: [],
       prep_time: 15,
       rating: 4.5,
       is_popular: false,
       image_url: item.image_url || null,
       is_active: item.is_active ?? true,
-      category_id: item.category_id
+      category_id: item.section_id || item.category_id
     }));
 
     const categoryStats = (categories || []).map(cat => ({
@@ -104,7 +100,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       name: cat.name,
       description: cat.description,
       display_order: cat.display_order,
-      items_count: allMenuItems.filter(item => item.category_id === cat.id).length
+      items_count: allMenuItems.filter(item => (item.section_id || item.category_id) === cat.id).length
     }));
 
     return res.status(200).json({ 
