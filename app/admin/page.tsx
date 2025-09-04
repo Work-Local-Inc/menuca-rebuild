@@ -58,6 +58,22 @@ export default function AdminPage() {
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">All Restaurants</h1>
+      {restaurants.length > 0 && (
+        <div className="mb-4 flex justify-end">
+          <button
+            className="px-3 py-2 rounded bg-red-600 text-white"
+            onClick={async () => {
+              if (!confirm('Delete ALL restaurants? This cannot be undone.')) return
+              for (const r of restaurants) {
+                await fetch(`/api/restaurants/${r.id}`, { method: 'DELETE' })
+              }
+              setRestaurants([])
+            }}
+          >
+            Delete All
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {restaurants.map(r => (
           <div key={r.id} className="border rounded-lg p-4 flex items-center gap-3">
@@ -73,6 +89,16 @@ export default function AdminPage() {
             </div>
             <button className="px-3 py-1 rounded bg-black text-white" onClick={() => router.push(`/restaurant/${r.id}/dashboard`)}>Dashboard</button>
             <button className="px-3 py-1 rounded bg-white ring-1 ring-black/10" onClick={() => router.push(`/menu/${r.id}`)}>View</button>
+            <button
+              className="px-3 py-1 rounded bg-red-600 text-white"
+              onClick={async () => {
+                if (!confirm(`Delete ${r.name}?`)) return
+                await fetch(`/api/restaurants/${r.id}`, { method: 'DELETE' })
+                setRestaurants(prev => prev.filter(x => x.id !== r.id))
+              }}
+            >
+              Delete
+            </button>
           </div>
         ))}
       </div>
