@@ -309,30 +309,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Try to scrape with better settings
+    // Try to scrape with a fast direct HTML fetch first, then fall back to Firecrawl
     let menuData;
-    
     try {
-      console.log('🕷️ Using Firecrawl with extended wait time...');
-      
+      console.log('🕷️ Fast path: direct HTML fetch…');
+      const direct = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 MenuCA Importer' } });
+      const html = await direct.text();
+      const altCountFast = (html.match(/class="alternate_[12]"/g) || []).length;
+      if (altCountFast > 0) {
+        const fastResult = scrapeXtremePizzaMenu(html);
+        console.log(`⚡ Fast scraped ${fastResult.totalItems} items in ${fastResult.categories.length} categories`);
+        menuData = {
+          restaurant: {
+            name: extractRestaurantName(url, html),
+            cuisine: 'Restaurant',
+            website: url
+          },
+          categories: fastResult.categories.map(cat => ({
+            name: cat.name,
+            items: cat.items.map(item => ({
+              name: item.name,
+              description: item.description || '',
+              price: item.prices[0]?.price || 0,
+              prices: item.prices.map(p => p.price)
+            }))
+          }))
+        };
+      }
+    } catch (e) {
+      console.warn('⚠️ Direct fetch failed or incomplete, will try Firecrawl:', (e as any)?.message || e);
+    }
+
+    if (!menuData) try {
+      console.log('🕷️ Using Firecrawl with extended wait time…');
       const scrapedData = await firecrawl.scrape(url, {
         formats: ['html'],
-        waitFor: 7000,  // Slightly reduced to help avoid 60s function timeouts
+        waitFor: 12000,
         onlyMainContent: false
       });
-      
       if (scrapedData && scrapedData.html) {
-        console.log('✅ Firecrawl succeeded, checking for menu items...');
-        
-        // Count alternate classes to verify items loaded
+        console.log('✅ Firecrawl succeeded, checking for menu items…');
         const alternateCount = (scrapedData.html.match(/class="alternate_[12]"/g) || []).length;
         console.log(`📊 Found ${alternateCount} menu item blocks`);
-        
         if (alternateCount > 0) {
-          // Use our simple scraper
           const scrapedResult = scrapeXtremePizzaMenu(scrapedData.html);
           console.log(`📊 Scraped ${scrapedResult.totalItems} items in ${scrapedResult.categories.length} categories`);
-          
           menuData = {
             restaurant: {
               name: extractRestaurantName(url, scrapedData.html),
