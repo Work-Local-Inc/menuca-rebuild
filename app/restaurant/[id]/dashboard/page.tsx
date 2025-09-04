@@ -173,7 +173,7 @@ export default function RestaurantDashboard() {
                 <div className="w-full h-full flex items-center justify-center"><ChefHat className="h-16 w-16 text-white/80" /></div>
               )}
             </div>
-            <div className="absolute -bottom-6 left-4 z-10 rounded-lg bg-white/95 shadow-md ring-1 ring-black/5 px-3 py-2">
+            <div className="absolute -bottom-6 left-4 z-10 rounded-lg bg-white px-3 py-2">
               {restaurant?.logo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
