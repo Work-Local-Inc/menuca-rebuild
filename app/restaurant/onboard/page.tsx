@@ -164,7 +164,6 @@ export default function RestaurantOnboardingPage() {
           clearInterval(pollRef.current)
           pollRef.current = null
           setCurrentStep(5)
-          setTimeout(() => router.push(`/menu/${rid}`), 800)
         }
       } catch {}
     }, 2000)
@@ -256,9 +255,8 @@ export default function RestaurantOnboardingPage() {
         startRealImport(newRestaurantId)
         startPollingStatus(newRestaurantId)
       } else {
-        // No import; go straight to success
+        // No import; go straight to success and let user claim
         setCurrentStep(5)
-        setTimeout(() => router.push(`/menu/${newRestaurantId}`), 800)
       }
       
     } catch (error) {
