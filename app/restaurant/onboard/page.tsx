@@ -102,13 +102,10 @@ export default function RestaurantOnboardingPage() {
       })
       
       if (!response.ok) {
-        try {
-          const errorData = await response.json()
-          throw new Error(errorData.error || 'Failed to import menu')
-        } catch {
-          const text = await response.text()
-          throw new Error(text || 'Failed to import menu')
-        }
+        const raw = await response.text()
+        let msg = 'Failed to import menu'
+        try { const j = JSON.parse(raw); msg = j.error || msg } catch { if (raw) msg = raw }
+        throw new Error(msg)
       }
       
       const result = await response.json()
