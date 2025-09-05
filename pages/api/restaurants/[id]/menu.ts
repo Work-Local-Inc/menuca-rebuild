@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (categoriesError) {
       console.error('❌ Error fetching categories:', categoriesError);
-      return res.status(500).json({ error: 'Error fetching categories' });
+      return res.status(500).json({ error: 'Error fetching categories', details: categoriesError.message, code: categoriesError.code });
     }
 
     console.log(`✅ Found ${categories?.length || 0} categories`);
@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (itemsError) {
         console.error('❌ Error fetching menu items:', itemsError);
-        return res.status(500).json({ error: 'Error fetching menu items' });
+        return res.status(500).json({ error: 'Error fetching menu items', details: itemsError.message, code: itemsError.code });
       }
 
       allMenuItems = menuItems || [];
