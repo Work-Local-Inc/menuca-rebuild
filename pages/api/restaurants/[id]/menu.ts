@@ -91,6 +91,58 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`✅ Found ${allMenuItems.length} menu items`);
 
+    const baseItemsMap = new Map<string, any>()
+    for (const row of allMenuItems as any[]) {
+      if (row.items?.id) baseItemsMap.set(row.items.id, row)
+    }
+
+    // Fetch modifier groups for all referenced base item ids
+    const baseItemIds = Array.from(baseItemsMap.keys())
+    let itemModifiers: Record<string, any[]> = {}
+    if (baseItemIds.length > 0) {
+      const { data: img } = await supabase
+        .from('item_modifier_groups')
+        .select(`
+          item_id,
+          min_selection,
+          max_selection,
+          required,
+          display_order,
+          modifier_groups:modifier_groups!inner(
+            id,
+            name,
+            min_selection,
+            max_selection,
+            required,
+            display_order,
+            modifier_options:modifier_options(* )
+          )
+        `)
+        .in('item_id', baseItemIds)
+        .order('display_order', { ascending: true })
+      for (const row of (img || []) as any[]) {
+        const arr = itemModifiers[row.item_id] || []
+        arr.push({
+          id: row.modifier_groups.id,
+          name: row.modifier_groups.name,
+          min: row.min_selection ?? row.modifier_groups.min_selection,
+          max: row.max_selection ?? row.modifier_groups.max_selection,
+          required: row.required ?? row.modifier_groups.required,
+          display_order: row.display_order ?? row.modifier_groups.display_order,
+          options: (row.modifier_groups.modifier_options || []).map((o: any) => ({
+            id: o.id,
+            name: o.name,
+            price_delta: Number(o.price_delta || 0),
+            quantity_allowed: !!o.quantity_allowed,
+            max_per_option: o.max_per_option ?? 1,
+            default_selected: !!o.default_selected,
+            is_available: o.is_available !== false
+          }))
+        })
+        itemModifiers[row.item_id] = arr
+      }
+    }
+
     const transformedMenuItems = allMenuItems.map((item: any) => ({
       id: item.id,
       name: item.name_override ?? item.items?.base_name ?? '',
@@ -103,7 +155,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       is_popular: false,
       image_url: item.image_url || null,
       is_active: item.is_active ?? true,
-      category_id: item.menu_section_id
+      category_id: item.menu_section_id,
+      modifiers: itemModifiers[item.items?.id] || []
     }));
 
     const categoryStats = (categories || []).map(cat => ({
