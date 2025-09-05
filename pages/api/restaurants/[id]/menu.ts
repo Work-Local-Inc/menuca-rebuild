@@ -45,8 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('✅ Found restaurant menu:', restaurantMenu.name);
 
     const { data: categories, error: categoriesError } = await supabase
-      .from('menu_categories_v')
-      .select('id, name, description, display_order')
+      .from('menu_sections')
+      .select('id, name, display_order')
       .eq('menu_id', restaurantMenu.id)
       .order('display_order', { ascending: true });
 
@@ -63,12 +63,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     if (categoryIds.length > 0) {
       const { data: menuItems, error: itemsError } = await supabase
-        .from('menu_items_v')
+        .from('menu_section_items')
         .select(`
-          *
+          id,
+          menu_section_id,
+          position,
+          name_override,
+          desc_override,
+          price_override,
+          items:items!inner(
+            id,
+            base_name,
+            base_desc,
+            base_price
+          )
         `)
-        .in('section_id', categoryIds)
-        .order('display_order', { ascending: true });
+        .in('menu_section_id', categoryIds)
+        .order('position', { ascending: true });
 
       if (itemsError) {
         console.error('❌ Error fetching menu items:', itemsError);
@@ -80,27 +91,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`✅ Found ${allMenuItems.length} menu items`);
 
-    const transformedMenuItems = allMenuItems.map(item => ({
+    const transformedMenuItems = allMenuItems.map((item: any) => ({
       id: item.id,
-      name: item.name,
-      description: item.description || '',
-      price: parseFloat(item.price) || 0,
-      category: (categories?.find(c => c.id === (item.section_id || item.category_id))?.name) || 'Other',
+      name: item.name_override ?? item.items?.base_name ?? '',
+      description: item.desc_override ?? item.items?.base_desc ?? '',
+      price: parseFloat(item.price_override ?? item.items?.base_price ?? 0) || 0,
+      category: (categories?.find(c => c.id === (item.menu_section_id))?.name) || 'Other',
       dietary_tags: [],
       prep_time: 15,
       rating: 4.5,
       is_popular: false,
       image_url: item.image_url || null,
       is_active: item.is_active ?? true,
-      category_id: item.section_id || item.category_id
+      category_id: item.menu_section_id
     }));
 
     const categoryStats = (categories || []).map(cat => ({
       id: cat.id,
       name: cat.name,
-      description: cat.description,
+      description: '',
       display_order: cat.display_order,
-      items_count: allMenuItems.filter(item => (item.section_id || item.category_id) === cat.id).length
+      items_count: allMenuItems.filter((item: any) => item.menu_section_id === cat.id).length
     }));
 
     return res.status(200).json({ 
