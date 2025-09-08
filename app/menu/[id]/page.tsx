@@ -141,7 +141,18 @@ export default function MenuPage() {
   const cartItemCount = Object.values(cart).reduce((sum, count) => sum + count, 0)
   const cartTotal = Object.entries(cart).reduce((sum, [itemId, count]) => {
     const item = menu.find(m => m.id === itemId)
-    return sum + (item ? item.price * count : 0)
+    if (!item) return sum
+    // Include selected modifier deltas if any
+    let delta = 0
+    try {
+      const optsMap = JSON.parse(localStorage.getItem(`cart_opts_${restaurantId}`) || '{}')
+      const selections = optsMap[itemId] || {}
+      delta = (item.modifiers || [])
+        .flatMap(g => (selections[g.id] || [])
+          .map((id: string) => g.options.find(o => o.id === id)?.price_delta || 0))
+        .reduce((a: number, b: number) => a + b, 0)
+    } catch {}
+    return sum + (item.price + delta) * count
   }, 0)
 
   useEffect(() => {
@@ -183,11 +194,24 @@ export default function MenuPage() {
     if (!restaurantId) return
     try {
       localStorage.setItem(`cart_${restaurantId}`, JSON.stringify(cart))
-      // denormalize into array with name/price/quantity for checkout page
+      // denormalize into array with name/price(+deltas)/quantity and chosen options
+      const optsMap = JSON.parse(localStorage.getItem(`cart_opts_${restaurantId}`) || '{}')
       const cartItems = Object.entries(cart).map(([itemId, quantity]) => {
         const item = menu.find(m => m.id === itemId)
-        return item ? { id: itemId, name: item.name, price: item.price, quantity } : null
-      }).filter(Boolean)
+        if (!item) return null
+        const selections = optsMap[itemId] || {}
+        const delta = (item.modifiers || [])
+          .flatMap(g => (selections[g.id] || [])
+            .map((id: string) => g.options.find(o => o.id === id)?.price_delta || 0))
+          .reduce((a: number, b: number) => a + b, 0)
+        const chosen = (item.modifiers || []).map(g => ({
+          group: g.name,
+          options: (selections[g.id] || [])
+            .map((id: string) => g.options.find(o => o.id === id)?.name)
+            .filter(Boolean)
+        }))
+        return { id: itemId, name: item.name, price: item.price + delta, quantity, modifiers: chosen }
+      }).filter(Boolean as any)
       localStorage.setItem(`cart_items_${restaurantId}`, JSON.stringify(cartItems))
       // persist options per item if exist in a separate map
       const optsRaw = localStorage.getItem(`cart_opts_${restaurantId}`)
@@ -695,19 +719,23 @@ export default function MenuPage() {
             <div className="p-4 border-t flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setCustomizingItem(null)}>Close</Button>
               <Button
+                className="bg-orange-600 hover:bg-orange-700"
                 onClick={() => {
                   try {
                     if (!restaurantId || !customizingItem) return
+                    // persist selections
                     const key = `cart_opts_${restaurantId}`
                     const raw = localStorage.getItem(key)
                     const map = raw ? JSON.parse(raw) : {}
                     map[customizingItem.id] = customizingSelections
                     localStorage.setItem(key, JSON.stringify(map))
+                    // ensure at least 1 in cart
+                    setCart(prev => ({ ...prev, [customizingItem.id]: (prev[customizingItem.id] || 0) + 0 }))
                   } catch {}
                   setCustomizingItem(null)
                 }}
               >
-                Save
+                Add to Cart
               </Button>
             </div>
           </div>
