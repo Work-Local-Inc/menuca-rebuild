@@ -61,6 +61,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('✅ Restaurant created successfully:', restaurantId);
 
+    // Kick off menu import (one-step onboarding)
+    let importResult: any = null;
+    try {
+      const origin = req.headers.origin || `https://${req.headers.host}`;
+      const resp = await fetch(`${origin}/api/admin/import-legacy-menu`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: legacy_url, restaurant_id: restaurantId, restaurant_name: profile.name })
+      });
+      importResult = await resp.json();
+    } catch (e) {
+      console.warn('⚠️ Import trigger failed; returning restaurant info only:', (e as any)?.message || e);
+    }
+
     return res.status(200).json({
       success: true,
       restaurant: {
@@ -70,10 +84,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         menu_url: `/menu/${restaurantId}`,
         management_url: `/restaurant/${restaurantId}/dashboard`
       },
-      menu_import: null,
+      menu_import: importResult,
       next_steps: [
         '✅ Restaurant created successfully',
-        '✅ Menu import will start automatically',
+        importResult?.success ? `✅ Imported ${importResult.items_created} items` : '⚠️ Import queued',
         '✅ Your restaurant is now LIVE and ready for orders!'
       ]
     });
