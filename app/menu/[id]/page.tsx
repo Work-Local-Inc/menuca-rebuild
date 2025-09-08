@@ -24,6 +24,13 @@ interface MenuItem {
   prep_time?: number
   rating?: number
   is_popular?: boolean
+  modifiers?: Array<{
+    id: string
+    name: string
+    min: number
+    max: number
+    options: Array<{ id: string; name: string; price_delta: number }>
+  }>
 }
 
 interface Restaurant {
@@ -126,6 +133,7 @@ export default function MenuPage() {
   const [favorites, setFavorites] = useState<string[]>([])
   const [isAuthed, setIsAuthed] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null)
 
   const categories = ['All', ...Array.from(new Set(menu.map(item => item.category)))]
   const cartItemCount = Object.values(cart).reduce((sum, count) => sum + count, 0)
@@ -413,6 +421,9 @@ export default function MenuPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                            {(item as any).modifiers?.length > 0 && (
+                              <Badge className="bg-blue-100 text-blue-800 text-xs">Customize</Badge>
+                            )}
                             {item.is_popular && (
                               <Badge className="bg-orange-100 text-orange-800 text-xs">Popular</Badge>
                             )}
@@ -457,6 +468,16 @@ export default function MenuPage() {
 
                           {/* Add to Cart Controls */}
                           <div className="flex items-center gap-2">
+                            {(item as any).modifiers?.length > 0 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setCustomizingItem(item)}
+                                className="h-8"
+                              >
+                                Customize
+                              </Button>
+                            )}
                             {cart[item.id] ? (
                               <div className="flex items-center gap-2">
                                 <Button
@@ -589,6 +610,43 @@ export default function MenuPage() {
             <ShoppingCart className="h-5 w-5 mr-2" />
             View Cart ({cartItemCount}) • ${cartTotal.toFixed(2)}
           </Button>
+        </div>
+      )}
+
+      {/* Simple Customizer Modal (read-only preview for now) */}
+      {customizingItem && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-end md:items-center md:justify-center">
+          <div className="w-full md:max-w-lg bg-white rounded-t-2xl md:rounded-2xl shadow-lg">
+            <div className="p-4 border-b flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">Customize</h3>
+                <p className="text-sm text-gray-600">{customizingItem.name}</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => setCustomizingItem(null)}>Close</Button>
+            </div>
+            <div className="p-4 space-y-4 max-h-[70vh] overflow-auto">
+              {(customizingItem.modifiers || []).map((g, idx) => (
+                <div key={g.id || idx} className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-medium">{g.name}</div>
+                    <div className="text-xs text-gray-500">{g.min > 0 ? `Choose ${g.min}-${g.max}` : g.max > 1 ? `Up to ${g.max}` : 'Optional'}</div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {g.options.map(opt => (
+                      <div key={opt.id} className="flex items-center justify-between text-sm">
+                        <div>{opt.name}</div>
+                        <div className="text-gray-600">{opt.price_delta ? `+$${opt.price_delta.toFixed(2)}` : '+$0.00'}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="text-xs text-gray-500">Note: Selection UI coming next. This preview confirms modifiers are wired end-to-end.</div>
+            </div>
+            <div className="p-4 border-t flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setCustomizingItem(null)}>Close</Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
