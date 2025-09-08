@@ -422,7 +422,7 @@ export default function MenuPage() {
                           <div className="flex items-center gap-2">
                             <h3 className="font-semibold text-gray-900">{item.name}</h3>
                             {(item as any).modifiers?.length > 0 && (
-                              <Badge className="bg-blue-100 text-blue-800 text-xs">Customize</Badge>
+                              <Badge className="bg-blue-100 text-blue-800 text-xs">Customizable</Badge>
                             )}
                             {item.is_popular && (
                               <Badge className="bg-orange-100 text-orange-800 text-xs">Popular</Badge>
@@ -468,16 +468,6 @@ export default function MenuPage() {
 
                           {/* Add to Cart Controls */}
                           <div className="flex items-center gap-2">
-                            {(item as any).modifiers?.length > 0 && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setCustomizingItem(item)}
-                                className="h-8"
-                              >
-                                Customize
-                              </Button>
-                            )}
                             {cart[item.id] ? (
                               <div className="flex items-center gap-2">
                                 <Button
@@ -502,7 +492,14 @@ export default function MenuPage() {
                             ) : (
                               <Button
                                 size="sm"
-                                onClick={() => addToCart(item.id)}
+                                onClick={() => {
+                                  if ((item as any).modifiers?.length > 0) {
+                                    addToCart(item.id)
+                                    setCustomizingItem(item)
+                                  } else {
+                                    addToCart(item.id)
+                                  }
+                                }}
                                 className="bg-orange-600 hover:bg-orange-700"
                               >
                                 <Plus className="h-4 w-4 mr-1" />
