@@ -134,6 +134,8 @@ export default function MenuPage() {
   const [isAuthed, setIsAuthed] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null)
+  const [customizingSelections, setCustomizingSelections] = useState<Record<string, string[]>>({})
+  const [customizingExtra, setCustomizingExtra] = useState<number>(0)
 
   const categories = ['All', ...Array.from(new Set(menu.map(item => item.category)))]
   const cartItemCount = Object.values(cart).reduce((sum, count) => sum + count, 0)
@@ -171,6 +173,8 @@ export default function MenuPage() {
     try {
       const saved = localStorage.getItem(`cart_${restaurantId}`)
       if (saved) setCart(JSON.parse(saved))
+      const savedOpts = localStorage.getItem(`cart_opts_${restaurantId}`)
+      // do not set state here; used when applying per-line options
     } catch {}
   }, [restaurantId])
 
@@ -185,6 +189,9 @@ export default function MenuPage() {
         return item ? { id: itemId, name: item.name, price: item.price, quantity } : null
       }).filter(Boolean)
       localStorage.setItem(`cart_items_${restaurantId}`, JSON.stringify(cartItems))
+      // persist options per item if exist in a separate map
+      const optsRaw = localStorage.getItem(`cart_opts_${restaurantId}`)
+      if (!optsRaw) localStorage.setItem(`cart_opts_${restaurantId}`, JSON.stringify({}))
       // Also store lastRestaurantId for cross-page context
       localStorage.setItem('lastRestaurantId', restaurantId)
       document.cookie = `last_restaurant_id=${restaurantId}; path=/; max-age=2592000`
@@ -629,19 +636,79 @@ export default function MenuPage() {
                     <div className="text-xs text-gray-500">{g.min > 0 ? `Choose ${g.min}-${g.max}` : g.max > 1 ? `Up to ${g.max}` : 'Optional'}</div>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
-                    {g.options.map(opt => (
-                      <div key={opt.id} className="flex items-center justify-between text-sm">
-                        <div>{opt.name}</div>
-                        <div className="text-gray-600">{opt.price_delta ? `+$${opt.price_delta.toFixed(2)}` : '+$0.00'}</div>
-                      </div>
-                    ))}
+                    {g.options.map(opt => {
+                      const sel = customizingSelections[g.id] || []
+                      const isSelected = sel.includes(opt.id)
+                      const isSingle = (g.max || 1) === 1
+                      return (
+                        <label key={opt.id} className="flex items-center justify-between text-sm cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            {isSingle ? (
+                              <input
+                                type="radio"
+                                name={`group-${g.id}`}
+                                checked={isSelected}
+                                onChange={() => {
+                                  // select only this option
+                                  setCustomizingSelections(prev => ({ ...prev, [g.id]: [opt.id] }))
+                                }}
+                              />
+                            ) : (
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => {
+                                  setCustomizingSelections(prev => {
+                                    const current = new Set(prev[g.id] || [])
+                                    if (current.has(opt.id)) {
+                                      current.delete(opt.id)
+                                    } else {
+                                      // respect max
+                                      if ((g.max || 99) > current.size) current.add(opt.id)
+                                    }
+                                    return { ...prev, [g.id]: Array.from(current) }
+                                  })
+                                }}
+                              />
+                            )}
+                            <span>{opt.name}</span>
+                          </div>
+                          <div className="text-gray-600">{opt.price_delta ? `+$${opt.price_delta.toFixed(2)}` : '+$0.00'}</div>
+                        </label>
+                      )
+                    })}
                   </div>
                 </div>
               ))}
-              <div className="text-xs text-gray-500">Note: Selection UI coming next. This preview confirms modifiers are wired end-to-end.</div>
+              <div className="flex items-center justify-between pt-2">
+                <div className="text-sm text-gray-700">Price</div>
+                <div className="text-lg font-semibold">
+                  ${(() => {
+                    const base = customizingItem?.price || 0
+                    const mods = (customizingItem?.modifiers || []).flatMap(g => (customizingSelections[g.id] || []).map(id => g.options.find(o => o.id === id)?.price_delta || 0))
+                    const sum = mods.reduce((a, b) => a + b, 0)
+                    return (base + sum).toFixed(2)
+                  })()}
+                </div>
+              </div>
             </div>
             <div className="p-4 border-t flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setCustomizingItem(null)}>Close</Button>
+              <Button
+                onClick={() => {
+                  try {
+                    if (!restaurantId || !customizingItem) return
+                    const key = `cart_opts_${restaurantId}`
+                    const raw = localStorage.getItem(key)
+                    const map = raw ? JSON.parse(raw) : {}
+                    map[customizingItem.id] = customizingSelections
+                    localStorage.setItem(key, JSON.stringify(map))
+                  } catch {}
+                  setCustomizingItem(null)
+                }}
+              >
+                Save
+              </Button>
             </div>
           </div>
         </div>
