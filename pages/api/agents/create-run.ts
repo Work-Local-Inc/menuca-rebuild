@@ -912,7 +912,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       restaurant_id: restaurantId,
       menu_id: menuRow.id,
       preview: categories.map((c) => ({ name: c.name, items: c.items.length })),
-      agent: { provider: process.env.AGENT_PROVIDER || 'none', run_id: runId, cost_usd: costUsd },
+      agent: { provider: agentProvider, run_id: runId, cost_usd: costUsd },
       elapsed_ms: Date.now() - startedAt,
     })
   } catch (error) {
