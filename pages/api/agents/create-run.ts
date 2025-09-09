@@ -398,6 +398,137 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // Optional: capture add-on groups (crust, toppings, dips) via Playwright and map to items
+    if (enablePlaywright) {
+      try {
+        await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright' })
+        // Dynamic import to avoid bundling
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const pw = await (Function('return import("playwright")')() as Promise<any>)
+        const browser = await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+        const page = await browser.newPage()
+        await page.goto(url, { waitUntil: 'domcontentloaded' })
+        await page.waitForLoadState('networkidle').catch(()=>{})
+
+        // Heuristic: find clickable menu items
+        const itemSel = '.menu-item, [data-item], .item, .alternate_1, .alternate_2, .food-item, .menuItem'
+        const els = await page.locator(itemSel).elementHandles()
+        const scraped: Array<{ name: string; groups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }> }> = []
+        const parsePrice = (text: string) => {
+          const m = (text || '').replace(/,/g,'').match(/([+-]?\$?\s*\d+(?:\.\d{1,2})?)/)
+          if (!m) return 0
+          const n = parseFloat(m[1].replace(/\$/g,'').trim())
+          return isNaN(n) ? 0 : n
+        }
+        for (let i = 0; i < Math.min(els.length, 30); i++) {
+          const el = els[i]
+          const title = decode((await el.textContent())?.slice(0, 120) || '')
+          try { await el.click({ timeout: 1500 }) } catch {}
+          try { const btn = await (await el.asElement())?.$('button, .add, .customize, [data-open]'); if (btn) await btn.click({ timeout: 1500 }) } catch {}
+          const modal = await page.waitForSelector('dialog, .modal, [role="dialog"], .lightbox, .fancybox-inner, .ui-dialog, .fancybox-overlay, .fancybox-wrap', { timeout: 2500 }).catch(()=>null)
+          if (!modal) continue
+          let root: any = modal
+          const iframeEl = await modal.$('iframe, .fancybox-iframe').catch(()=>null)
+          if (iframeEl) {
+            try { const frame = await iframeEl.contentFrame(); if (frame) root = frame } catch {}
+          }
+          const conts = iframeEl ? await (root).$$('fieldset, .group, .options, .modifier-group, .toppings, .crust, .section') : await modal.$$('fieldset, .group, .options, .modifier-group, .toppings, .crust, .section')
+          const groups: any[] = []
+          for (const g of conts) {
+            const gname = decode((await (await g.$('legend, .title, h3, h4, .group-title'))?.textContent()?.catch(()=>'')) || '')
+            const optEls = await g.$$('label, .option, li, .row, a')
+            const options: any[] = []
+            for (const oe of optEls) {
+              const txt = decode((await oe.textContent()) || '')
+              if (!txt) continue
+              options.push({ name: txt.replace(/\$\s*\d+(?:\.\d{1,2})?/, '').trim(), price_delta: parsePrice(txt) })
+            }
+            if (options.length) groups.push({ name: gname || 'Options', options })
+          }
+          if (groups.length) scraped.push({ name: title, groups })
+          try { await page.keyboard.press('Escape') } catch {}
+          try { const closeBtn = await page.$('button:has-text("Close"), .close, .fancybox-close, .ui-dialog-titlebar-close'); if (closeBtn) await closeBtn.click({ timeout: 800 }) } catch {}
+        }
+        await browser.close()
+
+        // Map scraped groups back to items and upsert
+        for (const si of scraped) {
+          const base = await supabaseAdmin
+            .from('items')
+            .select('id, base_name')
+            .eq('tenant_id', tenantId)
+            .ilike('base_name', si.name + '%')
+            .maybeSingle()
+          const baseId = (base as any)?.data?.id as string | undefined
+          if (!baseId) continue
+
+          for (const g of si.groups) {
+            const gnameRaw = decode(g.name)
+            const gname = gnameRaw || 'Options'
+            // Heuristic min/max
+            let minSel = 0, maxSel: number | null = null, required = false
+            if (/crust/i.test(gname)) { minSel = 1; maxSel = 1; required = true }
+            if (/topping/i.test(gname) || /add more/i.test(gname)) { minSel = 0; maxSel = null; required = false }
+            if (/dip/i.test(gname) || /sauce/i.test(gname)) { minSel = 0; maxSel = null; required = false }
+
+            // Ensure group (tenant scoped)
+            let groupId: string | null = null
+            const { data: mgExisting } = await supabaseAdmin
+              .from('modifier_groups')
+              .select('id')
+              .eq('tenant_id', tenantId)
+              .eq('name', gname)
+              .maybeSingle()
+            if (mgExisting?.id) groupId = mgExisting.id
+            else {
+              const { data: mgCreated } = await supabaseAdmin
+                .from('modifier_groups')
+                .insert({ tenant_id: tenantId, name: gname, min_selection: minSel, max_selection: maxSel, display_order: 1, is_available: true })
+                .select('id')
+                .single()
+              groupId = mgCreated?.id || null
+            }
+            if (!groupId) continue
+
+            // Upsert options
+            let order = 0
+            const keepNames: string[] = []
+            for (const opt of g.options) {
+              const oname = decode(String(opt.name || 'Option'))
+              keepNames.push(oname)
+              const priceDelta = Number(opt.price_delta || 0)
+              const { data: exists } = await supabaseAdmin
+                .from('modifier_options')
+                .select('id')
+                .eq('modifier_group_id', groupId)
+                .eq('name', oname)
+                .maybeSingle()
+              if (exists?.id) {
+                await supabaseAdmin
+                  .from('modifier_options')
+                  .update({ price_delta: priceDelta, display_order: order, is_available: true })
+                  .eq('id', exists.id)
+              } else {
+                await supabaseAdmin
+                  .from('modifier_options')
+                  .insert({ modifier_group_id: groupId, name: oname, price_delta: priceDelta, display_order: order, is_available: true })
+              }
+              order += 1
+            }
+            try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: groupId, p_keep_names: keepNames }) } catch {}
+
+            // Link to item
+            await supabaseAdmin
+              .from('item_modifier_groups')
+              .upsert({ item_id: baseId, modifier_group_id: groupId, display_order: 1, required }, { onConflict: 'item_id,modifier_group_id' })
+          }
+        }
+        await logProgress({ event: 'addons_done', message: 'Add-ons captured and linked' })
+      } catch (e) {
+        await logProgress({ event: 'addons_failed', error: (e as any)?.message || 'unknown' })
+      }
+    }
+
     // Mark completion
     const costUsd = 0.0 // Placeholder until LLM usage is added
     if (importId) {
