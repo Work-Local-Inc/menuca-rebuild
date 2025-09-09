@@ -517,34 +517,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             order += 1
           }
           try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: topsGroupId, p_keep_names: keepNames }) } catch {}
-          // Link toppings only to build-your-own items with N toppings
+          // Link toppings to all pizzas; cap max only for BYO N‑topping items
           const { data: allItems } = await supabaseAdmin
             .from('items')
             .select('id, base_name')
             .eq('tenant_id', tenantId)
-          const toppingItemIds: string[] = []
-          const unlinkItemIds: string[] = []
           for (const it of (allItems || [])) {
             const name = String(it.base_name || '')
+            if (!/pizza/i.test(name)) continue
             const match = name.match(/(\d+)\s*(?:x\s*)?topping/i)
+            const payload: any = { item_id: it.id, modifier_group_id: topsGroupId, display_order: 2, required: false, min_selection: 0 }
             if (match) {
-              // Set per-item max to N via item_modifier_groups
               const maxN = Math.max(1, Math.min(10, parseInt(match[1], 10) || 1))
-              await supabaseAdmin
-                .from('item_modifier_groups')
-                .upsert({ item_id: it.id, modifier_group_id: topsGroupId, display_order: 2, required: false, max_selection: maxN, min_selection: 0 }, { onConflict: 'item_id,modifier_group_id' })
-              toppingItemIds.push(it.id)
-            } else if (/pizza/i.test(name)) {
-              unlinkItemIds.push(it.id)
+              payload.max_selection = maxN
+            } else {
+              payload.max_selection = null
             }
-          }
-          // Unlink toppings from specialty pizzas
-          if (unlinkItemIds.length) {
             await supabaseAdmin
               .from('item_modifier_groups')
-              .delete()
-              .in('item_id', unlinkItemIds)
-              .eq('modifier_group_id', topsGroupId)
+              .upsert(payload, { onConflict: 'item_id,modifier_group_id' })
           }
         }
       }
