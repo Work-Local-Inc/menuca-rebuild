@@ -589,6 +589,75 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
+      // Fallback: infer dips across all items by keywords
+      try {
+        const dipKeywords = [
+          'garlic', 'cheddar', 'chipotle', 'ranch', 'bbq', 'barbecue',
+          "frank's", 'franks', 'buffalo', 'honey garlic', 'blue cheese',
+          'sour cream', 'marinara', 'dip'
+        ]
+        const isDipName = (nm: string) => dipKeywords.some(k => nm.toLowerCase().includes(k))
+        const inferred: Array<{ name: string; price: number }> = []
+        for (const c of categories) {
+          for (const it of (c.items || [])) {
+            const nm = decode(it.name)
+            if (!isDipName(nm)) continue
+            const p = Number((Array.isArray(it.prices) && it.prices[0]) || it.price || 0)
+            inferred.push({ name: nm, price: isNaN(p) ? 2.5 : p })
+          }
+        }
+        if (inferred.length) {
+          let dipsGroupId: string | null = null
+          const { data: ex2 } = await supabaseAdmin
+            .from('modifier_groups')
+            .select('id')
+            .eq('tenant_id', tenantId)
+            .eq('name', 'Dips')
+            .maybeSingle()
+          if (ex2?.id) dipsGroupId = ex2.id
+          else {
+            const { data: created2 } = await supabaseAdmin
+              .from('modifier_groups')
+              .insert({ tenant_id: tenantId, name: 'Dips', min_selection: 0, max_selection: null, display_order: 3, is_available: true })
+              .select('id')
+              .single()
+            dipsGroupId = created2?.id || null
+          }
+          if (dipsGroupId) {
+            const keepNames: string[] = []
+            let order = 0
+            for (const d of inferred) {
+              const nm = d.name
+              if (keepNames.includes(nm)) continue
+              keepNames.push(nm)
+              const delta = Number(isNaN(d.price) ? 0 : d.price)
+              const { data: exists } = await supabaseAdmin
+                .from('modifier_options')
+                .select('id')
+                .eq('modifier_group_id', dipsGroupId)
+                .eq('name', nm)
+                .maybeSingle()
+              if (exists?.id) {
+                await supabaseAdmin.from('modifier_options').update({ price_delta: delta, display_order: order, is_available: true }).eq('id', exists.id)
+              } else {
+                await supabaseAdmin.from('modifier_options').insert({ modifier_group_id: dipsGroupId, name: nm, price_delta: delta, display_order: order, is_available: true })
+              }
+              order += 1
+            }
+            try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: dipsGroupId, p_keep_names: keepNames }) } catch {}
+            const { data: pizzaItemsX } = await supabaseAdmin
+              .from('items')
+              .select('id, base_name')
+              .eq('tenant_id', tenantId)
+              .ilike('base_name', '%pizza%')
+            for (const pi of (pizzaItemsX || [])) {
+              await supabaseAdmin.from('item_modifier_groups').upsert({ item_id: pi.id, modifier_group_id: dipsGroupId, display_order: 3, required: false }, { onConflict: 'item_id,modifier_group_id' })
+            }
+            await logProgress({ event: 'dips_inferred', count: inferred.length })
+          }
+        }
+      } catch {}
+
       // Toppings: avoid beverages; collect likely topping names
       const denyTerms = Array.isArray(llmHints?.toppings_deny)
         ? (llmHints.toppings_deny as string[]).filter(Boolean).map((t) => t.trim()).filter((t) => t.length > 1)
@@ -617,12 +686,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const seenTop: Record<string, number> = {}
       toppingsItems = toppingsItems.filter(t => (seenTop[t.name] ? false : (seenTop[t.name] = 1))).slice(0, 60)
 
-      // If LLM provided allow list, filter to that set only
+      // If LLM provided allow list, MERGE with detected toppings (do not filter out)
       const allow = Array.isArray(llmHints?.toppings_allow)
-        ? (llmHints.toppings_allow as string[]).filter(Boolean).map((t) => t.trim().toLowerCase())
+        ? (llmHints.toppings_allow as string[]).filter(Boolean).map((t) => t.trim())
         : []
       if (allow.length) {
-        toppingsItems = toppingsItems.filter((t) => allow.includes(t.name.toLowerCase()))
+        const lowerToItem: Record<string, { name: string; price: number }> = {}
+        for (const t of toppingsItems) lowerToItem[t.name.toLowerCase()] = t
+        for (const nm of allow) {
+          const key = nm.toLowerCase()
+          if (!lowerToItem[key]) {
+            lowerToItem[key] = { name: nm, price: 3.5 }
+          }
+        }
+        toppingsItems = Object.values(lowerToItem)
       }
 
       if (toppingsItems.length) {
