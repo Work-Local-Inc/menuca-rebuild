@@ -15,12 +15,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('🔍 Fetching menu for restaurant ID:', restaurantId);
 
-    const { data: restaurantMenu, error: menuError } = await supabase
+    const { data: menus, error: menuError } = await supabase
       .from('restaurant_menus')
       .select('*')
       .eq('restaurant_id', restaurantId)
       .eq('is_active', true)
-      .single();
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const restaurantMenu = Array.isArray(menus) ? menus[0] : null;
 
     if (menuError) {
       console.warn('⚠️ No active menu yet or error fetching restaurant menu. Returning empty menu.', menuError);
