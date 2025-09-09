@@ -30,7 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const startedAt = Date.now()
   const runId = uuidv4()
-  const agentProvider = process.env.AGENT_PROVIDER || (process.env.LLM_API_KEY ? 'openai' : 'none')
+  const llmKey = process.env.LLM_API_KEY || process.env.OPENAI_API_KEY
+  const agentProvider = process.env.AGENT_PROVIDER || (llmKey ? 'openai' : 'none')
   let costUsd = 0.0
   let llmHints: any = null
 
@@ -237,10 +238,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Optional: LLM-assisted normalization (Agents SDK — OpenAI)
-    if (agentProvider === 'openai' && process.env.LLM_API_KEY) {
+    if (agentProvider === 'openai' && llmKey) {
       try {
         await logProgress({ event: 'agent_start', provider: agentProvider })
-        const openai = new OpenAI({ apiKey: process.env.LLM_API_KEY })
+        const openai = new OpenAI({ apiKey: llmKey })
         const model = process.env.LLM_MODEL || 'gpt-4o-mini'
         const compactSummary = () => {
           const maxCats = 10
