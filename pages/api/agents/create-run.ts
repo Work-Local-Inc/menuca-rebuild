@@ -131,20 +131,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Tool 2: playwright_capture (best-effort, optional)
     let domHtml: string | null = null
-    try {
-      await logProgress({ event: 'playwright_capture', message: 'Attempting dynamic render' })
-      // Dynamic import to avoid bundling when unavailable in serverless
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const pw = await (Function('return import("playwright")')() as Promise<any>)
-      const browser = await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
-      const page = await browser.newPage()
-      await page.goto(url, { waitUntil: 'networkidle' })
-      // wait a bit for menus that lazy-load
-      await page.waitForTimeout(3500)
-      domHtml = await page.content()
-      await browser.close()
-    } catch {
-      await logProgress({ event: 'playwright_capture_skipped', message: 'Falling back to static HTML' })
+    const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true'
+    if (enablePlaywright) {
+      try {
+        await logProgress({ event: 'playwright_capture', message: 'Attempting dynamic render' })
+        // Dynamic import to avoid bundling when unavailable in serverless
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const pw = await (Function('return import("playwright")')() as Promise<any>)
+        const browser = await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+        const page = await browser.newPage()
+        await page.goto(url, { waitUntil: 'networkidle' })
+        // wait a bit for menus that lazy-load
+        await page.waitForTimeout(3500)
+        domHtml = await page.content()
+        await browser.close()
+      } catch {
+        await logProgress({ event: 'playwright_capture_skipped', message: 'Falling back to static HTML' })
+      }
+    } else {
+      await logProgress({ event: 'playwright_disabled', message: 'Playwright disabled by env (PLAYWRIGHT_ENABLED!=true)' })
     }
 
     // Tool 3: normalize_menu
@@ -216,7 +221,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let processedCategories = 0
     let processedItems = 0
 
-    for (const [idx, category] of categories.entries()) {
+    for (let idx = 0; idx < categories.length; idx++) {
+      const category = categories[idx]
       const { data: categoryRow, error: categoryErr } = await supabaseAdmin
         .from('menu_categories')
         .insert({
@@ -240,8 +246,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const BATCH_SIZE = 25
-      for (let i = 0; i < category.items.length; i += BATCH_SIZE) {
-        const batch = category.items.slice(i, i + BATCH_SIZE)
+      for (let bi = 0; bi < category.items.length; bi += BATCH_SIZE) {
+        const batch = category.items.slice(bi, bi + BATCH_SIZE)
         const inserts = batch.map((item) => ({
           menu_id: menuRow.id,
           category_id: categoryRow.id,
