@@ -8,6 +8,7 @@ export async function GET() {
     'NEXT_PUBLIC_DEFAULT_BUSINESS_ID',
     'AGENT_PROVIDER',
     'LLM_API_KEY',
+    'OPENAI_API_KEY',
     'LLM_MODEL',
     'PLAYWRIGHT_ENABLED',
     'BROWSERLESS_WS',
