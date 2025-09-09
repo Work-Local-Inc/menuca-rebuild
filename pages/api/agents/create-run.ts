@@ -147,15 +147,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Tool 2: playwright_capture (best-effort, optional)
     let domHtml: string | null = null
     const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true' || !!process.env.BROWSERLESS_WS || !!process.env.BROWSERLESS_TOKEN
-    const browserlessWs = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
+    const rawBrowserless = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
+    const browserlessWs = rawBrowserless
+      ? (/\/playwright(\?|$)/.test(rawBrowserless)
+          ? rawBrowserless
+          : (rawBrowserless.includes('?')
+              ? rawBrowserless.replace('?', '/playwright?')
+              : rawBrowserless + '/playwright'))
+      : ''
     if (enablePlaywright) {
       try {
         await logProgress({ event: 'playwright_capture', message: 'Attempting dynamic render' })
         // Dynamic import to avoid bundling when unavailable in serverless
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const pw = await (Function('return import("playwright")')() as Promise<any>)
+        const pw = await (Function('return import("playwright-core")')() as Promise<any>)
         const browser = browserlessWs
-          ? await pw.chromium.connect(browserlessWs)
+          ? await pw.chromium.connectOverCDP(browserlessWs)
           : await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
         const page = await browser.newPage()
         await page.goto(url, { waitUntil: 'networkidle' })
@@ -749,9 +756,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright', browserless: Boolean(browserlessWs) })
         // Dynamic import to avoid bundling
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const pw = await (Function('return import("playwright")')() as Promise<any>)
+        const pw = await (Function('return import("playwright-core")')() as Promise<any>)
         const browser = browserlessWs
-          ? await pw.chromium.connect(browserlessWs)
+          ? await pw.chromium.connectOverCDP(browserlessWs)
           : await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
         const page = await browser.newPage()
         await page.goto(url, { waitUntil: 'domcontentloaded' })
