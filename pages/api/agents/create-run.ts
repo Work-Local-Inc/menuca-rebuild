@@ -160,7 +160,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await logProgress({ event: 'playwright_capture', message: 'Attempting dynamic render' })
         // Dynamic import to avoid bundling when unavailable in serverless
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const pw = await (Function('return import("playwright-core")')() as Promise<any>)
+        const pw = await import('playwright-core')
         const browser = browserlessWs
           ? await pw.chromium.connectOverCDP(browserlessWs)
           : await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
@@ -806,7 +806,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright', browserless: Boolean(browserlessWs) })
         // Dynamic import to avoid bundling
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const pw = await (Function('return import("playwright-core")')() as Promise<any>)
+        const pw = await import('playwright-core')
         const browser = browserlessWs
           ? await pw.chromium.connectOverCDP(browserlessWs)
           : await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
