@@ -20,6 +20,7 @@ type NormalizedCategory = {
     description?: string
     prices: number[]
     price?: number
+    sizes?: Array<{ name: string; price: number }>
   }>
 }
 
@@ -163,13 +164,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const result = scrapeXtremePizzaMenu(sourceHtml)
         categories = result.categories.map((cat: any) => ({
           name: cat.name,
-          items: cat.items.map((i: any) => ({ name: i.name, description: i.description || '', prices: i.prices.map((p: any) => p.price) })),
+          items: cat.items.map((i: any) => ({
+            name: i.name,
+            description: i.description || '',
+            prices: (i.prices || []).map((p: any) => p.price),
+            sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: p.price }))
+          })),
         }))
       } else {
         const result = parseMenuFromHTML(sourceHtml)
         categories = result.categories.map((cat: any) => ({
           name: cat.name,
-          items: cat.items.map((i: any) => ({ name: i.name, description: i.description || '', prices: i.prices.map((p: any) => p.price) })),
+          items: cat.items.map((i: any) => ({
+            name: i.name,
+            description: i.description || '',
+            prices: (i.prices || []).map((p: any) => p.price),
+            sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: p.price }))
+          })),
         }))
       }
     } catch (e) {
@@ -284,6 +295,72 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           processedItems += linkInserts.length
           positionCounter += linkInserts.length
           if (importId) await supabaseAdmin.from('menu_imports').update({ processed_items: processedItems }).eq('id', importId)
+        }
+
+        // Upsert Size modifier groups/options when multiple sizes are detected
+        for (let i = 0; i < (baseItems || []).length; i++) {
+          const baseRow = (baseItems as any[])[i]
+          const src = batch[i] as any
+          const sizes = Array.isArray(src?.sizes) ? src.sizes.filter((s: any) => typeof s?.price === 'number') : []
+          if (sizes.length <= 1) continue
+
+          const basePrice = Number(itemInserts[i].base_price || 0)
+          const groupName = 'Size'
+
+          // Ensure modifier group (tenant-scoped). Do not write to generated columns.
+          let groupId: string | null = null
+          try {
+            const { data: existing } = await supabaseAdmin
+              .from('modifier_groups')
+              .select('id')
+              .eq('tenant_id', tenantId)
+              .eq('name', groupName)
+              .maybeSingle()
+            if (existing?.id) {
+              groupId = existing.id
+            } else {
+              const { data: created, error: gErr } = await supabaseAdmin
+                .from('modifier_groups')
+                .insert({ tenant_id: tenantId, name: groupName, min_selection: 1, max_selection: 1, display_order: 0, is_available: true })
+                .select('id')
+                .single()
+              if (!gErr) groupId = created?.id || null
+            }
+          } catch {}
+          if (!groupId) continue
+
+          // Upsert options for this group
+          for (let oi = 0; oi < sizes.length; oi++) {
+            const opt = sizes[oi]
+            const optName = String(opt?.name || 'Regular')
+            const priceDelta = Number(opt?.price || 0) - basePrice
+            try {
+              const { data: optExists } = await supabaseAdmin
+                .from('modifier_options')
+                .select('id')
+                .eq('modifier_group_id', groupId)
+                .eq('name', optName)
+                .maybeSingle()
+              if (!optExists) {
+                await supabaseAdmin
+                  .from('modifier_options')
+                  .insert({ modifier_group_id: groupId, name: optName, price_delta: priceDelta, display_order: oi, is_available: true })
+                // no select needed
+              } else {
+                await supabaseAdmin
+                  .from('modifier_options')
+                  .update({ price_delta: priceDelta, display_order: oi, is_available: true })
+                  .eq('id', optExists.id)
+              }
+            } catch {}
+          }
+
+          // Link group to item (idempotent)
+          try {
+            await supabaseAdmin
+              .from('item_modifier_groups')
+              .upsert({ item_id: baseRow.id, modifier_group_id: groupId, display_order: 0, required: true }, { onConflict: 'item_id,modifier_group_id' })
+          } catch {}
         }
       }
     }
