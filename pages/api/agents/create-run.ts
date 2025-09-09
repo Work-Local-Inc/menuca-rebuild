@@ -157,6 +157,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await logProgress({ event: 'normalize_menu', message: 'Normalizing to categories/items' })
     const sourceHtml = (domHtml && domHtml.length > rawHtml.length) ? domHtml : rawHtml
 
+    const decode = (s: string) => (s || '')
+      .replace(/&raquo;|»/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    const canonicalizeSize = (raw: string): string | null => {
+      const name = decode(raw).toLowerCase()
+      // Exclusions that often leak from other groups
+      if (/bottle|can|ml|\bl\b|\blb\b|^\d+\s*x\s*/i.test(name)) return null
+      if (/sauce|dip|juice|water|sweet|yellow|apple|cheddar|chipotle/i.test(name)) return null
+      // Canonical map
+      if (/^s(mall)?$/i.test(name)) return 'Small'
+      if (/^m(ed(ium)?)?$/i.test(name) || name === 'regular') return 'Medium'
+      if (/^l(arge)?$/i.test(name)) return 'Large'
+      if (/^(x[-\s]?large|xl|xlarge)$/i.test(name)) return 'X-Large'
+      return null
+    }
+
     let categories: NormalizedCategory[] = []
     try {
       const altCount = (sourceHtml.match(/class="alternate_[12]"/g) || []).length
@@ -301,8 +320,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         for (let i = 0; i < (baseItems || []).length; i++) {
           const baseRow = (baseItems as any[])[i]
           const src = batch[i] as any
-          const sizes = Array.isArray(src?.sizes) ? src.sizes.filter((s: any) => typeof s?.price === 'number') : []
-          if (sizes.length <= 1) continue
+          const isPizza = /pizza/i.test(category.name || '') || /pizza/i.test(src?.name || '')
+          let sizesRaw = Array.isArray(src?.sizes) ? src.sizes.filter((s: any) => typeof s?.price === 'number') : []
+          // Map to canonical names and filter invalid
+          const sizesMapped = sizesRaw
+            .map((s: any) => ({ name: canonicalizeSize(String(s?.name || '')), price: Number(s?.price || 0) }))
+            .filter((s: any) => s.name)
+          // Only apply for pizza items and when we have canonical sizes
+          if (!isPizza || sizesMapped.length <= 1) continue
 
           const basePrice = Number(itemInserts[i].base_price || 0)
           const groupName = 'Size'
@@ -329,11 +354,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           } catch {}
           if (!groupId) continue
 
-          // Upsert options for this group
-          for (let oi = 0; oi < sizes.length; oi++) {
-            const opt = sizes[oi]
-            const optName = String(opt?.name || 'Regular')
-            const priceDelta = Number(opt?.price || 0) - basePrice
+          // Upsert options for this group (canonical set)
+          const seenNames: string[] = []
+          for (let oi = 0; oi < sizesMapped.length; oi++) {
+            const opt = sizesMapped[oi]
+            const optName = String(opt.name)
+            if (seenNames.includes(optName)) continue
+            seenNames.push(optName)
+            const priceDelta = Number(opt.price || 0) - basePrice
             try {
               const { data: optExists } = await supabaseAdmin
                 .from('modifier_options')
@@ -354,6 +382,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               }
             } catch {}
           }
+
+          // Cleanup: remove stray options not in canonical set for this group
+          try {
+            await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: groupId, p_keep_names: seenNames })
+          } catch {}
 
           // Link group to item (idempotent)
           try {
