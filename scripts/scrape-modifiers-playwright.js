@@ -8,7 +8,7 @@ const { chromium } = require('playwright')
 const fs = require('fs')
 
 function args() {
-  const out = { url: null, itemSel: '.menu-item, [data-item], .item', openSel: 'button, .add, .customize, [data-open]', out: 'modifiers.json', max: 30 }
+  const out = { url: null, itemSel: '.menu-item, [data-item], .item, .alternate_1, .alternate_2', openSel: 'button, .add, .customize, [data-open], a', out: 'modifiers.json', max: 30 }
   for (const a of process.argv.slice(2)) {
     if (!a.startsWith('--')) { if (!out.url) out.url = a; continue }
     const [k, v] = a.replace(/^--/, '').split('=')
@@ -54,11 +54,15 @@ async function main() {
     const el = itemHandles[i]
     let title = (await el.textContent())?.trim().slice(0, 120) || `Item ${i+1}`
     try { await el.click({ timeout: 2000 }) } catch {}
-    // Fallback: try general open selectors within item
-    try { const btn = await (await el.asElement()).$(cfg.openSel); if (btn) await btn.click({ timeout: 2000 }) } catch {}
+    // Fallbacks: try common open triggers in and outside the item
+    try {
+      const btn = await (await el.asElement()).$(cfg.openSel); if (btn) await btn.click({ timeout: 1500 })
+    } catch {}
+    try { await page.locator('a:has-text("Choose this item")').first().click({ timeout: 1500 }) } catch {}
+    try { await page.locator('a:has-text("Order this item")').first().click({ timeout: 1500 }) } catch {}
 
     // Wait for a modal/dialog to appear
-    const modal = await page.waitForSelector('dialog, .modal, [role="dialog"], .lightbox, .fancybox-inner, .ui-dialog, .fancybox-overlay, .fancybox-wrap', { timeout: 4000 }).catch(()=>null)
+    const modal = await page.waitForSelector('dialog, .modal, [role="dialog"], .lightbox, .fancybox-inner, .ui-dialog, .fancybox-overlay, .fancybox-wrap', { timeout: 5000 }).catch(()=>null)
     if (!modal) continue
 
     // Some sites (like Fancybox) render content inside an iframe. Try that first.
@@ -72,7 +76,7 @@ async function main() {
     }
 
     // Try blocks that look like groups
-    const groupContainers = iframeEl ? await (root).$$('fieldset, .group, .options, .modifier-group, .toppings, .sizes, .crust, .section') : await modal.$$('fieldset, .group, .options, .modifier-group, .toppings, .sizes, .crust, .section')
+    const groupContainers = iframeEl ? await (root).$$('fieldset, .group, .options, .modifier-group, .toppings, .sizes, .crust, .section, #options, .options_wrapper') : await modal.$$('fieldset, .group, .options, .modifier-group, .toppings, .sizes, .crust, .section, #options, .options_wrapper')
     const groups = []
     for (const g of groupContainers) {
       const gname = (await (await g.$('legend, .title, h3, h4, .group-title'))?.textContent()?.catch(()=>''))?.trim() || ''

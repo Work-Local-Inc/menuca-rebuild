@@ -133,19 +133,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Tool 2: playwright_capture (best-effort, optional)
     let domHtml: string | null = null
     const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true'
+    const browserlessWs = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
     if (enablePlaywright) {
       try {
         await logProgress({ event: 'playwright_capture', message: 'Attempting dynamic render' })
         // Dynamic import to avoid bundling when unavailable in serverless
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const pw = await (Function('return import("playwright")')() as Promise<any>)
-        const browser = await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+        const browser = browserlessWs
+          ? await pw.chromium.connect(browserlessWs)
+          : await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
         const page = await browser.newPage()
         await page.goto(url, { waitUntil: 'networkidle' })
         // wait a bit for menus that lazy-load
         await page.waitForTimeout(3500)
         domHtml = await page.content()
-        await browser.close()
+        try { await browser.close() } catch {}
       } catch {
         await logProgress({ event: 'playwright_capture_skipped', message: 'Falling back to static HTML' })
       }
@@ -460,7 +463,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // Dynamic import to avoid bundling
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const pw = await (Function('return import("playwright")')() as Promise<any>)
-        const browser = await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
+        const browser = browserlessWs
+          ? await pw.chromium.connect(browserlessWs)
+          : await pw.chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] })
         const page = await browser.newPage()
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         await page.waitForLoadState('networkidle').catch(()=>{})
@@ -504,7 +509,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           try { await page.keyboard.press('Escape') } catch {}
           try { const closeBtn = await page.$('button:has-text("Close"), .close, .fancybox-close, .ui-dialog-titlebar-close'); if (closeBtn) await closeBtn.click({ timeout: 800 }) } catch {}
         }
-        await browser.close()
+        try { await browser.close() } catch {}
 
         // Map scraped groups back to items and upsert
         for (const si of scraped) {
