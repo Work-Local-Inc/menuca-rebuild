@@ -455,24 +455,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Toppings: prefer a category that looks like "Add more toppings"; otherwise, infer by many small-priced items
+      // Toppings: avoid beverages; collect likely topping names
+      const beverageRx = /(coke|pepsi|sprite|ginger\s*ale|water|juice|bottle|can|ml|591|2\s*l|2l|500ml|710\s*ml|pop)/i
       let toppingsItems: Array<{ name: string; price: number }> = []
       const topCat = categories.find(c => /topping/i.test(c.name))
       if (topCat && topCat.items?.length) {
-        toppingsItems = topCat.items.map(i => ({ name: decode(i.name), price: Number((Array.isArray(i.prices) && i.prices[0]) || i.price || 0) }))
+        toppingsItems = topCat.items
+          .map(i => ({ name: decode(i.name), price: Number((Array.isArray(i.prices) && i.prices[0]) || i.price || 0) }))
+          .filter(t => !beverageRx.test(t.name))
       } else {
-        // Infer: collect items across categories where price in [2, 6] and name length < 20
+        // Infer across categories: small priced food add-ons, exclude beverages and dips already handled
         for (const c of categories) {
+          if (/dip|sauce|drink|beverage|pop/i.test(c.name)) continue
           for (const it of (c.items || [])) {
             const p = Number((Array.isArray(it.prices) && it.prices[0]) || it.price || 0)
             const nm = decode(it.name)
+            if (beverageRx.test(nm)) continue
             if (p >= 2 && p <= 6 && nm.length <= 24) toppingsItems.push({ name: nm, price: p })
           }
         }
-        // Deduplicate by name
-        const seen: Record<string, number> = {}
-        toppingsItems = toppingsItems.filter(t => (seen[t.name] ? false : (seen[t.name] = 1)))
       }
+      // Deduplicate and cap list to sane size
+      const seenTop: Record<string, number> = {}
+      toppingsItems = toppingsItems.filter(t => (seenTop[t.name] ? false : (seenTop[t.name] = 1))).slice(0, 60)
 
       if (toppingsItems.length) {
         let topsGroupId: string | null = null
@@ -494,7 +499,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (topsGroupId) {
           const keepNames: string[] = []
           let order = 0
-          for (const t of toppingsItems.slice(0, 60)) {
+          for (const t of toppingsItems) {
             const nm = t.name
             keepNames.push(nm)
             const delta = Number(isNaN(t.price) ? 3.5 : t.price)
@@ -512,13 +517,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             order += 1
           }
           try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: topsGroupId, p_keep_names: keepNames }) } catch {}
-          const { data: pizzaItems } = await supabaseAdmin
+          // Link toppings only to build-your-own items with N toppings
+          const { data: allItems } = await supabaseAdmin
             .from('items')
             .select('id, base_name')
             .eq('tenant_id', tenantId)
-            .ilike('base_name', '%pizza%')
-          for (const pi of (pizzaItems || [])) {
-            await supabaseAdmin.from('item_modifier_groups').upsert({ item_id: pi.id, modifier_group_id: topsGroupId, display_order: 2, required: false }, { onConflict: 'item_id,modifier_group_id' })
+          const toppingItemIds: string[] = []
+          const unlinkItemIds: string[] = []
+          for (const it of (allItems || [])) {
+            const name = String(it.base_name || '')
+            const match = name.match(/(\d+)\s*(?:x\s*)?topping/i)
+            if (match) {
+              // Set per-item max to N via item_modifier_groups
+              const maxN = Math.max(1, Math.min(10, parseInt(match[1], 10) || 1))
+              await supabaseAdmin
+                .from('item_modifier_groups')
+                .upsert({ item_id: it.id, modifier_group_id: topsGroupId, display_order: 2, required: false, max_selection: maxN, min_selection: 0 }, { onConflict: 'item_id,modifier_group_id' })
+              toppingItemIds.push(it.id)
+            } else if (/pizza/i.test(name)) {
+              unlinkItemIds.push(it.id)
+            }
+          }
+          // Unlink toppings from specialty pizzas
+          if (unlinkItemIds.length) {
+            await supabaseAdmin
+              .from('item_modifier_groups')
+              .delete()
+              .in('item_id', unlinkItemIds)
+              .eq('modifier_group_id', topsGroupId)
           }
         }
       }
