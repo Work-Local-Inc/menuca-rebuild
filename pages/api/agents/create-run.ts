@@ -223,20 +223,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     for (let idx = 0; idx < categories.length; idx++) {
       const category = categories[idx]
-      const { data: categoryRow, error: categoryErr } = await supabaseAdmin
-        .from('menu_categories')
+      // Create a section for this category (Phase 2 schema)
+      const { data: sectionRow, error: sectionErr } = await supabaseAdmin
+        .from('menu_sections')
         .insert({
           menu_id: menuRow.id,
           name: category.name,
-          description: category.description || `${category.name} items`,
           display_order: idx,
-          is_active: true,
         })
         .select()
         .single()
 
-      if (categoryErr || !categoryRow) {
-        await logProgress({ event: 'category_failed', category: category.name, error: categoryErr?.message || 'unknown' })
+      if (sectionErr || !sectionRow) {
+        await logProgress({ event: 'section_failed', category: category.name, error: sectionErr?.message || 'unknown' })
         continue
       }
 
@@ -246,27 +245,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       const BATCH_SIZE = 25
+      let positionCounter = 0
       for (let bi = 0; bi < category.items.length; bi += BATCH_SIZE) {
         const batch = category.items.slice(bi, bi + BATCH_SIZE)
-        const inserts = batch.map((item) => ({
-          menu_id: menuRow.id,
-          category_id: categoryRow.id,
-          name: item.name,
-          description: item.description || '',
-          price: (Array.isArray(item.prices) && item.prices.length > 0 ? item.prices[0] : item.price) || 0,
-          restaurant_id: restaurantId,
+        const itemInserts = batch.map((item) => ({
           tenant_id: tenantId,
+          base_name: item.name,
+          base_desc: item.description || '',
+          base_price: (Array.isArray(item.prices) && item.prices.length > 0 ? item.prices[0] : item.price) || 0,
         }))
 
-        const { data: itemsResult, error: itemsErr } = await supabaseAdmin
-          .from('menu_items')
-          .insert(inserts)
+        const { data: baseItems, error: baseErr } = await supabaseAdmin
+          .from('items')
+          .insert(itemInserts)
           .select()
 
-        if (itemsErr) {
-          await logProgress({ event: 'batch_failed', error: itemsErr.message })
+        if (baseErr) {
+          await logProgress({ event: 'items_batch_failed', error: baseErr.message, category: category.name })
+          continue
+        }
+
+        const linkInserts = (baseItems || []).map((biRow, i) => ({
+          menu_section_id: sectionRow.id,
+          item_id: biRow.id,
+          position: positionCounter + i,
+          name_override: null,
+          desc_override: null,
+          price_override: null,
+        }))
+
+        const { error: linkErr } = await supabaseAdmin
+          .from('menu_section_items')
+          .insert(linkInserts)
+
+        if (linkErr) {
+          await logProgress({ event: 'link_batch_failed', error: linkErr.message, category: category.name })
         } else {
-          processedItems += itemsResult?.length || 0
+          processedItems += linkInserts.length
+          positionCounter += linkInserts.length
           if (importId) await supabaseAdmin.from('menu_imports').update({ processed_items: processedItems }).eq('id', importId)
         }
       }
