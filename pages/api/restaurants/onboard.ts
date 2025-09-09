@@ -61,18 +61,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('✅ Restaurant created successfully:', restaurantId);
 
-    // Kick off menu import (one-step onboarding)
+    // Kick off agentic menu import (one-step onboarding)
     let importResult: any = null;
     try {
       const origin = req.headers.origin || `https://${req.headers.host}`;
-      const resp = await fetch(`${origin}/api/admin/import-legacy-menu`, {
+      const resp = await fetch(`${origin}/api/agents/create-run`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: legacy_url, restaurant_id: restaurantId, restaurant_name: profile.name })
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-internal-secret': process.env.AGENT_INTERNAL_SECRET || ''
+        },
+        body: JSON.stringify({ url: legacy_url, restaurant_id: restaurantId })
       });
       importResult = await resp.json();
     } catch (e) {
-      console.warn('⚠️ Import trigger failed; returning restaurant info only:', (e as any)?.message || e);
+      console.warn('⚠️ Agent import trigger failed; returning restaurant info only:', (e as any)?.message || e);
     }
 
     return res.status(200).json({
@@ -87,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       menu_import: importResult,
       next_steps: [
         '✅ Restaurant created successfully',
-        importResult?.success ? `✅ Imported ${importResult.items_created} items` : '⚠️ Import queued',
+        importResult?.success ? `✅ Imported ${importResult.items || importResult.items_created || 0} items` : '⚠️ Import queued',
         '✅ Your restaurant is now LIVE and ready for orders!'
       ]
     });

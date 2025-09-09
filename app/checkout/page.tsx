@@ -11,7 +11,7 @@ import {
   Plus, Minus, Truck, Tag, AlertCircle, Star, ChefHat
 } from 'lucide-react'
 
-interface CartItem { id: string; name: string; price: number; quantity: number; specialInstructions?: string }
+interface CartItem { id: string; name: string; price: number; quantity: number; specialInstructions?: string; modifiers?: Array<{ group: string; options: string[] }> }
 interface RestaurantMeta {
   id: string
   name: string
@@ -41,6 +41,11 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState('')
   const [restaurant, setRestaurant] = useState<RestaurantMeta | null>(null)
   const [attemptedSubmit, setAttemptedSubmit] = useState(false)
+  const [editingItemId, setEditingItemId] = useState<string | null>(null)
+  const [editingItemName, setEditingItemName] = useState<string>('')
+  const [editingGroups, setEditingGroups] = useState<any[]>([])
+  const [editingSelections, setEditingSelections] = useState<Record<string, string[]>>({})
+  const [editingBasePrice, setEditingBasePrice] = useState<number>(0)
 
   const [addressQuery, setAddressQuery] = useState('')
   const [addressSuggestions, setAddressSuggestions] = useState<{id: string; text: string; description: string}[]>([])

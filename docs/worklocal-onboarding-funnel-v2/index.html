@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>workLocal • Onboarding Flow</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="header-brand" href="#" aria-label="workLocal Home">
+        <img src="assets/worklocal-logo.png" alt="workLocal" />
+        <h1>Welcome to Menuca Rebuild</h1>
+      </a>
+      <span id="greeting" class="greeting" aria-live="polite" aria-atomic="true"></span>
+      <span id="completion" class="completion-badge" aria-live="polite" aria-atomic="true" title="Completion">0%</span>
+      <!-- Removed nav links per request -->
+      <div class="header-actions">
+        <span id="saved" class="saved" aria-hidden="true">Saved</span>
+      </div>
+    </div>
+    <div class="progress"><div></div></div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="tag">8‑step flow</div>
+      <h2>Welcome to Menuca Rebuild @ workLocal</h2>
+      <small>Use <kbd>←</kbd>/<kbd>→</kbd> or Next. Press <kbd>Space</kbd> to advance, <kbd>1–8</kbd> to jump. Progress auto‑saves.</small>
+    </section>
+
+    <!-- Admin Modal toggle -->
+    <button id="open-admin" class="button admin-toggle" type="button" title="Open Admin (Shift+A)">Admin</button>
+
+    <!-- Admin Modal -->
+    <div id="admin-modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+      <div class="modal-inner">
+        <div class="modal-header">
+          <h2 id="admin-title">Admin • Pre‑flight Setup</h2>
+          <button id="close-admin" class="button" type="button" aria-label="Close">Close</button>
+        </div>
+        <div class="grid">
+          <div>
+            <h3>New hire</h3>
+            <label>Name<br><input id="hire-name" type="text" placeholder="Alex Doe"/></label>
+            <br>
+            <label>Email<br><input id="hire-email" type="email" placeholder="alex@example.com"/></label>
+          </div>
+          <div>
+            <h3>Your org/team</h3>
+            <label>GitHub org slug<br><input id="org-github" type="text" placeholder="your-org"/></label>
+            <br>
+            <label>Vercel team slug<br><input id="team-vercel" type="text" placeholder="your-team"/></label>
+            <br>
+            <label>Supabase project ref<br><input id="supabase-project" type="text" placeholder="nthpbtdjhhnwfxqsxbvy"/></label>
+          </div>
+        </div>
+        <h3>Invite links</h3>
+        <div class="links">
+          <div class="link-row"><code id="txt-github"></code><button class="button small" data-copy="#txt-github">Copy</button><a id="link-github-invite" class="button small" target="_blank" rel="noopener">Open</a></div>
+          <div class="link-row"><code id="txt-vercel"></code><button class="button small" data-copy="#txt-vercel">Copy</button><a id="link-vercel-invite" class="button small" target="_blank" rel="noopener">Open</a></div>
+          <div class="link-row"><code id="txt-supabase"></code><button class="button small" data-copy="#txt-supabase">Copy</button><a id="link-supabase-invite" class="button small" target="_blank" rel="noopener">Open</a></div>
+          <div class="link-row"><code id="txt-stripe">https://dashboard.stripe.com/settings/team?test=true</code><button class="button small" data-copy="#txt-stripe">Copy</button><a id="link-stripe-invite" href="https://dashboard.stripe.com/settings/team?test=true" class="button small" target="_blank" rel="noopener">Open</a></div>
+        </div>
+        <h3>Admin controls</h3>
+        <div class="links">
+          <div class="link-row"><span>Theme</span><button id="theme" class="button small" type="button" title="Toggle dark mode">Dark/Light</button><span></span></div>
+          <div class="link-row"><span>Export</span><button id="export" class="button small" type="button" title="Export progress">Export</button><span></span></div>
+          <div class="link-row"><span>Import</span><label class="button small" for="import" title="Import progress" style="cursor:pointer;">Import <input id="import" type="file" accept="application/json" hidden></label><span></span></div>
+          <div class="link-row"><span>Start</span><button id="start" class="button small" type="button" title="Back to first step">Start</button><span></span></div>
+        </div>
+        <p><button id="generate-invite-email" class="button" type="button">Generate welcome email (mailto)</button></p>
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <section class="step" aria-hidden="true">
+      <h2>🔑 Unlock the Vault (Access)</h2>
+      <p>Let’s confirm your access now. If anything’s missing, your host will invite you via <strong>Admin</strong> (<kbd>Shift</kbd>+<kbd>A</kbd>). Secrets live in Vercel/Supabase—never commit them.</p>
+      <ul class="list-tight">
+        <li><strong>GitHub</strong>: read/write on <code>menuca-rebuild</code>.</li>
+        <li><strong>Vercel</strong>: project dashboards + env vars.</li>
+        <li><strong>Supabase</strong>: project (read/write) + SQL editor.</li>
+        <li><strong>Stripe (test mode)</strong>: dashboard to verify Checkout + webhooks.</li>
+      </ul>
+    </section>
+
+    <!-- Step 2 -->
+    <section class="step" aria-hidden="true">
+      <h2>⚡ The Power Hour (Walkthrough)</h2>
+      <h3>5 min — Product tour</h3>
+      <pre><code>Open production → https://menuca-rebuild-pro.vercel.app/
+Run: Menu → Cart → Delivery → Payment → Confirm</code></pre>
+
+      <h3>10 min — Architecture overview</h3>
+      <ul class="list-tight">
+        <li>Next.js App Router in <code>app/</code>; legacy API in <code>pages/api/</code></li>
+        <li>Supabase for auth/storage/db; Stripe for payments; Vercel hosting</li>
+      </ul>
+
+      <h3>15 min — Codebase map (guided)</h3>
+      <ul class="list-tight">
+        <li>Key routes: <code>app/menu/[id]/page.tsx</code>, <code>app/checkout/page.tsx</code>, <code>app/admin/page.tsx</code></li>
+        <li>API: <code>pages/api/*</code> (stripe, addresses, imports)</li>
+        <li>Libs: <code>lib/</code> (scrapers, supabase clients, parsers, utils)</li>
+        <li>SQL in <code>sql/</code> and docs in <code>docs/</code></li>
+      </ul>
+
+      <h3>10 min — Data model & flows</h3>
+      <ul class="list-tight">
+        <li>Restaurant/menu structure; cart + delivery persistence; RLS basics</li>
+        <li>Checkout metadata: <code>{ restaurant_id, items_count, delivery_* }</code></li>
+      </ul>
+
+      <h3>10 min — Deploy & environments</h3>
+      <ul class="list-tight">
+        <li>Vercel envs: Production/Preview/Development (<code>vercel.json</code>)</li>
+        <li>Env vars in Vercel; DB in Supabase</li>
+      </ul>
+
+      <h3>10 min — Agentic workflow demo</h3>
+      <ul class="list-tight">
+        <li>Use Cursor/AI to create todos, search code, make safe, reversible edits</li>
+        <li>Be honest about tool capabilities; never claim access you don’t have</li>
+      </ul>
+    </section>
+
+    <!-- Step 3 -->
+    <section class="step" aria-hidden="true">
+      <h2>🗺️ Codebase Map (Where Things Live)</h2>
+
+      <h3>Production app</h3>
+      <pre><code>https://menuca-rebuild-pro.vercel.app/</code></pre>
+
+      <h3>Routing (Next.js App Router)</h3>
+      <ul class="list-tight">
+        <li><code>app/page.tsx</code>: Home</li>
+        <li><code>app/menu/[id]/page.tsx</code>: Menu by restaurant id</li>
+        <li><code>app/checkout/page.tsx</code>: Checkout</li>
+        <li><code>app/orders/page.tsx</code>: Orders</li>
+        <li><code>app/admin/page.tsx</code>: Admin UI</li>
+      </ul>
+
+      <h3>API routes (Node)</h3>
+      <ul class="list-tight">
+        <li>Stripe: <code>pages/api/stripe/*</code></li>
+        <li>Addresses: <code>pages/api/addresses/*</code></li>
+        <li>Business settings & utilities: see <code>config/api-map.ts</code> & <code>app/api/*</code></li>
+      </ul>
+
+      <h3>Libraries</h3>
+      <ul class="list-tight">
+        <li>Supabase clients: <code>lib/supabase.ts</code>, <code>lib/supabaseAdmin.ts</code></li>
+        <li>Menu parsing/scraping: <code>lib/universal-menu-parser.ts</code>, <code>lib/scrapers.ts</code></li>
+        <li>Helpers: <code>lib/utils.ts</code>, <code>lib/tablet-client.ts</code></li>
+      </ul>
+
+      <h3>Scripts</h3>
+      <ul class="list-tight">
+        <li>Importers/scrapers: <code>scripts/legacy-platform-scraper.js</code>, <code>scripts/import-modifiers.js</code></li>
+        <li>Debug/verify: <code>scripts/verify-menu-migration-counts.js</code>, <code>scripts/verify-dashboard-sticky.js</code></li>
+      </ul>
+
+      <h3>SQL & schema</h3>
+      <ul class="list-tight">
+        <li>Core schema: <code>sql/complete-menuca-schema.sql</code>, <code>sql/enterprise-ready-schema.sql</code></li>
+        <li>Policies/RLS & migrations: <code>sql/phase0_*</code>, <code>sql/phase1_*</code>, <code>sql/phase2_*</code></li>
+        <li>Patterns: <code>sql/SUPABASE_SCHEMA_PATTERNS.md</code></li>
+      </ul>
+
+      <h3>Docs</h3>
+      <ul class="list-tight">
+        <li>Auth: <code>docs/supabase-auth-implementation.md</code></li>
+        <li>Onboarding: <code>docs/new-hire-onboarding.md</code></li>
+      </ul>
+    </section>
+
+    <!-- Step 4 -->
+    <section class="step" aria-hidden="true">
+      <h2>🛠️ Run It Locally (No Surprises)</h2>
+      <ul class="list-tight">
+        <li>Node LTS, pnpm or npm</li>
+        <li>Install: <code>npm install</code></li>
+        <li>Run: <code>npm run dev</code></li>
+        <li>Env vars: mirror from Vercel → Development (do not hardcode)</li>
+        <li>Test the flow locally using the same routes as production</li>
+      </ul>
+    </section>
+
+    <!-- Step 5 -->
+    <section class="step" aria-hidden="true">
+      <h2>💳 Data & Payments (Supabase + Stripe)</h2>
+      <h3>Supabase</h3>
+      <ul class="list-tight">
+        <li>Use the dashboard for SQL, tables, and policies</li>
+        <li>Review RLS patterns in <code>SUPABASE_SCHEMA_PATTERNS.md</code> and <code>sql/phase*</code></li>
+      </ul>
+      <h3>Stripe</h3>
+      <ul class="list-tight">
+        <li>Checkout session creation in API routes; metadata includes restaurant + delivery context</li>
+        <li>Webhooks forward orders to the tablet system; verify events in Stripe dashboard</li>
+      </ul>
+    </section>
+
+    <!-- Step 6 -->
+    <section class="step" aria-hidden="true">
+      <h2>🤖 Agentic Workflow (How We Ship)</h2>
+      <ul class="list-tight">
+        <li>Write a clear Goal -> Plan Implimnetation → Break into tickets tiny TODO list</li>
+        <li>Use semantic search and surgical edits in the right file</li>
+        <li>Test in dev; verify on production domain when safe</li>
+        <li>Keep changes minimal, readable, reversible</li>
+        <li>Never bypass delivery capture or insert placeholder data in production</li>
+      </ul>
+    </section>
+
+    <!-- Step 7 -->
+    <section class="step" aria-hidden="true">
+      <h2>🎬 Showtime (5‑Minute Demo)</h2>
+      <ol class="list-tight">
+        <li>Open production and show a real restaurant menu</li>
+        <li>Add items → Checkout → complete delivery form</li>
+        <li>Trigger Stripe Checkout (test mode); show metadata in Stripe</li>
+        <li>Show order forwarding to tablet (logs/confirmation)</li>
+        <li>Ship a small UI/copy change via Vercel</li>
+      </ol>
+    </section>
+
+    <!-- Step 8 -->
+    <section class="step" aria-hidden="true">
+      <h2>✅ Week One (Ship Something) + Conventions</h2>
+      <h3>Checklist</h3>
+      <ul class="checklist">
+        <li><input type="checkbox" data-check="access"/><label>Access to GitHub, Vercel, Supabase, Stripe (test)</label></li>
+        <li><input type="checkbox" data-check="run-local"/><label>Run app locally; load <code>/menu/{restaurantId}</code> and <code>/checkout</code></label></li>
+        <li><input type="checkbox" data-check="read-auth"/><label>Read <code>docs/supabase-auth-implementation.md</code>; skim <code>sql/</code> schema</label></li>
+        <li><input type="checkbox" data-check="tiny-change"/><label>Make a tiny change (UI/copy), open PR</label></li>
+        <li><input type="checkbox" data-check="parser"/><label>Explore <code>lib/universal-menu-parser.ts</code>; run a script in <code>scripts/</code></label></li>
+        <li><input type="checkbox" data-check="trace-checkout"/><label>Trace Checkout end‑to‑end; confirm Stripe metadata</label></li>
+        <li><input type="checkbox" data-check="pair"/><label>Pair on one small bug/feature; deploy to Preview → Production</label></li>
+        <li><input type="checkbox" data-check="no-placeholder"/><label>Review production domain; do not use placeholder data; follow delivery‑capture flow</label></li>
+      </ul>
+
+      <h3>Support & conventions</h3>
+      <ul class="list-tight">
+        <li>Prefer clarity over cleverness; descriptive names and small functions</li>
+        <li>Add concise docs when you introduce a new pattern</li>
+        <li>Use Vercel + Supabase dashboards for env and DB changes; never leak secrets to code</li>
+      </ul>
+
+      <h3>Suggest an improvement</h3>
+      <form name="onboarding-notes" method="POST" data-netlify="true">
+        <input type="hidden" name="form-name" value="onboarding-notes" />
+        <p>
+          <label>Your name <br><input type="text" name="name" required /></label>
+        </p>
+        <p>
+          <label>What should we improve?<br>
+          <textarea name="message" rows="4" required></textarea></label>
+        </p>
+        <p>
+          <button class="button" type="submit">Send feedback</button>
+        </p>
+      </form>
+    </section>
+
+    <!-- Step 9 -->
+    <section class="step" aria-hidden="true">
+      <h2>🏁 Success Checklist (Finish)</h2>
+      <ul class="checklist">
+        <li><input type="checkbox" data-check="local-run"/><label>Runs app locally with env vars</label></li>
+        <li><input type="checkbox" data-check="vercel-preview"/><label>Creates PR → sees Vercel Preview</label></li>
+        <li><input type="checkbox" data-check="supabase-access"/><label>Opens Supabase project + tables</label></li>
+        <li><input type="checkbox" data-check="stripe-access"/><label>Opens Stripe test dashboard</label></li>
+        <li><input type="checkbox" data-check="checkout-explain"/><label>Explains Checkout metadata flow</label></li>
+      </ul>
+      <p><button id="finish" class="button" type="button">Mark Day‑1 Complete</button></p>
+    </section>
+  </main>
+
+  <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="controls" aria-hidden="false">
+    <div class="controls-inner">
+      <button id="prev" class="button" type="button">← Previous</button>
+      <span class="page-indicator">Step 1 / 8</span>
+      <button id="next" class="button" type="button">Next →</button>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
