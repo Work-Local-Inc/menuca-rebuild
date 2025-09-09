@@ -454,6 +454,123 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
       }
+
+      // Toppings: prefer a category that looks like "Add more toppings"; otherwise, infer by many small-priced items
+      let toppingsItems: Array<{ name: string; price: number }> = []
+      const topCat = categories.find(c => /topping/i.test(c.name))
+      if (topCat && topCat.items?.length) {
+        toppingsItems = topCat.items.map(i => ({ name: decode(i.name), price: Number((Array.isArray(i.prices) && i.prices[0]) || i.price || 0) }))
+      } else {
+        // Infer: collect items across categories where price in [2, 6] and name length < 20
+        for (const c of categories) {
+          for (const it of (c.items || [])) {
+            const p = Number((Array.isArray(it.prices) && it.prices[0]) || it.price || 0)
+            const nm = decode(it.name)
+            if (p >= 2 && p <= 6 && nm.length <= 24) toppingsItems.push({ name: nm, price: p })
+          }
+        }
+        // Deduplicate by name
+        const seen: Record<string, number> = {}
+        toppingsItems = toppingsItems.filter(t => (seen[t.name] ? false : (seen[t.name] = 1)))
+      }
+
+      if (toppingsItems.length) {
+        let topsGroupId: string | null = null
+        const { data: tEx } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', 'Toppings')
+          .maybeSingle()
+        if (tEx?.id) topsGroupId = tEx.id
+        else {
+          const { data: tCreated } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: 'Toppings', min_selection: 0, max_selection: null, display_order: 2, is_available: true })
+            .select('id')
+            .single()
+          topsGroupId = tCreated?.id || null
+        }
+        if (topsGroupId) {
+          const keepNames: string[] = []
+          let order = 0
+          for (const t of toppingsItems.slice(0, 60)) {
+            const nm = t.name
+            keepNames.push(nm)
+            const delta = Number(isNaN(t.price) ? 3.5 : t.price)
+            const { data: exists } = await supabaseAdmin
+              .from('modifier_options')
+              .select('id')
+              .eq('modifier_group_id', topsGroupId)
+              .eq('name', nm)
+              .maybeSingle()
+            if (exists?.id) {
+              await supabaseAdmin.from('modifier_options').update({ price_delta: delta, display_order: order, is_available: true }).eq('id', exists.id)
+            } else {
+              await supabaseAdmin.from('modifier_options').insert({ modifier_group_id: topsGroupId, name: nm, price_delta: delta, display_order: order, is_available: true })
+            }
+            order += 1
+          }
+          try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: topsGroupId, p_keep_names: keepNames }) } catch {}
+          const { data: pizzaItems } = await supabaseAdmin
+            .from('items')
+            .select('id, base_name')
+            .eq('tenant_id', tenantId)
+            .ilike('base_name', '%pizza%')
+          for (const pi of (pizzaItems || [])) {
+            await supabaseAdmin.from('item_modifier_groups').upsert({ item_id: pi.id, modifier_group_id: topsGroupId, display_order: 2, required: false }, { onConflict: 'item_id,modifier_group_id' })
+          }
+        }
+      }
+
+      // Crust: default set when pizza present
+      const { data: anyPizza } = await supabaseAdmin
+        .from('items')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .ilike('base_name', '%pizza%')
+        .limit(1)
+      if (anyPizza && anyPizza.length > 0) {
+        let crustGroupId: string | null = null
+        const { data: cEx } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', 'Crust type')
+          .maybeSingle()
+        if (cEx?.id) crustGroupId = cEx.id
+        else {
+          const { data: cCreated } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: 'Crust type', min_selection: 1, max_selection: 1, display_order: 1, is_available: true })
+            .select('id')
+            .single()
+          crustGroupId = cCreated?.id || null
+        }
+        if (crustGroupId) {
+          const crustOpts = ['Regular Crust', 'Thick Crust', 'Thin Crust']
+          for (let i = 0; i < crustOpts.length; i++) {
+            const nm = crustOpts[i]
+            const { data: exists } = await supabaseAdmin
+              .from('modifier_options')
+              .select('id')
+              .eq('modifier_group_id', crustGroupId)
+              .eq('name', nm)
+              .maybeSingle()
+            if (!exists?.id) {
+              await supabaseAdmin.from('modifier_options').insert({ modifier_group_id: crustGroupId, name: nm, price_delta: 0, display_order: i, is_available: true })
+            }
+          }
+          const { data: pizzaItems2 } = await supabaseAdmin
+            .from('items')
+            .select('id, base_name')
+            .eq('tenant_id', tenantId)
+            .ilike('base_name', '%pizza%')
+          for (const pi of (pizzaItems2 || [])) {
+            await supabaseAdmin.from('item_modifier_groups').upsert({ item_id: pi.id, modifier_group_id: crustGroupId, display_order: 1, required: true }, { onConflict: 'item_id,modifier_group_id' })
+          }
+        }
+      }
     } catch {}
 
     // Optional: capture add-on groups (crust, toppings, dips) via Playwright and map to items
