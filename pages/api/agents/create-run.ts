@@ -485,8 +485,58 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Heuristic: create global Dips/Toppings groups from scraped categories and link to all Pizza items
+    // Heuristic: create global Dips/Toppings groups from scraped categories (and LLM hints) and link to all Pizza items
     try {
+      // LLM-proposed dips
+      if (llmHints && Array.isArray(llmHints.dip_names) && (llmHints.dip_names as any[]).length) {
+        let dipsGroupId: string | null = null
+        const { data: ex } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', 'Dips')
+          .maybeSingle()
+        if (ex?.id) dipsGroupId = ex.id
+        else {
+          const { data: created } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: 'Dips', min_selection: 0, max_selection: null, display_order: 3, is_available: true })
+            .select('id')
+            .single()
+          dipsGroupId = created?.id || null
+        }
+        if (dipsGroupId) {
+          const keepNames: string[] = []
+          let order = 0
+          for (const nmRaw of (llmHints.dip_names as string[])) {
+            const optName = decode(nmRaw)
+            if (!optName) continue
+            keepNames.push(optName)
+            const { data: exists } = await supabaseAdmin
+              .from('modifier_options')
+              .select('id')
+              .eq('modifier_group_id', dipsGroupId)
+              .eq('name', optName)
+              .maybeSingle()
+            if (exists?.id) {
+              await supabaseAdmin.from('modifier_options').update({ price_delta: 0, display_order: order, is_available: true }).eq('id', exists.id)
+            } else {
+              await supabaseAdmin.from('modifier_options').insert({ modifier_group_id: dipsGroupId, name: optName, price_delta: 0, display_order: order, is_available: true })
+            }
+            order += 1
+          }
+          try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: dipsGroupId, p_keep_names: keepNames }) } catch {}
+          // Link to all pizza items
+          const { data: pizzaItems } = await supabaseAdmin
+            .from('items')
+            .select('id, base_name')
+            .eq('tenant_id', tenantId)
+            .ilike('base_name', '%pizza%')
+          for (const pi of (pizzaItems || [])) {
+            await supabaseAdmin.from('item_modifier_groups').upsert({ item_id: pi.id, modifier_group_id: dipsGroupId, display_order: 3, required: false }, { onConflict: 'item_id,modifier_group_id' })
+          }
+        }
+      }
       const dipsCat = categories.find(c => /dip|sauce/i.test(c.name))
       if (dipsCat && dipsCat.items?.length) {
         // Ensure group
