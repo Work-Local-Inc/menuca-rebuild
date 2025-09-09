@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { scrapeXtremePizzaMenu } from '@/lib/simple-scraper'
 import { parseMenuFromHTML } from '@/lib/html-menu-parser'
+import OpenAI from 'openai'
 
 export const config = {
   api: {
@@ -29,6 +30,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const startedAt = Date.now()
   const runId = uuidv4()
+  const agentProvider = process.env.AGENT_PROVIDER || (process.env.LLM_API_KEY ? 'openai' : 'none')
+  let costUsd = 0.0
+  let llmHints: any = null
 
   try {
     // Internal secret
@@ -115,11 +119,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const logProgress = async (entry: any, patch?: Partial<Record<string, any>>) => {
       if (!importId) return
       try {
+        let existingLogs: any[] = []
+        try {
+          const { data: row } = await supabaseAdmin
+            .from('menu_imports')
+            .select('logs')
+            .eq('id', importId)
+            .single()
+          if (Array.isArray((row as any)?.logs)) existingLogs = (row as any).logs
+        } catch {}
         await supabaseAdmin
           .from('menu_imports')
           .update({
             ...(patch || {}),
-            logs: [{ ...entry, at: new Date().toISOString() }],
+            logs: [...existingLogs, { ...entry, at: new Date().toISOString() }],
           })
           .eq('id', importId)
       } catch {}
@@ -132,7 +145,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Tool 2: playwright_capture (best-effort, optional)
     let domHtml: string | null = null
-    const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true'
+    const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true' || !!process.env.BROWSERLESS_WS || !!process.env.BROWSERLESS_TOKEN
     const browserlessWs = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
     if (enablePlaywright) {
       try {
@@ -165,6 +178,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .replace(/&nbsp;/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
+
+    const escapeRegExp = (str: string) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
     const canonicalizeSize = (raw: string): string | null => {
       const name = decode(raw).toLowerCase()
@@ -219,6 +234,67 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .from('menu_imports')
         .update({ total_categories: totals.categories, total_items: totals.items })
         .eq('id', importId)
+    }
+
+    // Optional: LLM-assisted normalization (Agents SDK — OpenAI)
+    if (agentProvider === 'openai' && process.env.LLM_API_KEY) {
+      try {
+        await logProgress({ event: 'agent_start', provider: agentProvider })
+        const openai = new OpenAI({ apiKey: process.env.LLM_API_KEY })
+        const model = process.env.LLM_MODEL || 'gpt-4o-mini'
+        const compactSummary = () => {
+          const maxCats = 10
+          const maxItemsPerCat = 20
+          const cats = categories.slice(0, maxCats).map((c) => ({
+            name: c.name,
+            items: (c.items || []).slice(0, maxItemsPerCat).map((i) => ({ name: i.name, sizes: i.sizes?.map((s) => s.name) || [] })),
+          }))
+          return { categories: cats }
+        }
+        const userPayload = {
+          url,
+          catalog: compactSummary(),
+          instructions: 'Derive curated toppings_allow (food-only), toppings_deny (beverages/invalid), dip_names, and canonical size names present. JSON only.'
+        }
+        const completion = await openai.chat.completions.create({
+          model,
+          temperature: 0.2,
+          max_tokens: 600,
+          response_format: { type: 'json_object' },
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are a menu normalization agent. Output strict JSON with keys: toppings_allow (string[]), toppings_deny (string[]), dip_names (string[]), size_names (string[]). Do not include explanations.',
+            },
+            { role: 'user', content: JSON.stringify(userPayload) },
+          ],
+        })
+        const usage = (completion as any)?.usage || null
+        if (usage) {
+          // Approximate pricing for gpt-4o-mini unless overridden
+          const inPer1k = Number(process.env.LLM_INPUT_COST_PER_1K || '0.00015')
+          const outPer1k = Number(process.env.LLM_OUTPUT_COST_PER_1K || '0.00060')
+          const inCost = (Number(usage.prompt_tokens || 0) / 1000) * inPer1k
+          const outCost = (Number(usage.completion_tokens || 0) / 1000) * outPer1k
+          costUsd = Number(((inCost + outCost)).toFixed(6))
+        }
+        try {
+          const text = (completion as any)?.choices?.[0]?.message?.content || '{}'
+          llmHints = JSON.parse(text)
+        } catch {}
+        await logProgress({ event: 'agent_done', model, usage: (completion as any)?.usage || null, hints: llmHints ? Object.keys(llmHints) : [] })
+        // Optionally refine beverages filter from LLM deny list (best-effort)
+        if (llmHints && Array.isArray(llmHints.toppings_deny)) {
+          const deny = (llmHints.toppings_deny as string[]).filter(Boolean)
+          if (deny.length) {
+            // Create a combined regex fragment to use later (saved on closure)
+            // We attach to process.env-like variable scope via function wrapper; here we just carry into local regex below where used.
+          }
+        }
+      } catch (e) {
+        await logProgress({ event: 'agent_failed', error: (e as any)?.message || 'unknown' })
+      }
     }
 
     // Tool 4: supabase_upsert
@@ -456,7 +532,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Toppings: avoid beverages; collect likely topping names
-      const beverageRx = /(coke|pepsi|sprite|ginger\s*ale|water|juice|bottle|can|ml|591|2\s*l|2l|500ml|710\s*ml|pop)/i
+      const denyTerms = Array.isArray(llmHints?.toppings_deny)
+        ? (llmHints.toppings_deny as string[]).filter(Boolean).map((t) => t.trim()).filter((t) => t.length > 1)
+        : []
+      const denyPattern = denyTerms.length ? `|${denyTerms.map(escapeRegExp).join('|')}` : ''
+      const beverageRx = new RegExp(`(coke|pepsi|sprite|ginger\\s*ale|water|juice|bottle|can|ml|591|2\\s*l|2l|500ml|710\\s*ml|pop${denyPattern})`, 'i')
       let toppingsItems: Array<{ name: string; price: number }> = []
       const topCat = categories.find(c => /topping/i.test(c.name))
       if (topCat && topCat.items?.length) {
@@ -478,6 +558,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Deduplicate and cap list to sane size
       const seenTop: Record<string, number> = {}
       toppingsItems = toppingsItems.filter(t => (seenTop[t.name] ? false : (seenTop[t.name] = 1))).slice(0, 60)
+
+      // If LLM provided allow list, filter to that set only
+      const allow = Array.isArray(llmHints?.toppings_allow)
+        ? (llmHints.toppings_allow as string[]).filter(Boolean).map((t) => t.trim().toLowerCase())
+        : []
+      if (allow.length) {
+        toppingsItems = toppingsItems.filter((t) => allow.includes(t.name.toLowerCase()))
+      }
 
       if (toppingsItems.length) {
         let topsGroupId: string | null = null
@@ -590,10 +678,74 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch {}
 
+    // Portioning: create a "Portion" group and link to BYO N‑topping pizzas (Whole/Left/Right)
+    try {
+      const { data: anyPizza2 } = await supabaseAdmin
+        .from('items')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .ilike('base_name', '%pizza%')
+        .limit(1)
+      if (anyPizza2 && anyPizza2.length > 0) {
+        let portionGroupId: string | null = null
+        const { data: pEx } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', 'Portion')
+          .maybeSingle()
+        if (pEx?.id) portionGroupId = pEx.id
+        else {
+          const { data: pCreated } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: 'Portion', min_selection: 0, max_selection: 1, display_order: 4, is_available: true })
+            .select('id')
+            .single()
+          portionGroupId = pCreated?.id || null
+        }
+        if (portionGroupId) {
+          const portionOpts = ['Whole', 'Left', 'Right']
+          for (let i = 0; i < portionOpts.length; i++) {
+            const nm = portionOpts[i]
+            const { data: exists } = await supabaseAdmin
+              .from('modifier_options')
+              .select('id')
+              .eq('modifier_group_id', portionGroupId)
+              .eq('name', nm)
+              .maybeSingle()
+            if (exists?.id) {
+              await supabaseAdmin
+                .from('modifier_options')
+                .update({ price_delta: 0, display_order: i, is_available: true })
+                .eq('id', exists.id)
+            } else {
+              await supabaseAdmin
+                .from('modifier_options')
+                .insert({ modifier_group_id: portionGroupId, name: nm, price_delta: 0, display_order: i, is_available: true })
+            }
+          }
+          try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: portionGroupId, p_keep_names: portionOpts }) } catch {}
+
+          const { data: pizzaItems3 } = await supabaseAdmin
+            .from('items')
+            .select('id, base_name')
+            .eq('tenant_id', tenantId)
+          for (const it of (pizzaItems3 || [])) {
+            const name = String(it.base_name || '')
+            const match = name.match(/(\d+)\s*(?:x\s*)?topping/i)
+            if (!/pizza/i.test(name) || !match) continue
+            await supabaseAdmin
+              .from('item_modifier_groups')
+              .upsert({ item_id: it.id, modifier_group_id: portionGroupId, display_order: 4, required: false }, { onConflict: 'item_id,modifier_group_id' })
+          }
+        }
+      }
+    } catch {}
+
     // Optional: capture add-on groups (crust, toppings, dips) via Playwright and map to items
     if (enablePlaywright) {
       try {
-        await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright' })
+        await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright', browserless: Boolean(browserlessWs) })
         // Dynamic import to avoid bundling
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const pw = await (Function('return import("playwright")')() as Promise<any>)
@@ -639,7 +791,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
             if (options.length) groups.push({ name: gname || 'Options', options })
           }
-          if (groups.length) scraped.push({ name: title, groups })
+          if (groups.length) {
+            scraped.push({ name: title, groups })
+            await logProgress({ event: 'addons_capture_item', item: title, groups: groups.length })
+          }
           try { await page.keyboard.press('Escape') } catch {}
           try { const closeBtn = await page.$('button:has-text("Close"), .close, .fancybox-close, .ui-dialog-titlebar-close'); if (closeBtn) await closeBtn.click({ timeout: 800 }) } catch {}
         }
@@ -715,6 +870,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await supabaseAdmin
               .from('item_modifier_groups')
               .upsert({ item_id: baseId, modifier_group_id: groupId, display_order: 1, required }, { onConflict: 'item_id,modifier_group_id' })
+            await logProgress({ event: 'addons_linked', item: si.name, group: gname, options: g.options?.length || 0 })
           }
         }
         await logProgress({ event: 'addons_done', message: 'Add-ons captured and linked' })
@@ -724,12 +880,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Mark completion
-    const costUsd = 0.0 // Placeholder until LLM usage is added
     if (importId) {
-      await supabaseAdmin
-        .from('menu_imports')
-        .update({ status: 'completed', completed_at: new Date().toISOString(), agent_run_id: runId, agent_cost_usd: costUsd, logs: [{ event: 'completed', at: new Date().toISOString(), elapsed_ms: Date.now() - startedAt }] })
-        .eq('id', importId)
+      try {
+        let existingLogs: any[] = []
+        try {
+          const { data: row } = await supabaseAdmin
+            .from('menu_imports')
+            .select('logs')
+            .eq('id', importId)
+            .single()
+          if (Array.isArray((row as any)?.logs)) existingLogs = (row as any).logs
+        } catch {}
+        await supabaseAdmin
+          .from('menu_imports')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            agent_run_id: runId,
+            agent_cost_usd: costUsd,
+            logs: [...existingLogs, { event: 'completed', at: new Date().toISOString(), elapsed_ms: Date.now() - startedAt }],
+          })
+          .eq('id', importId)
+      } catch {}
     }
 
     return res.status(200).json({
