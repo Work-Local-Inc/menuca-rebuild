@@ -298,7 +298,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
@@ -602,7 +601,7 @@ export default function CheckoutPage() {
                   <div className="w-full h-16 md:h-20 rounded-lg overflow-hidden bg-white ring-1 ring-black/5 flex items-center justify-center p-2">
                     {restaurant?.logo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={restaurant.logo_url} alt="Restaurant Logo" className="max-h-full max-w-full object-contain" />
+                      (<img src={restaurant.logo_url} alt="Restaurant Logo" className="max-h-full max-w-full object-contain" />)
                     ) : (
                       <ChefHat className="h-8 w-8 text-gray-400" />
                     )}
@@ -638,5 +637,5 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

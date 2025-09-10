@@ -148,7 +148,7 @@ export default function RestaurantSettingsPage() {
             <label className="block text-sm font-medium mb-1">Logo</label>
             {logoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoUrl} alt="Logo" className="h-16 mb-2 object-contain" />
+              (<img src={logoUrl} alt="Logo" className="h-16 mb-2 object-contain" />)
             )}
             <input
               type="file"
@@ -165,7 +165,7 @@ export default function RestaurantSettingsPage() {
             <label className="block text-sm font-medium mb-1">Banner / Hero</label>
             {bannerUrl && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={bannerUrl} alt="Banner" className="h-24 mb-2 object-cover w-full max-w-lg rounded" />
+              (<img src={bannerUrl} alt="Banner" className="h-24 mb-2 object-cover w-full max-w-lg rounded" />)
             )}
             <input
               type="file"
@@ -210,7 +210,6 @@ export default function RestaurantSettingsPage() {
           </div>
         </CardContent>
       </Card>
-
       <Card>
         <CardHeader>
           <CardTitle>Store Location (for distance)</CardTitle>
@@ -226,13 +225,11 @@ export default function RestaurantSettingsPage() {
           </div>
         </CardContent>
       </Card>
-
       <div>
         <Button onClick={save} disabled={saving} className="bg-orange-600 hover:bg-orange-700">
           {saving ? 'Saving…' : 'Save Settings'}
         </Button>
       </div>
-
       <Card className="border-red-200">
         <CardHeader>
           <CardTitle>Danger Zone</CardTitle>
@@ -245,7 +242,7 @@ export default function RestaurantSettingsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
 
