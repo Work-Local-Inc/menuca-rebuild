@@ -389,6 +389,143 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let processedCategories = 0
     let processedItems = 0
 
+    // Helper: upsert groups/options per item using LLM mapping with deterministic guardrails
+    const perItemLlmEnabled = (process.env.PER_ITEM_LLM_ENABLED || 'true') === 'true'
+    const perItemLlmLimit = Math.max(0, Math.min(50, parseInt(process.env.ITEMS_LLM_LIMIT || '10', 10) || 10))
+    let perItemLlmUsed = 0
+    const canonicalOrder: Record<string, number> = {
+      'Size': 0,
+      'Crust type': 1,
+      'Toppings': 2,
+      'Dips': 3,
+      'Drinks': 4,
+      'Wings Sauces': 5,
+      'Premium Toppings': 6,
+      'Portion': 4,
+    }
+    const canonicalSet = new Set(Object.keys(canonicalOrder))
+    const beverageRxStrict = /(coke|pepsi|sprite|7\s*up|ginger\s*ale|root\s*beer|orange\s*crush|grape\s*crush|diet|zero|gatorade|monster|red\s?bull|water|juice|minute\s*maid|iced\s*tea)/i
+    const dipFalsePositiveRx = /(garlic\s*bread|breadstick|bread stick|pizza)/i
+
+    async function upsertItemGroupsForItem(baseId: string, rawGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }>) {
+      // Default heuristic mapping
+      let mapped: Array<{ canonical: string; name: string; required: boolean; min: number | null; max: number | null; options: Array<{ name: string; price: number }>; }>
+        = []
+
+      const toHeuristic = () => {
+        const out: typeof mapped = []
+        for (const g of rawGroups) {
+          const nm = decode(g.name) || 'Options'
+          let canonical = 'Toppings'
+          let required = false; let min: number | null = 0; let max: number | null = null
+          if (/crust/i.test(nm)) { canonical = 'Crust type'; required = true; min = 1; max = 1 }
+          if (/dip|sauce/i.test(nm)) { canonical = 'Dips'; required = false; min = 0; max = null }
+          if (/drink|beverage|pop/i.test(nm)) { canonical = 'Drinks'; required = false; min = 0; max = null }
+          const options = (g.options || []).map(o => ({ name: decode(String(o.name || 'Option')), price: Number(o.price_delta || 0) }))
+          out.push({ canonical, name: nm, required, min, max, options })
+        }
+        return out
+      }
+
+      // LLM mapping (limited per run)
+      if (agentProvider === 'openai' && llmKey && perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit) {
+        try {
+          perItemLlmUsed += 1
+          const openai = new OpenAI({ apiKey: llmKey })
+          const model = process.env.LLM_MODEL || 'gpt-4o-mini'
+          const payload = { groups: rawGroups }
+          const sys = 'You are a menu normalization agent. Map each group to one canonical name in {"Size","Crust type","Toppings","Dips","Drinks","Wings Sauces","Premium Toppings","Portion"}. Remove beverages from Toppings. Keep only food in Toppings. Keep only sauces in Dips. Return strict JSON: {"groups":[{"canonical":"Toppings","required":false,"min":0,"max":null,"options":[{"name":"Mushrooms","price":4.25}]}]}. No explanations.'
+          const completion = await openai.chat.completions.create({
+            model,
+            temperature: 0,
+            response_format: { type: 'json_object' },
+            messages: [ { role: 'system', content: sys }, { role: 'user', content: JSON.stringify(payload) } ],
+          })
+          const text = (completion as any)?.choices?.[0]?.message?.content || '{}'
+          const json = JSON.parse(text)
+          const arr = Array.isArray(json?.groups) ? json.groups : []
+          mapped = arr.map((g: any) => ({
+            canonical: String(g?.canonical || 'Toppings'),
+            name: String(g?.name || g?.canonical || 'Options'),
+            required: Boolean(g?.required || false),
+            min: (g?.min === 0 || typeof g?.min === 'number') ? g.min : null,
+            max: (g?.max === 0 || typeof g?.max === 'number') ? g.max : null,
+            options: Array.isArray(g?.options) ? g.options.map((o: any) => ({ name: decode(String(o?.name || 'Option')), price: Number(o?.price || 0) })) : [],
+          }))
+          await logProgress({ event: 'per_item_llm_done', item_id: baseId, mapped_groups: mapped.map(m => m.canonical) })
+        } catch (e) {
+          await logProgress({ event: 'per_item_llm_failed', item_id: baseId, error: (e as any)?.message || 'unknown' })
+          mapped = toHeuristic()
+        }
+      } else {
+        mapped = toHeuristic()
+      }
+
+      // Guardrails post-processing
+      const sanitized: typeof mapped = []
+      for (const g of mapped) {
+        let canonical = canonicalSet.has(g.canonical) ? g.canonical : 'Toppings'
+        let options = g.options
+        if (canonical === 'Toppings') {
+          options = options.filter(o => !beverageRxStrict.test(o.name))
+        }
+        if (canonical === 'Dips') {
+          options = options.filter(o => !dipFalsePositiveRx.test(o.name))
+        }
+        sanitized.push({ ...g, canonical, options })
+      }
+
+      // Upsert groups/options and link
+      for (const g of sanitized) {
+        const display_order = canonicalOrder[g.canonical] ?? 2
+        let groupId: string | null = null
+        const { data: ex } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', g.canonical)
+          .maybeSingle()
+        if (ex?.id) groupId = ex.id
+        else {
+          const { data: created } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: g.canonical, min_selection: g.required ? (g.min ?? 1) : (g.min ?? 0), max_selection: g.required ? (g.max ?? 1) : g.max, display_order, is_available: true })
+            .select('id')
+            .single()
+          groupId = created?.id || null
+        }
+        if (!groupId) continue
+        const keepNames: string[] = []
+        let order = 0
+        for (const opt of g.options) {
+          const oname = decode(opt.name)
+          keepNames.push(oname)
+          const priceDelta = Number(opt.price || 0)
+          const { data: exists } = await supabaseAdmin
+            .from('modifier_options')
+            .select('id')
+            .eq('modifier_group_id', groupId)
+            .eq('name', oname)
+            .maybeSingle()
+          if (exists?.id) {
+            await supabaseAdmin
+              .from('modifier_options')
+              .update({ price_delta: priceDelta, display_order: order, is_available: true })
+              .eq('id', exists.id)
+          } else {
+            await supabaseAdmin
+              .from('modifier_options')
+              .insert({ modifier_group_id: groupId, name: oname, price_delta: priceDelta, display_order: order, is_available: true })
+          }
+          order += 1
+        }
+        try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: groupId, p_keep_names: keepNames }) } catch {}
+        await supabaseAdmin
+          .from('item_modifier_groups')
+          .upsert({ item_id: baseId, modifier_group_id: groupId, display_order, required: Boolean(g.required), min_selection: g.min ?? 0, max_selection: g.max }, { onConflict: 'item_id,modifier_group_id' })
+      }
+    }
+
     for (let idx = 0; idx < categories.length; idx++) {
       const category = categories[idx]
       // Create a section for this category (Phase 2 schema)
@@ -533,6 +670,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               .upsert({ item_id: baseRow.id, modifier_group_id: groupId, display_order: 0, required: true }, { onConflict: 'item_id,modifier_group_id' })
           } catch {}
         }
+
+        // Per-item agent mapping for a limited subset (LLM + guardrails)
+        try {
+          if (perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit) {
+            const quota = Math.min((baseItems || []).length, perItemLlmLimit - perItemLlmUsed)
+            for (let pi = 0; pi < quota; pi++) {
+              const baseRow = (baseItems as any[])[pi]
+              const seedGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }> = [
+                { name: 'Toppings', options: [] },
+              ]
+              await upsertItemGroupsForItem(baseRow.id, seedGroups)
+            }
+          }
+        } catch {}
       }
     }
 
