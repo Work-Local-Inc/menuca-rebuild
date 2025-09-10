@@ -681,24 +681,62 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           } catch {}
         }
 
-        // Per-item agent mapping for a limited subset (LLM + guardrails)
+        // Per-item agent mapping for ALL items with synthetic groups (LLM reasoning)
         try {
-          if (perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit) {
+          if (perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit && (baseItems || []).length > 0) {
+            // Create synthetic modifier groups with all potential options for LLM to reason about
+            const allPotentialToppings: Array<{ name: string; price_delta: number }> = []
+            const allPotentialDips: Array<{ name: string; price_delta: number }> = []
+            const allPotentialDrinks: Array<{ name: string; price_delta: number }> = []
+            
+            // Collect all items from all categories as potential options
+            for (const cat of categories) {
+              for (const item of (cat.items || [])) {
+                const name = decode(item.name)
+                const price = Number((Array.isArray(item.prices) && item.prices[0]) || item.price || 0)
+                
+                // Classify into potential groups for LLM to reason about
+                if (/(coke|pepsi|sprite|7\s*up|water|juice|drink|beverage|soda|tea|crush|dew|gatorade|monster|bull)/i.test(name)) {
+                  allPotentialDrinks.push({ name, price_delta: price })
+                } else if (/(sauce|dip|ranch|bbq|garlic|marinara|blue\s*cheese)/i.test(name) && !/(bread|pizza|stick)/i.test(name)) {
+                  allPotentialDips.push({ name, price_delta: price })
+                } else if (price >= 0 && price <= 6 && name.length <= 30) {
+                  allPotentialToppings.push({ name, price_delta: price })
+                }
+              }
+            }
+            
             const quota = Math.min((baseItems || []).length, perItemLlmLimit - perItemLlmUsed)
             for (let pi = 0; pi < quota; pi++) {
               const baseRow = (baseItems as any[])[pi]
-              const seedGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }> = [
-                { name: 'Toppings', options: [] },
-              ]
-              await upsertItemGroupsForItem(baseRow.id, seedGroups)
+              const itemName = baseRow.base_name || 'Item'
+              
+              // Create synthetic groups with all potential options for this item type
+              const seedGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }> = []
+              
+              // Only add relevant groups based on item type
+              if (/pizza/i.test(itemName)) {
+                seedGroups.push({ name: 'Toppings', options: allPotentialToppings.slice(0, 30) })
+                seedGroups.push({ name: 'Dips', options: allPotentialDips.slice(0, 15) })
+              } else if (/wing/i.test(itemName)) {
+                seedGroups.push({ name: 'Wings Sauces', options: allPotentialDips.slice(0, 10) })
+              } else if (/(combo|meal|with)/i.test(itemName)) {
+                seedGroups.push({ name: 'Drinks', options: allPotentialDrinks.slice(0, 10) })
+              }
+              
+              if (seedGroups.length > 0) {
+                await upsertItemGroupsForItem(baseRow.id, seedGroups)
+              }
             }
           }
         } catch {}
       }
     }
 
-    // Heuristic: create global Dips/Toppings groups from scraped categories (and LLM hints) and link to all Pizza items
-    try {
+    // Fallback heuristic: create global Dips/Toppings groups only if per-item LLM didn't handle enough items
+    const perItemCoverage = perItemLlmUsed / Math.max(1, (categories.reduce((sum, c) => sum + (c.items?.length || 0), 0)))
+    if (perItemCoverage < 0.5) { // Only run global heuristics if less than 50% coverage
+      try {
       // Dips lock: canonical allowlist only with price <= 4.50 and hard-deny bread/pizza items
       const canonicalDipNames = [
         'Homemade Garlic', 'Cheddar Chipotle', 'Garlic', 'Ranch', 'BBQ',
@@ -1144,6 +1182,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
     } catch {}
+    } // End of fallback heuristics condition
 
     // Portioning: create a "Portion" group and link to BYO N‑topping pizzas (Whole/Left/Right)
     try {
