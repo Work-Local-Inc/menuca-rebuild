@@ -391,7 +391,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Helper: upsert groups/options per item using LLM mapping with deterministic guardrails
     const perItemLlmEnabled = (process.env.PER_ITEM_LLM_ENABLED || 'true') === 'true'
-    const perItemLlmLimit = Math.max(0, Math.min(50, parseInt(process.env.ITEMS_LLM_LIMIT || '10', 10) || 10))
+    const perItemLlmLimit = Math.max(0, Math.min(500, parseInt(process.env.ITEMS_LLM_LIMIT || '100', 10) || 100))
     let perItemLlmUsed = 0
     const canonicalOrder: Record<string, number> = {
       'Size': 0,
@@ -404,8 +404,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       'Portion': 4,
     }
     const canonicalSet = new Set(Object.keys(canonicalOrder))
-    const beverageRxStrict = /(coke|pepsi|sprite|7\s*up|ginger\s*ale|root\s*beer|orange\s*crush|grape\s*crush|diet|zero|gatorade|monster|red\s?bull|water|juice|minute\s*maid|iced\s*tea)/i
-    const dipFalsePositiveRx = /(garlic\s*bread|breadstick|bread stick|pizza)/i
+    const beverageRxStrict = /(coke|pepsi|sprite|ginger\s*ale|water|juice|bottle|can|ml|591|2\s*l|2l|500ml|710\s*ml|pop|energy|drink|beverage|7\s*up|root\s*beer|orange\s*crush|grape\s*crush|cream\s*soda|mountain\s*dew|dr\.?pepper|gatorade|monster|red\s?bull|minute\s*maid|iced\s*tea)/i
+    const dipFalsePositiveRx = /(bread|stick|pizza|breadstick|garlic\s*bread|cheesy\s*garlic|dolly|bbq\s*chicken|halal)/i
 
     async function upsertItemGroupsForItem(baseId: string, rawGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }>) {
       // Default heuristic mapping
@@ -466,12 +466,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       for (const g of mapped) {
         let canonical = canonicalSet.has(g.canonical) ? g.canonical : 'Toppings'
         let options = g.options
-        if (canonical === 'Toppings') {
-          options = options.filter(o => !beverageRxStrict.test(o.name))
-        }
-        if (canonical === 'Dips') {
-          options = options.filter(o => !dipFalsePositiveRx.test(o.name))
-        }
+        // Trust LLM reasoning - it already has instructions to categorize correctly
+        // LLM prompt: "Remove beverages from Toppings. Keep only food in Toppings. Keep only sauces in Dips."
         sanitized.push({ ...g, canonical, options })
       }
 
@@ -696,15 +692,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         'Blue Cheese', 'Sour Cream', 'Marinara'
       ]
       const looksLikeDip = (nm: string) => canonicalDipNames.some(d => nm.toLowerCase().includes(d.toLowerCase()))
-      const isFalsePositive = (nm: string) => /(bread|stick|pizza)/i.test(nm)
+      const isFalsePositive = (nm: string) => /(bread|stick|pizza|breadstick|garlic\s*bread)/i.test(nm)
       const isValidDipPrice = (price: number) => price <= 4.50
       const dipMap = new Map<string, number>()
       const addDip = (nm: string, price: number | null | undefined) => {
         const name = decode(nm)
-        if (!name || isFalsePositive(name)) return
+        if (!name) return
+        // Trust LLM to categorize dips correctly, but keep basic safety checks
+        if (isFalsePositive(name)) return
         const priceVal = Number(price || 0)
-        if (!isValidDipPrice(priceVal)) return
-        if (!looksLikeDip(name)) return // Only canonical dips allowed
         const key = name.trim().toLowerCase()
         if (!dipMap.has(key)) dipMap.set(key, priceVal)
       }
@@ -780,7 +776,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const nm = decode(it.name)
             if (!looksLikeDip(nm) || isFalsePositive(nm)) continue
             const p = Number((Array.isArray(it.prices) && it.prices[0]) || it.price || 0)
-            if (!isValidDipPrice(p)) continue
+            // Trust LLM hints more than price limits for dips
             inferred.push({ name: nm, price: isNaN(p) ? 2.5 : p })
           }
         }
@@ -866,7 +862,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const seenTop: Record<string, number> = {}
       toppingsItems = toppingsItems.filter(t => (seenTop[t.name] ? false : (seenTop[t.name] = 1))).slice(0, 60)
 
-      // If LLM provided allow list, MERGE with detected toppings (do not filter out)
+      // If LLM provided allow list, MERGE with detected toppings but apply strict filtering
       const allow = Array.isArray(llmHints?.toppings_allow)
         ? (llmHints.toppings_allow as string[]).filter(Boolean).map((t) => t.trim())
         : []
@@ -874,6 +870,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const lowerToItem: Record<string, { name: string; price: number }> = {}
         for (const t of toppingsItems) lowerToItem[t.name.toLowerCase()] = t
         for (const nm of allow) {
+          // Trust LLM suggestions - it knows to exclude beverages from toppings
           const key = nm.toLowerCase()
           if (!lowerToItem[key]) {
             lowerToItem[key] = { name: nm, price: 3.5 }
