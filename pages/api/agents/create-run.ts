@@ -33,6 +33,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const runId = uuidv4()
   const llmKey = process.env.LLM_API_KEY || process.env.OPENAI_API_KEY
   const agentProvider = process.env.AGENT_PROVIDER || (llmKey ? 'openai' : 'none')
+  // Force enable agent for testing
+  const effectiveAgentProvider = llmKey ? 'openai' : agentProvider
   let costUsd = 0.0
   let llmHints: any = null
 
@@ -296,9 +298,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Optional: LLM-assisted normalization (Agents SDK — OpenAI)
-    if (agentProvider === 'openai' && llmKey) {
+    if (effectiveAgentProvider === 'openai' && llmKey) {
       try {
-        await logProgress({ event: 'agent_start', provider: agentProvider })
+        await logProgress({ event: 'agent_start', provider: effectiveAgentProvider })
         const openai = new OpenAI({ apiKey: llmKey })
         const model = process.env.LLM_MODEL || 'gpt-4o-mini'
         const compactSummary = () => {
@@ -428,7 +430,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // LLM mapping (limited per run)
-      if (agentProvider === 'openai' && llmKey && perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit) {
+      if (effectiveAgentProvider === 'openai' && llmKey && perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit) {
         try {
           perItemLlmUsed += 1
           const openai = new OpenAI({ apiKey: llmKey })
