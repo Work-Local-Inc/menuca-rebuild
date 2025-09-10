@@ -146,9 +146,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (process.env.FIRECRAWL_API_KEY) {
       try {
         await logProgress({ event: 'firecrawl_start', message: 'Scraping via Firecrawl' })
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { FirecrawlApp } = await import('@mendable/firecrawl-js')
-        const app = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY })
+        const fcMod: any = await import('@mendable/firecrawl-js')
+        const FirecrawlAppCtor = fcMod?.FirecrawlApp || fcMod?.default
+        const app = new FirecrawlAppCtor({ apiKey: process.env.FIRECRAWL_API_KEY })
         const result: any = await app.scrapeUrl(url, { formats: ['markdown', 'html'], timeout: 60000 })
         fcMarkdown = (result?.markdown || result?.data?.markdown || null) as string | null
         fcHtml = (result?.html || result?.data?.html || null) as string | null
