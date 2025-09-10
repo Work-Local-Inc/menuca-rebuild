@@ -536,8 +536,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    await logProgress({ event: 'categories_loop_start', categoriesCount: categories.length })
     for (let idx = 0; idx < categories.length; idx++) {
       const category = categories[idx]
+      await logProgress({ event: 'processing_category', categoryName: category.name, categoryIndex: idx })
       // Create a section for this category (Phase 2 schema)
       const { data: sectionRow, error: sectionErr } = await supabaseAdmin
         .from('menu_sections')
