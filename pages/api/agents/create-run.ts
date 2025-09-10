@@ -689,20 +689,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Heuristic: create global Dips/Toppings groups from scraped categories (and LLM hints) and link to all Pizza items
     try {
-      // Build Dips from union: LLM hints + explicit category + canonical inferred names; exclude false positives
+      // Dips lock: canonical allowlist only with price <= 4.50 and hard-deny bread/pizza items
       const canonicalDipNames = [
         'Homemade Garlic', 'Cheddar Chipotle', 'Garlic', 'Ranch', 'BBQ',
         "Frank's Red Hot", "Frank's Buffalo Hot", 'Honey Garlic Dip',
         'Blue Cheese', 'Sour Cream', 'Marinara'
       ]
-      const looksLikeDip = (nm: string) => /\b(dip|dipping\s*sauce|sauce)\b/i.test(nm) || canonicalDipNames.some(d => nm.toLowerCase().includes(d.toLowerCase()))
+      const looksLikeDip = (nm: string) => canonicalDipNames.some(d => nm.toLowerCase().includes(d.toLowerCase()))
       const isFalsePositive = (nm: string) => /(bread|stick|pizza)/i.test(nm)
+      const isValidDipPrice = (price: number) => price <= 4.50
       const dipMap = new Map<string, number>()
       const addDip = (nm: string, price: number | null | undefined) => {
         const name = decode(nm)
         if (!name || isFalsePositive(name)) return
+        const priceVal = Number(price || 0)
+        if (!isValidDipPrice(priceVal)) return
+        if (!looksLikeDip(name)) return // Only canonical dips allowed
         const key = name.trim().toLowerCase()
-        if (!dipMap.has(key)) dipMap.set(key, Number(price || 0))
+        if (!dipMap.has(key)) dipMap.set(key, priceVal)
       }
       if (Array.isArray(llmHints?.dip_names)) {
         for (const nm of llmHints.dip_names as string[]) addDip(nm, 0)
@@ -768,20 +772,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      // Fallback: infer dips across all items by keywords
+      // Fallback: infer dips across all items by canonical allowlist only
       try {
-        const dipKeywords = [
-          'garlic', 'cheddar', 'chipotle', 'ranch', 'bbq', 'barbecue',
-          "frank's", 'franks', 'buffalo', 'honey garlic', 'blue cheese',
-          'sour cream', 'marinara', 'dip'
-        ]
-        const isDipName = (nm: string) => dipKeywords.some(k => nm.toLowerCase().includes(k))
         const inferred: Array<{ name: string; price: number }> = []
         for (const c of categories) {
           for (const it of (c.items || [])) {
             const nm = decode(it.name)
-            if (!isDipName(nm)) continue
+            if (!looksLikeDip(nm) || isFalsePositive(nm)) continue
             const p = Number((Array.isArray(it.prices) && it.prices[0]) || it.price || 0)
+            if (!isValidDipPrice(p)) continue
             inferred.push({ name: nm, price: isNaN(p) ? 2.5 : p })
           }
         }
@@ -837,18 +836,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       } catch {}
 
-      // Toppings: avoid beverages; collect likely topping names
+      // Toppings: strict filter - exclude beverages/juice/water/energy drinks, exclude sauce/dip/bread/pizza words, keep price band 0-6
       const denyTerms = Array.isArray(llmHints?.toppings_deny)
         ? (llmHints.toppings_deny as string[]).filter(Boolean).map((t) => t.trim()).filter((t) => t.length > 1)
         : []
       const denyPattern = denyTerms.length ? `|${denyTerms.map(escapeRegExp).join('|')}` : ''
-      const beverageRx = new RegExp(`(coke|pepsi|sprite|ginger\\s*ale|water|juice|bottle|can|ml|591|2\\s*l|2l|500ml|710\\s*ml|pop${denyPattern})`, 'i')
+      // Strict toppings filter: exclude beverages, sauces, dips, bread, and pizza items
+      const beverageRx = new RegExp(`(coke|pepsi|sprite|ginger\\s*ale|water|juice|bottle|can|ml|591|2\\s*l|2l|500ml|710\\s*ml|pop|energy|drink|beverage${denyPattern})`, 'i')
+      const nonToppingRx = new RegExp(`(sauce|dip|dipping|bread|stick|pizza|garlic\\s*bread|breadstick)`, 'i')
       let toppingsItems: Array<{ name: string; price: number }> = []
       const topCat = categories.find(c => /topping/i.test(c.name))
       if (topCat && topCat.items?.length) {
         toppingsItems = topCat.items
           .map(i => ({ name: decode(i.name), price: Number((Array.isArray(i.prices) && i.prices[0]) || i.price || 0) }))
-          .filter(t => !beverageRx.test(t.name))
+          .filter(t => !beverageRx.test(t.name) && !nonToppingRx.test(t.name) && t.price >= 0 && t.price <= 6)
       } else {
         // Infer across categories: small priced food add-ons, exclude beverages and dips already handled
         for (const c of categories) {
@@ -856,8 +857,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           for (const it of (c.items || [])) {
             const p = Number((Array.isArray(it.prices) && it.prices[0]) || it.price || 0)
             const nm = decode(it.name)
-            if (beverageRx.test(nm)) continue
-            if (p >= 2 && p <= 6 && nm.length <= 24) toppingsItems.push({ name: nm, price: p })
+            if (beverageRx.test(nm) || nonToppingRx.test(nm)) continue
+            if (p >= 0 && p <= 6 && nm.length <= 24) toppingsItems.push({ name: nm, price: p })
           }
         }
       }
@@ -992,6 +993,147 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch {}
 
+    // Drinks: create group for combo items with free drink choices, purge drinks from Toppings
+    try {
+      // Detect combo items that include drinks
+      const { data: comboItems } = await supabaseAdmin
+        .from('items')
+        .select('id, base_name, base_desc')
+        .eq('tenant_id', tenantId)
+      
+      const hasComboWithDrinks = (comboItems || []).some(item => {
+        const name = (item.base_name || '').toLowerCase()
+        const desc = (item.base_desc || '').toLowerCase()
+        return (name + ' ' + desc).includes('drink') || (name + ' ' + desc).includes('beverage') || 
+               name.includes('combo') || name.includes('meal') || name.includes('with')
+      })
+
+      if (hasComboWithDrinks) {
+        let drinksGroupId: string | null = null
+        const { data: dEx } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', 'Drinks')
+          .maybeSingle()
+        if (dEx?.id) drinksGroupId = dEx.id
+        else {
+          const { data: dCreated } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: 'Drinks', min_selection: 0, max_selection: 1, display_order: 5, is_available: true })
+            .select('id')
+            .single()
+          drinksGroupId = dCreated?.id || null
+        }
+        
+        if (drinksGroupId) {
+          // Common drink options for combos
+          const drinkOpts = ['Coke', 'Pepsi', 'Sprite', '7UP', 'Orange', 'Water', 'Iced Tea']
+          for (let i = 0; i < drinkOpts.length; i++) {
+            const nm = drinkOpts[i]
+            const { data: exists } = await supabaseAdmin
+              .from('modifier_options')
+              .select('id')
+              .eq('modifier_group_id', drinksGroupId)
+              .eq('name', nm)
+              .maybeSingle()
+            if (exists?.id) {
+              await supabaseAdmin
+                .from('modifier_options')
+                .update({ price_delta: 0, display_order: i, is_available: true })
+                .eq('id', exists.id)
+            } else {
+              await supabaseAdmin
+                .from('modifier_options')
+                .insert({ modifier_group_id: drinksGroupId, name: nm, price_delta: 0, display_order: i, is_available: true })
+            }
+          }
+          try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: drinksGroupId, p_keep_names: drinkOpts }) } catch {}
+          
+          // Link to combo items only
+          for (const item of (comboItems || [])) {
+            const name = (item.base_name || '').toLowerCase()
+            const desc = (item.base_desc || '').toLowerCase()
+            if ((name + ' ' + desc).includes('drink') || (name + ' ' + desc).includes('beverage') || 
+                name.includes('combo') || name.includes('meal') || name.includes('with')) {
+              await supabaseAdmin
+                .from('item_modifier_groups')
+                .upsert({ item_id: item.id, modifier_group_id: drinksGroupId, display_order: 5, required: false }, { onConflict: 'item_id,modifier_group_id' })
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // Wings Sauces: create group for items/combos with wings
+    try {
+      const { data: wingsItems } = await supabaseAdmin
+        .from('items')
+        .select('id, base_name, base_desc')
+        .eq('tenant_id', tenantId)
+      
+      const hasWingsItems = (wingsItems || []).some(item => {
+        const name = (item.base_name || '').toLowerCase()
+        const desc = (item.base_desc || '').toLowerCase()
+        return name.includes('wing') || desc.includes('wing') || name.includes('boneless')
+      })
+
+      if (hasWingsItems) {
+        let wingsGroupId: string | null = null
+        const { data: wEx } = await supabaseAdmin
+          .from('modifier_groups')
+          .select('id')
+          .eq('tenant_id', tenantId)
+          .eq('name', 'Wings Sauces')
+          .maybeSingle()
+        if (wEx?.id) wingsGroupId = wEx.id
+        else {
+          const { data: wCreated } = await supabaseAdmin
+            .from('modifier_groups')
+            .insert({ tenant_id: tenantId, name: 'Wings Sauces', min_selection: 1, max_selection: null, display_order: 6, is_available: true })
+            .select('id')
+            .single()
+          wingsGroupId = wCreated?.id || null
+        }
+        
+        if (wingsGroupId) {
+          // Common wing sauce options
+          const sauceOpts = ['Mild', 'Medium', 'Hot', 'BBQ', 'Honey Garlic', 'Buffalo', 'Teriyaki', 'Dry Rub']
+          for (let i = 0; i < sauceOpts.length; i++) {
+            const nm = sauceOpts[i]
+            const { data: exists } = await supabaseAdmin
+              .from('modifier_options')
+              .select('id')
+              .eq('modifier_group_id', wingsGroupId)
+              .eq('name', nm)
+              .maybeSingle()
+            if (exists?.id) {
+              await supabaseAdmin
+                .from('modifier_options')
+                .update({ price_delta: 0, display_order: i, is_available: true })
+                .eq('id', exists.id)
+            } else {
+              await supabaseAdmin
+                .from('modifier_options')
+                .insert({ modifier_group_id: wingsGroupId, name: nm, price_delta: 0, display_order: i, is_available: true })
+            }
+          }
+          try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: wingsGroupId, p_keep_names: sauceOpts }) } catch {}
+          
+          // Link to wings items
+          for (const item of (wingsItems || [])) {
+            const name = (item.base_name || '').toLowerCase()
+            const desc = (item.base_desc || '').toLowerCase()
+            if (name.includes('wing') || desc.includes('wing') || name.includes('boneless')) {
+              await supabaseAdmin
+                .from('item_modifier_groups')
+                .upsert({ item_id: item.id, modifier_group_id: wingsGroupId, display_order: 6, required: true }, { onConflict: 'item_id,modifier_group_id' })
+            }
+          }
+        }
+      }
+    } catch {}
+
     // Portioning: create a "Portion" group and link to BYO N‑topping pizzas (Whole/Left/Right)
     try {
       const { data: anyPizza2 } = await supabaseAdmin
@@ -1012,7 +1154,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         else {
           const { data: pCreated } = await supabaseAdmin
             .from('modifier_groups')
-            .insert({ tenant_id: tenantId, name: 'Portion', min_selection: 0, max_selection: 1, display_order: 4, is_available: true })
+            .insert({ tenant_id: tenantId, name: 'Portion', min_selection: 0, max_selection: 1, display_order: 7, is_available: true })
             .select('id')
             .single()
           portionGroupId = pCreated?.id || null
@@ -1050,7 +1192,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (!/pizza/i.test(name) || !match) continue
             await supabaseAdmin
               .from('item_modifier_groups')
-              .upsert({ item_id: it.id, modifier_group_id: portionGroupId, display_order: 4, required: false }, { onConflict: 'item_id,modifier_group_id' })
+              .upsert({ item_id: it.id, modifier_group_id: portionGroupId, display_order: 7, required: false }, { onConflict: 'item_id,modifier_group_id' })
           }
         }
       }
