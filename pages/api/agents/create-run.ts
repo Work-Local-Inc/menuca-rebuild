@@ -144,7 +144,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const htmlResponse = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 MenuCA Agent' } })
     const rawHtml = await htmlResponse.text()
 
-    // Tool 2: playwright_capture (best-effort, optional)
+    // Tool 2: dynamic capture (Browserless REST first, then Playwright best-effort)
     let domHtml: string | null = null
     const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true' || !!process.env.BROWSERLESS_WS || !!process.env.BROWSERLESS_TOKEN
     const rawBrowserless = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
@@ -155,7 +155,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               ? rawBrowserless.replace('?', '/playwright?')
               : rawBrowserless + '/playwright'))
       : ''
-    if (enablePlaywright) {
+    const browserlessToken = process.env.BROWSERLESS_TOKEN || (() => { try { return new URL(rawBrowserless || '').searchParams.get('token') || '' } catch { return '' } })()
+    if (browserlessToken) {
+      try {
+        await logProgress({ event: 'browserless_content', message: 'Fetching dynamic HTML via Browserless REST' })
+        const restUrl = `https://chrome.browserless.io/content?token=${browserlessToken}`
+        const r = await fetch(restUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, gotoOptions: { waitUntil: 'networkidle' } }) })
+        if (r.ok) {
+          const text = await r.text()
+          if (text && text.length > rawHtml.length) domHtml = text
+        } else {
+          await logProgress({ event: 'browserless_content_skipped', message: `HTTP ${r.status}` })
+        }
+      } catch (e) {
+        await logProgress({ event: 'browserless_content_failed', error: (e as any)?.message || 'unknown' })
+      }
+    }
+    if (enablePlaywright && !domHtml) {
       try {
         await logProgress({ event: 'playwright_capture', message: 'Attempting dynamic render' })
         // Dynamic import to avoid bundling when unavailable in serverless
@@ -854,8 +870,126 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch {}
 
-    // Optional: capture add-on groups (crust, toppings, dips) via Playwright and map to items
-    if (enablePlaywright) {
+    // Optional: capture add-on groups (crust, toppings, dips) via Browserless function or Playwright and map to items
+    if (browserlessToken) {
+      try {
+        await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Browserless function', browserless: true })
+        const funcUrl = `https://chrome.browserless.io/function?token=${browserlessToken}`
+        const code = `async ({ page, context }) => {
+          const url = context.url;
+          await page.goto(url, { waitUntil: 'networkidle' });
+          const itemSel = '.menu-item, [data-item], .item, .alternate_1, .alternate_2, .food-item, .menuItem';
+          const elements = await page.$$(itemSel);
+          const scraped = [];
+          const parsePrice = (t) => { const m = (t||'').replace(/,/g,'').match(/([+-]?\$?\s*\d+(?:\.\d{1,2})?)/); if(!m) return 0; const n = parseFloat(m[1].replace(/\$/g,'').trim()); return isNaN(n)?0:n };
+          for (let i = 0; i < Math.min(elements.length, 30); i++) {
+            const el = elements[i];
+            const title = ((await el.evaluate(e=>e.textContent))||'').trim().slice(0,120);
+            try { await el.click({ delay: 10 }); } catch {}
+            try {
+              const btn = await el.$('button, .add, .customize, [data-open]');
+              if (btn) await btn.click();
+            } catch {}
+            const modal = await page.waitForSelector('dialog, .modal, [role="dialog"], .lightbox, .fancybox-inner, .ui-dialog, .fancybox-overlay, .fancybox-wrap', { timeout: 2500 }).catch(()=>null);
+            if (!modal) continue;
+            const root = modal;
+            const groups = [];
+            const containers = await root.$$('fieldset, .group, .options, .modifier-group, .toppings, .crust, .section');
+            for (const g of containers) {
+              const gnameEl = await g.$('legend, .title, h3, h4, .group-title');
+              const gname = gnameEl ? ((await gnameEl.evaluate(e=>e.textContent))||'').trim() : 'Options';
+              const optEls = await g.$$('label, .option, li, .row, a');
+              const options = [];
+              for (const oe of optEls) {
+                const txt = ((await oe.evaluate(e=>e.textContent))||'').trim();
+                if (!txt) continue;
+                const name = txt.replace(/\$\s*\d+(?:\.\d{1,2})?/, '').trim();
+                const price_delta = parsePrice(txt);
+                options.push({ name, price_delta });
+              }
+              if (options.length) groups.push({ name: gname||'Options', options });
+            }
+            if (groups.length) scraped.push({ name: title, groups });
+            try { await page.keyboard.press('Escape'); } catch {}
+          }
+          return scraped;
+        }`;
+        const resp = await fetch(funcUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, context: { url } }) })
+        if (resp.ok) {
+          const scraped = await resp.json() as Array<{ name: string; groups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }> }>
+          // Map scraped groups back to items and upsert (reuse existing logic)
+          for (const si of scraped) {
+            const base = await supabaseAdmin
+              .from('items')
+              .select('id, base_name')
+              .eq('tenant_id', tenantId)
+              .ilike('base_name', si.name + '%')
+              .maybeSingle()
+            const baseId = (base as any)?.data?.id as string | undefined
+            if (!baseId) continue
+            for (const g of si.groups) {
+              const gnameRaw = decode(g.name)
+              const gname = gnameRaw || 'Options'
+              let minSel = 0, maxSel: number | null = null, required = false
+              if (/crust/i.test(gname)) { minSel = 1; maxSel = 1; required = true }
+              if (/topping/i.test(gname) || /add more/i.test(gname)) { minSel = 0; maxSel = null; required = false }
+              if (/dip/i.test(gname) || /sauce/i.test(gname)) { minSel = 0; maxSel = null; required = false }
+              let groupId: string | null = null
+              const { data: mgExisting } = await supabaseAdmin
+                .from('modifier_groups')
+                .select('id')
+                .eq('tenant_id', tenantId)
+                .eq('name', gname)
+                .maybeSingle()
+              if (mgExisting?.id) groupId = mgExisting.id
+              else {
+                const { data: mgCreated } = await supabaseAdmin
+                  .from('modifier_groups')
+                  .insert({ tenant_id: tenantId, name: gname, min_selection: minSel, max_selection: maxSel, display_order: 1, is_available: true })
+                  .select('id')
+                  .single()
+                groupId = mgCreated?.id || null
+              }
+              if (!groupId) continue
+              let order = 0
+              const keepNames: string[] = []
+              for (const opt of g.options) {
+                const oname = decode(String(opt.name || 'Option'))
+                keepNames.push(oname)
+                const priceDelta = Number(opt.price_delta || 0)
+                const { data: exists } = await supabaseAdmin
+                  .from('modifier_options')
+                  .select('id')
+                  .eq('modifier_group_id', groupId)
+                  .eq('name', oname)
+                  .maybeSingle()
+                if (exists?.id) {
+                  await supabaseAdmin
+                    .from('modifier_options')
+                    .update({ price_delta: priceDelta, display_order: order, is_available: true })
+                    .eq('id', exists.id)
+                } else {
+                  await supabaseAdmin
+                    .from('modifier_options')
+                    .insert({ modifier_group_id: groupId, name: oname, price_delta: priceDelta, display_order: order, is_available: true })
+                }
+                order += 1
+              }
+              try { await supabaseAdmin.rpc('delete_unused_modifier_options', { p_group_id: groupId, p_keep_names: keepNames }) } catch {}
+              await supabaseAdmin
+                .from('item_modifier_groups')
+                .upsert({ item_id: baseId, modifier_group_id: groupId, display_order: 1, required }, { onConflict: 'item_id,modifier_group_id' })
+            }
+          }
+          await logProgress({ event: 'addons_done', message: 'Add-ons captured and linked (Browserless)' })
+        } else {
+          await logProgress({ event: 'addons_failed', error: `HTTP ${resp.status}` })
+        }
+      } catch (e) {
+        await logProgress({ event: 'addons_failed', error: (e as any)?.message || 'unknown' })
+      }
+    } else if (enablePlaywright) {
+      // Fallback: attempt with Playwright when Browserless token not available
       try {
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright', browserless: Boolean(browserlessWs) })
         // Dynamic import to avoid bundling
