@@ -421,7 +421,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const beverageRxStrict = /(coke|pepsi|sprite|ginger\s*ale|water|juice|bottle|can|ml|591|2\s*l|2l|500ml|710\s*ml|pop|energy|drink|beverage|7\s*up|root\s*beer|orange\s*crush|grape\s*crush|cream\s*soda|mountain\s*dew|dr\.?pepper|gatorade|monster|red\s?bull|minute\s*maid|iced\s*tea)/i
     const dipFalsePositiveRx = /(bread|stick|pizza|breadstick|garlic\s*bread|cheesy\s*garlic|dolly|bbq\s*chicken|halal)/i
 
-    async function upsertItemGroupsForItem(baseId: string, rawGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }>) {
+    const upsertItemGroupsForItem = async (baseId: string, rawGroups: Array<{ name: string; options: Array<{ name: string; price_delta: number }> }>) => {
       // Default heuristic mapping
       let mapped: Array<{ canonical: string; name: string; required: boolean; min: number | null; max: number | null; options: Array<{ name: string; price: number }>; }>
         = []
