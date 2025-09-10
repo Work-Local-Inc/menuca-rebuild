@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { scrapeXtremePizzaMenu } from '@/lib/simple-scraper'
 import { parseMenuFromHTML } from '@/lib/html-menu-parser'
+import { parseUniversalMenu } from '@/lib/universal-menu-parser'
 import OpenAI from 'openai'
 
 export const config = {
@@ -139,7 +140,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch {}
     }
 
-    // Tool 1: fetch_url
+    // Tool 1a: Firecrawl (preferred if key present)
+    let fcMarkdown: string | null = null
+    let fcHtml: string | null = null
+    if (process.env.FIRECRAWL_API_KEY) {
+      try {
+        await logProgress({ event: 'firecrawl_start', message: 'Scraping via Firecrawl' })
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { FirecrawlApp } = await import('@mendable/firecrawl-js')
+        const app = new FirecrawlApp({ apiKey: process.env.FIRECRAWL_API_KEY })
+        const result: any = await app.scrapeUrl(url, { formats: ['markdown', 'html'], timeout: 60000 })
+        fcMarkdown = (result?.markdown || result?.data?.markdown || null) as string | null
+        fcHtml = (result?.html || result?.data?.html || null) as string | null
+        await logProgress({ event: 'firecrawl_done', markdown: Boolean(fcMarkdown), html: Boolean(fcHtml) })
+      } catch (e) {
+        await logProgress({ event: 'firecrawl_failed', error: (e as any)?.message || 'unknown' })
+      }
+    }
+
+    // Tool 1b: direct fetch (always available)
     await logProgress({ event: 'fetch_url', message: 'Fetching raw HTML' })
     const htmlResponse = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 MenuCA Agent' } })
     const rawHtml = await htmlResponse.text()
@@ -195,7 +214,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Tool 3: normalize_menu
     await logProgress({ event: 'normalize_menu', message: 'Normalizing to categories/items' })
-    const sourceHtml = (domHtml && domHtml.length > rawHtml.length) ? domHtml : rawHtml
+    const sourceHtml = (fcHtml && fcHtml.length > (domHtml || '').length && fcHtml.length > rawHtml.length)
+      ? fcHtml
+      : (domHtml && domHtml.length > rawHtml.length) ? domHtml : rawHtml
 
     const decode = (s: string) => (s || '')
       .replace(/&raquo;|»/g, '')
@@ -220,29 +241,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     let categories: NormalizedCategory[] = []
     try {
-      const altCount = (sourceHtml.match(/class="alternate_[12]"/g) || []).length
-      if (altCount > 0) {
-        const result = scrapeXtremePizzaMenu(sourceHtml)
-        categories = result.categories.map((cat: any) => ({
+      if (fcMarkdown && fcMarkdown.length > 500) {
+        const md = parseUniversalMenu(fcMarkdown, url)
+        categories = (md.categories || []).map((cat: any) => ({
           name: cat.name,
-          items: cat.items.map((i: any) => ({
+          items: (cat.items || []).map((i: any) => ({
             name: i.name,
             description: i.description || '',
-            prices: (i.prices || []).map((p: any) => p.price),
-            sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: p.price }))
+            prices: (i.prices || []).map((p: any) => Number(p.price)),
+            sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: Number(p.price) }))
           })),
         }))
       } else {
-        const result = parseMenuFromHTML(sourceHtml)
-        categories = result.categories.map((cat: any) => ({
-          name: cat.name,
-          items: cat.items.map((i: any) => ({
-            name: i.name,
-            description: i.description || '',
-            prices: (i.prices || []).map((p: any) => p.price),
-            sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: p.price }))
-          })),
-        }))
+        const altCount = (sourceHtml.match(/class=\"alternate_[12]\"/g) || []).length
+        if (altCount > 0) {
+          const result = scrapeXtremePizzaMenu(sourceHtml)
+          categories = result.categories.map((cat: any) => ({
+            name: cat.name,
+            items: cat.items.map((i: any) => ({
+              name: i.name,
+              description: i.description || '',
+              prices: (i.prices || []).map((p: any) => p.price),
+              sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: p.price }))
+            })),
+          }))
+        } else {
+          const result = parseMenuFromHTML(sourceHtml)
+          categories = result.categories.map((cat: any) => ({
+            name: cat.name,
+            items: cat.items.map((i: any) => ({
+              name: i.name,
+              description: i.description || '',
+              prices: (i.prices || []).map((p: any) => p.price),
+              sizes: (i.prices || []).map((p: any) => ({ name: p.size || 'Regular', price: p.price }))
+            })),
+          }))
+        }
       }
     } catch (e) {
       return res.status(500).json({ success: false, error: 'Failed to normalize menu', message: (e as any)?.message || 'unknown' })
