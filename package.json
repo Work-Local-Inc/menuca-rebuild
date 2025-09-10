@@ -19,7 +19,7 @@
     "db:setup": "node dist/scripts/setup-database.js",
     "db:migrate": "node dist/scripts/migrate.js",
     "test": "jest",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint app pages components lib --ext .ts,.tsx",
     "type-check": "tsc --noEmit",
     "scrape:xtreme": "node scripts/xtreme-pizza-scraper.js",
     "scrape:test": "node scripts/test-scraper.js",

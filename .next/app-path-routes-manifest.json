@@ -1,1 +1,20 @@
-{"/_not-found":"/_not-found","/admin/imports/[id]/page":"/admin/imports/[id]","/admin/page":"/admin","/auth/continue/page":"/auth/continue","/checkout/page":"/checkout","/dashboard-disabled/settings/page":"/dashboard-disabled/settings","/docs/api-map/page":"/docs/api-map","/login/page":"/login","/menu/[id]/page":"/menu/[id]","/orders/[id]/page":"/orders/[id]","/page":"/","/restaurant/[id]/dashboard/page":"/restaurant/[id]/dashboard","/restaurant/[id]/menu/page":"/restaurant/[id]/menu","/restaurant/[id]/settings/page":"/restaurant/[id]/settings","/restaurant/onboard/page":"/restaurant/onboard","/restaurant/[id]/dashboard/preview/page":"/restaurant/[id]/dashboard/preview","/api/business-settings/route":"/api/business-settings","/api/env-health/route":"/api/env-health"}
+{
+  "/_not-found/page": "/_not-found",
+  "/api/env-health/route": "/api/env-health",
+  "/api/business-settings/route": "/api/business-settings",
+  "/admin/imports/[id]/page": "/admin/imports/[id]",
+  "/admin/page": "/admin",
+  "/auth/continue/page": "/auth/continue",
+  "/dashboard-disabled/settings/page": "/dashboard-disabled/settings",
+  "/docs/api-map/page": "/docs/api-map",
+  "/login/page": "/login",
+  "/checkout/page": "/checkout",
+  "/menu/[id]/page": "/menu/[id]",
+  "/orders/[id]/page": "/orders/[id]",
+  "/page": "/",
+  "/restaurant/[id]/dashboard/page": "/restaurant/[id]/dashboard",
+  "/restaurant/[id]/dashboard/preview/page": "/restaurant/[id]/dashboard/preview",
+  "/restaurant/[id]/menu/page": "/restaurant/[id]/menu",
+  "/restaurant/[id]/settings/page": "/restaurant/[id]/settings",
+  "/restaurant/onboard/page": "/restaurant/onboard"
+}
