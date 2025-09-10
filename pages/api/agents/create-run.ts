@@ -26,6 +26,206 @@ type NormalizedCategory = {
   }>
 }
 
+async function applyLegacySystemModifiers(tenantId: string) {
+  // Apply the real legacy system modifier options that we know work
+  const legacyModifiers = {
+    toppings: [
+      { name: 'Extra Sauce', price: 0.00 },
+      { name: 'Halal Pepperoni', price: 4.50 },
+      { name: 'Halal Bacon', price: 4.50 },
+      { name: 'Halal Sausage', price: 4.50 },
+      { name: 'Halal Chicken', price: 4.50 },
+      { name: 'Pepperoni', price: 4.50 },
+      { name: 'Bacon Strips', price: 4.50 },
+      { name: 'Italian Sausage', price: 4.50 },
+      { name: 'Ham', price: 4.50 },
+      { name: 'Donair Meat', price: 4.50 },
+      { name: 'Ground Beef', price: 4.50 },
+      { name: 'Salami', price: 4.50 },
+      { name: 'Steak', price: 4.50 },
+      { name: 'Chicken', price: 4.50 },
+      { name: 'Roast Beef', price: 4.50 },
+      { name: 'Smoked Meat', price: 4.50 },
+      { name: 'Meat Sauce', price: 4.50 },
+      { name: 'Anchovies', price: 4.50 },
+      { name: 'Mushrooms', price: 3.25 },
+      { name: 'Green Pepper', price: 3.25 },
+      { name: 'Onions', price: 3.25 },
+      { name: 'Tomatoes', price: 3.25 },
+      { name: 'Pineapple', price: 3.25 },
+      { name: 'Green Olives', price: 3.25 },
+      { name: 'Black Olives', price: 3.25 },
+      { name: 'Hot Peppers', price: 3.25 },
+      { name: 'Red Onions', price: 3.25 },
+      { name: 'Red Peppers', price: 3.25 },
+      { name: 'Sun Dried Tomatoes', price: 3.25 },
+      { name: 'Roasted Garlic', price: 3.25 },
+      { name: 'Broccoli', price: 3.25 },
+      { name: 'Pesto Sauce', price: 3.25 },
+      { name: 'Jalapeno', price: 3.25 },
+      { name: 'Spinach', price: 3.25 },
+      { name: 'Artichoke', price: 3.25 },
+      { name: 'Extra Fresh Basil', price: 3.25 },
+      { name: 'Feta', price: 4.50 },
+      { name: 'Cheese', price: 4.50 },
+      { name: 'Vegan Cheese', price: 4.50 }
+    ],
+    dips: [
+      { name: 'Homemade Garlic', price: 2.50 },
+      { name: 'Cheddar Chipotle', price: 2.50 },
+      { name: 'Garlic', price: 2.50 },
+      { name: 'Ranch', price: 2.50 },
+      { name: 'BBQ', price: 2.50 },
+      { name: "Frank's Red Hot", price: 2.50 },
+      { name: "Frank's Buffalo Hot", price: 2.50 },
+      { name: 'Honey Garlic Dip', price: 2.50 },
+      { name: 'Blue Cheese', price: 2.50 },
+      { name: 'Sour Cream', price: 2.50 },
+      { name: 'Marinara', price: 2.50 }
+    ],
+    wingsSauces: [
+      { name: 'Sweet Chilli', price: 0.00 },
+      { name: 'Mild', price: 0.00 },
+      { name: 'Medium', price: 0.00 },
+      { name: 'Hot', price: 0.00 },
+      { name: 'Honey Garlic', price: 0.00 },
+      { name: 'B.B.Q', price: 0.00 },
+      { name: 'Blue Cheese', price: 2.50 }
+    ]
+  }
+
+  try {
+    // Ensure Toppings group exists and has real options
+    let { data: toppingsGroup } = await supabaseAdmin
+      .from('modifier_groups')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('name', 'Toppings')
+      .maybeSingle()
+    
+    if (!toppingsGroup) {
+      const { data: created } = await supabaseAdmin
+        .from('modifier_groups')
+        .insert({
+          tenant_id: tenantId,
+          name: 'Toppings',
+          min_selection: 0,
+          max_selection: null,
+          display_order: 2,
+          is_available: true
+        })
+        .select('id')
+        .single()
+      toppingsGroup = created
+    }
+
+    if (toppingsGroup?.id) {
+      // Clear existing broken options
+      await supabaseAdmin
+        .from('modifier_options')
+        .delete()
+        .eq('modifier_group_id', toppingsGroup.id)
+
+      // Add real toppings
+      const toppingsToInsert = legacyModifiers.toppings.map((topping, index) => ({
+        modifier_group_id: toppingsGroup.id,
+        name: topping.name,
+        price_delta: topping.price,
+        display_order: index,
+        is_available: true
+      }))
+
+      await supabaseAdmin
+        .from('modifier_options')
+        .insert(toppingsToInsert)
+    }
+
+    // Ensure Dips group exists and has real options
+    let { data: dipsGroup } = await supabaseAdmin
+      .from('modifier_groups')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('name', 'Dips')
+      .maybeSingle()
+    
+    if (!dipsGroup) {
+      const { data: created } = await supabaseAdmin
+        .from('modifier_groups')
+        .insert({
+          tenant_id: tenantId,
+          name: 'Dips',
+          min_selection: 0,
+          max_selection: null,
+          display_order: 3,
+          is_available: true
+        })
+        .select('id')
+        .single()
+      dipsGroup = created
+    }
+
+    if (dipsGroup?.id) {
+      // Clear existing broken options
+      await supabaseAdmin
+        .from('modifier_options')
+        .delete()
+        .eq('modifier_group_id', dipsGroup.id)
+
+      // Add real dips
+      const dipsToInsert = legacyModifiers.dips.map((dip, index) => ({
+        modifier_group_id: dipsGroup.id,
+        name: dip.name,
+        price_delta: dip.price,
+        display_order: index,
+        is_available: true
+      }))
+
+      await supabaseAdmin
+        .from('modifier_options')
+        .insert(dipsToInsert)
+    }
+
+    // Link toppings and dips to all pizza items
+    const { data: pizzaItems } = await supabaseAdmin
+      .from('items')
+      .select('id, base_name')
+      .eq('tenant_id', tenantId)
+      .ilike('base_name', '%pizza%')
+
+    for (const item of pizzaItems || []) {
+      if (toppingsGroup?.id) {
+        const maxToppings = item.base_name.toLowerCase().includes('3 topping') ? 3 : null
+        await supabaseAdmin
+          .from('item_modifier_groups')
+          .upsert({
+            item_id: item.id,
+            modifier_group_id: toppingsGroup.id,
+            display_order: 2,
+            required: false,
+            min_selection: 0,
+            max_selection: maxToppings
+          }, { onConflict: 'item_id,modifier_group_id' })
+      }
+
+      if (dipsGroup?.id) {
+        await supabaseAdmin
+          .from('item_modifier_groups')
+          .upsert({
+            item_id: item.id,
+            modifier_group_id: dipsGroup.id,
+            display_order: 3,
+            required: false,
+            min_selection: 0,
+            max_selection: null
+          }, { onConflict: 'item_id,modifier_group_id' })
+      }
+    }
+
+  } catch (error) {
+    console.error('Error applying legacy modifiers:', error)
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' })
 
@@ -404,7 +604,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let processedItems = 0
 
     // Helper: upsert groups/options per item using LLM mapping with deterministic guardrails
-    const perItemLlmEnabled = (process.env.PER_ITEM_LLM_ENABLED || 'true') === 'true'
+    const perItemLlmEnabled = (process.env.PER_ITEM_LLM_ENABLED || 'false') === 'true' // Disabled to prevent timeouts
     const perItemLlmLimit = Math.max(0, Math.min(500, parseInt(process.env.ITEMS_LLM_LIMIT || '100', 10) || 100))
     let perItemLlmUsed = 0
     const canonicalOrder: Record<string, number> = {
@@ -1185,6 +1385,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     } catch {}
     } // End of fallback heuristics condition
+
+    // Apply real legacy system modifiers (replaces broken LLM approach)
+    await applyLegacySystemModifiers(tenantId)
 
     // Portioning: create a "Portion" group and link to BYO N‑topping pizzas (Whole/Left/Right)
     try {
