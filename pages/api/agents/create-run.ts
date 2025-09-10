@@ -315,7 +315,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const userPayload = {
           url,
           catalog: compactSummary(),
-          instructions: 'Derive curated toppings_allow (food-only), toppings_deny (beverages/invalid), dip_names, and canonical size names present. JSON only.'
+          instructions: 'Derive curated toppings_allow (FOOD ONLY - no beverages, no drinks, no sodas, no juices), toppings_deny (all beverages/drinks/sodas/juices), dip_names (sauces only), and canonical size names present. NEVER put beverages in toppings_allow. JSON only.'
         }
         const completion = await openai.chat.completions.create({
           model,
@@ -326,7 +326,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             {
               role: 'system',
               content:
-                'You are a menu normalization agent. Output strict JSON with keys: toppings_allow (string[]), toppings_deny (string[]), dip_names (string[]), size_names (string[]). Do not include explanations.',
+                'You are a menu normalization agent. Output strict JSON with keys: toppings_allow (string[]), toppings_deny (string[]), dip_names (string[]), size_names (string[]). CRITICAL: toppings_allow must ONLY contain FOOD items like cheese, pepperoni, mushrooms. NEVER include beverages, drinks, sodas, juices, or liquids in toppings_allow. Put ALL beverages in toppings_deny. dip_names should only contain actual dipping sauces, not bread or pizza items. Do not include explanations.',
             },
             { role: 'user', content: JSON.stringify(userPayload) },
           ],
@@ -343,6 +343,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
           const text = (completion as any)?.choices?.[0]?.message?.content || '{}'
           llmHints = JSON.parse(text)
+          
+          // Post-process to remove any beverages that slipped into toppings_allow
+          if (llmHints && Array.isArray(llmHints.toppings_allow)) {
+            const beverageFilter = /(coke|pepsi|sprite|7\s*up|ginger\s*ale|water|juice|bottle|can|ml|591|2\s*l|2l|500ml|710\s*ml|pop|energy|drink|beverage|soda|root\s*beer|orange\s*crush|grape\s*crush|cream\s*soda|mountain\s*dew|dr\.?\s*pepper|gatorade|monster|red\s*bull|minute\s*maid|iced\s*tea)/i
+            llmHints.toppings_allow = llmHints.toppings_allow.filter((item: string) => !beverageFilter.test(item))
+          }
+          
+          // Post-process to remove bread/pizza items from dip_names
+          if (llmHints && Array.isArray(llmHints.dip_names)) {
+            const dipFalsePositiveFilter = /(bread|stick|pizza|breadstick|garlic\s*bread|cheesy\s*garlic|dolly|bbq\s*chicken|halal)/i
+            llmHints.dip_names = llmHints.dip_names.filter((item: string) => !dipFalsePositiveFilter.test(item))
+          }
         } catch {}
         await logProgress({ event: 'agent_done', model, usage: (completion as any)?.usage || null, hints: llmHints ? Object.keys(llmHints) : [] })
         // Optionally refine beverages filter from LLM deny list (best-effort)
