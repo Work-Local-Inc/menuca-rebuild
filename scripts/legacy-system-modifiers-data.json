@@ -1,0 +1,82 @@
+{
+  "universalModifiers": {
+    "crustTypes": [
+      { "name": "Regular Crust", "price": 0.00 },
+      { "name": "Thick Crust", "price": 0.00 },
+      { "name": "Thin Crust", "price": 0.00 }
+    ],
+    "toppings": [
+      { "name": "Extra Sauce", "price": 0.00 },
+      { "name": "Halal Pepperoni", "price": 4.50 },
+      { "name": "Halal Bacon", "price": 4.50 },
+      { "name": "Halal Sausage", "price": 4.50 },
+      { "name": "Halal Chicken", "price": 4.50 },
+      { "name": "Pepperoni", "price": 4.50 },
+      { "name": "Bacon Strips", "price": 4.50 },
+      { "name": "Italian Sausage", "price": 4.50 },
+      { "name": "Ham", "price": 4.50 },
+      { "name": "Donair Meat", "price": 4.50 },
+      { "name": "Ground Beef", "price": 4.50 },
+      { "name": "Salami", "price": 4.50 },
+      { "name": "Steak", "price": 4.50 },
+      { "name": "Chicken", "price": 4.50 },
+      { "name": "Roast Beef", "price": 4.50 },
+      { "name": "Smoked Meat", "price": 4.50 },
+      { "name": "Meat Sauce", "price": 4.50 },
+      { "name": "Anchovies", "price": 4.50 },
+      { "name": "Mushrooms", "price": 3.25 },
+      { "name": "Green Pepper", "price": 3.25 },
+      { "name": "Onions", "price": 3.25 },
+      { "name": "Tomatoes", "price": 3.25 },
+      { "name": "Pineapple", "price": 3.25 },
+      { "name": "Green Olives", "price": 3.25 },
+      { "name": "Black Olives", "price": 3.25 },
+      { "name": "Hot Peppers", "price": 3.25 },
+      { "name": "Red Onions", "price": 3.25 },
+      { "name": "Red Peppers", "price": 3.25 },
+      { "name": "Sun Dried Tomatoes", "price": 3.25 },
+      { "name": "Roasted Garlic", "price": 3.25 },
+      { "name": "Broccoli", "price": 3.25 },
+      { "name": "Pesto Sauce", "price": 3.25 },
+      { "name": "Jalapeno", "price": 3.25 },
+      { "name": "Spinach", "price": 3.25 },
+      { "name": "Artichoke", "price": 3.25 },
+      { "name": "Extra Fresh Basil", "price": 3.25 },
+      { "name": "Feta", "price": 4.50 },
+      { "name": "Cheese", "price": 4.50 },
+      { "name": "Vegan Cheese", "price": 4.50 }
+    ],
+    "dips": [
+      { "name": "Homemade Garlic", "price": 2.50 },
+      { "name": "Cheddar Chipotle", "price": 2.50 },
+      { "name": "Garlic", "price": 2.50 },
+      { "name": "Ranch", "price": 2.50 },
+      { "name": "BBQ", "price": 2.50 },
+      { "name": "Frank's Red Hot", "price": 2.50 },
+      { "name": "Frank's Buffalo Hot", "price": 2.50 },
+      { "name": "Honey Garlic Dip", "price": 2.50 },
+      { "name": "Blue Cheese", "price": 2.50 },
+      { "name": "Sour Cream", "price": 2.50 },
+      { "name": "Marinara", "price": 2.50 }
+    ],
+    "wingsSauces": [
+      { "name": "Sweet Chilli", "price": 0.00 },
+      { "name": "Mild", "price": 0.00 },
+      { "name": "Medium", "price": 0.00 },
+      { "name": "Hot", "price": 0.00 },
+      { "name": "Honey Garlic", "price": 0.00 },
+      { "name": "B.B.Q", "price": 0.00 },
+      { "name": "Blue Cheese", "price": 2.50 }
+    ],
+    "drinks": [
+      { "name": "Pepsi", "price": 0.00 },
+      { "name": "Diet Pepsi", "price": 0.00 },
+      { "name": "7 Up", "price": 0.00 },
+      { "name": "Ginger Ale", "price": 0.00 },
+      { "name": "Orange Crush", "price": 0.00 },
+      { "name": "Grape Crush", "price": 0.00 },
+      { "name": "Root Beer", "price": 0.00 },
+      { "name": "Mountain Dew", "price": 0.00 }
+    ]
+  }
+}

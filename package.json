@@ -29,8 +29,6 @@
     "test:backend": "node scripts/simple-backend.js"
   },
   "dependencies": {
-    "playwright-core": "^1.55.0",
-    "openai": "^4.59.0",
     "@mendable/firecrawl-js": "^3.2.1",
     "@stripe/react-stripe-js": "^3.9.0",
     "@stripe/stripe-js": "^7.8.0",
@@ -57,7 +55,10 @@
     "morgan": "^1.10.0",
     "next": "^13.4.7",
     "node-fetch": "^3.3.2",
+    "openai": "^4.59.0",
     "pg": "^8.11.3",
+    "playwright": "^1.55.0",
+    "playwright-core": "^1.55.0",
     "postcss": "^8.4.26",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

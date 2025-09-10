@@ -689,19 +689,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const allPotentialDips: Array<{ name: string; price_delta: number }> = []
             const allPotentialDrinks: Array<{ name: string; price_delta: number }> = []
             
-            // Collect all items from all categories as potential options
+            // Collect all items from all categories as potential options for LLM to reason about
             for (const cat of categories) {
               for (const item of (cat.items || [])) {
                 const name = decode(item.name)
                 const price = Number((Array.isArray(item.prices) && item.prices[0]) || item.price || 0)
                 
-                // Classify into potential groups for LLM to reason about
-                if (/(coke|pepsi|sprite|7\s*up|water|juice|drink|beverage|soda|tea|crush|dew|gatorade|monster|bull)/i.test(name)) {
-                  allPotentialDrinks.push({ name, price_delta: price })
-                } else if (/(sauce|dip|ranch|bbq|garlic|marinara|blue\s*cheese)/i.test(name) && !/(bread|pizza|stick)/i.test(name)) {
-                  allPotentialDips.push({ name, price_delta: price })
-                } else if (price >= 0 && price <= 6 && name.length <= 30) {
-                  allPotentialToppings.push({ name, price_delta: price })
+                // Add ALL items as potential options and let LLM decide categorization
+                const option = { name, price_delta: price }
+                
+                // Add to all potential groups - LLM will filter appropriately
+                if (price >= 0 && price <= 10 && name.length <= 50) {
+                  allPotentialToppings.push(option)
+                  allPotentialDips.push(option)
+                  allPotentialDrinks.push(option)
                 }
               }
             }
