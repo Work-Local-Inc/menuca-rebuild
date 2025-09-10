@@ -539,7 +539,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (dipsGroupId) {
           const keepNames: string[] = []
           let order = 0
-          for (const [nm, price] of dipMap.entries()) {
+          for (const [nm, price] of Array.from(dipMap.entries())) {
             keepNames.push(nm)
             const { data: exists } = await supabaseAdmin
               .from('modifier_options')
