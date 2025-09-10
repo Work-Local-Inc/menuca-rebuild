@@ -536,10 +536,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    await logProgress({ event: 'categories_loop_start', categoriesCount: categories.length })
     for (let idx = 0; idx < categories.length; idx++) {
       const category = categories[idx]
-      await logProgress({ event: 'processing_category', categoryName: category.name, categoryIndex: idx })
       // Create a section for this category (Phase 2 schema)
       const { data: sectionRow, error: sectionErr } = await supabaseAdmin
         .from('menu_sections')
@@ -685,7 +683,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Per-item agent mapping for ALL items with synthetic groups (LLM reasoning)
         try {
-          await logProgress({ event: 'per_item_debug', perItemLlmEnabled, perItemLlmUsed, perItemLlmLimit, baseItemsCount: (baseItems || []).length })
           if (perItemLlmEnabled && perItemLlmUsed < perItemLlmLimit && (baseItems || []).length > 0) {
             // Create synthetic modifier groups with all potential options for LLM to reason about
             const allPotentialToppings: Array<{ name: string; price_delta: number }> = []
@@ -710,7 +707,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
             
             const quota = Math.min((baseItems || []).length, perItemLlmLimit - perItemLlmUsed)
-            await logProgress({ event: 'per_item_quota', quota, allToppingsCount: allPotentialToppings.length, allDipsCount: allPotentialDips.length, allDrinksCount: allPotentialDrinks.length })
             
             for (let pi = 0; pi < quota; pi++) {
               const baseRow = (baseItems as any[])[pi]
@@ -723,20 +719,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               if (/pizza/i.test(itemName)) {
                 seedGroups.push({ name: 'Toppings', options: allPotentialToppings.slice(0, 30) })
                 seedGroups.push({ name: 'Dips', options: allPotentialDips.slice(0, 15) })
-                await logProgress({ event: 'per_item_pizza_match', itemName, seedGroupsCount: seedGroups.length })
               } else if (/wing/i.test(itemName)) {
                 seedGroups.push({ name: 'Wings Sauces', options: allPotentialDips.slice(0, 10) })
-                await logProgress({ event: 'per_item_wing_match', itemName, seedGroupsCount: seedGroups.length })
               } else if (/(combo|meal|with)/i.test(itemName)) {
                 seedGroups.push({ name: 'Drinks', options: allPotentialDrinks.slice(0, 10) })
-                await logProgress({ event: 'per_item_combo_match', itemName, seedGroupsCount: seedGroups.length })
               }
               
               if (seedGroups.length > 0) {
-                await logProgress({ event: 'per_item_calling_upsert', itemName, seedGroupsCount: seedGroups.length })
                 await upsertItemGroupsForItem(baseRow.id, seedGroups)
-              } else {
-                await logProgress({ event: 'per_item_no_match', itemName })
               }
             }
           }
