@@ -149,7 +149,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const fcMod: any = await import('@mendable/firecrawl-js')
         const FirecrawlAppCtor = fcMod?.FirecrawlApp || fcMod?.default
         const app = new FirecrawlAppCtor({ apiKey: process.env.FIRECRAWL_API_KEY })
-        const result: any = await app.scrapeUrl(url, { formats: ['markdown', 'html'], timeout: 60000 })
+        const result: any = await app.scrapeUrl(url, { formats: ['markdown', 'html'], timeout: 35000 })
         fcMarkdown = (result?.markdown || result?.data?.markdown || null) as string | null
         fcHtml = (result?.html || result?.data?.html || null) as string | null
         await logProgress({ event: 'firecrawl_done', markdown: Boolean(fcMarkdown), html: Boolean(fcHtml) })
@@ -175,7 +175,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               : rawBrowserless + '/playwright'))
       : ''
     const browserlessToken = process.env.BROWSERLESS_TOKEN || (() => { try { return new URL(rawBrowserless || '').searchParams.get('token') || '' } catch { return '' } })()
-    if (browserlessToken) {
+    const addonsEnabled = process.env.ADDONS_CAPTURE_ENABLED === 'true'
+    if (addonsEnabled && browserlessToken) {
       try {
         await logProgress({ event: 'browserless_content', message: 'Fetching dynamic HTML via Browserless REST' })
         const restUrl = `https://chrome.browserless.io/content?token=${browserlessToken}`
@@ -1022,7 +1023,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch (e) {
         await logProgress({ event: 'addons_failed', error: (e as any)?.message || 'unknown' })
       }
-    } else if (enablePlaywright) {
+    } else if (addonsEnabled && enablePlaywright) {
       // Fallback: attempt with Playwright when Browserless token not available
       try {
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright', browserless: Boolean(browserlessWs) })
