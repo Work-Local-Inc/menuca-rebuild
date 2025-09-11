@@ -78,266 +78,266 @@ type ApiRouteConfig = {
 }
 
 
-// Validate ../../app/admin/imports/[id]/page.tsx
+// Validate ../app/admin/imports/[id]/page.tsx
 {
-  const handler = {} as typeof import("../../app/admin/imports/[id]/page.js")
+  const handler = {} as typeof import("../app/admin/imports/[id]/page.js")
   handler satisfies AppPageConfig<"/admin/imports/[id]">
 }
 
-// Validate ../../app/admin/page.tsx
+// Validate ../app/admin/page.tsx
 {
-  const handler = {} as typeof import("../../app/admin/page.js")
+  const handler = {} as typeof import("../app/admin/page.js")
   handler satisfies AppPageConfig<"/admin">
 }
 
-// Validate ../../app/auth/continue/page.tsx
+// Validate ../app/auth/continue/page.tsx
 {
-  const handler = {} as typeof import("../../app/auth/continue/page.js")
+  const handler = {} as typeof import("../app/auth/continue/page.js")
   handler satisfies AppPageConfig<"/auth/continue">
 }
 
-// Validate ../../app/checkout/page.tsx
+// Validate ../app/checkout/page.tsx
 {
-  const handler = {} as typeof import("../../app/checkout/page.js")
+  const handler = {} as typeof import("../app/checkout/page.js")
   handler satisfies AppPageConfig<"/checkout">
 }
 
-// Validate ../../app/dashboard-disabled/settings/page.tsx
+// Validate ../app/dashboard-disabled/settings/page.tsx
 {
-  const handler = {} as typeof import("../../app/dashboard-disabled/settings/page.js")
+  const handler = {} as typeof import("../app/dashboard-disabled/settings/page.js")
   handler satisfies AppPageConfig<"/dashboard-disabled/settings">
 }
 
-// Validate ../../app/docs/api-map/page.tsx
+// Validate ../app/docs/api-map/page.tsx
 {
-  const handler = {} as typeof import("../../app/docs/api-map/page.js")
+  const handler = {} as typeof import("../app/docs/api-map/page.js")
   handler satisfies AppPageConfig<"/docs/api-map">
 }
 
-// Validate ../../app/login/page.tsx
+// Validate ../app/login/page.tsx
 {
-  const handler = {} as typeof import("../../app/login/page.js")
+  const handler = {} as typeof import("../app/login/page.js")
   handler satisfies AppPageConfig<"/login">
 }
 
-// Validate ../../app/menu/[id]/page.tsx
+// Validate ../app/menu/[id]/page.tsx
 {
-  const handler = {} as typeof import("../../app/menu/[id]/page.js")
+  const handler = {} as typeof import("../app/menu/[id]/page.js")
   handler satisfies AppPageConfig<"/menu/[id]">
 }
 
-// Validate ../../app/orders/[id]/page.tsx
+// Validate ../app/orders/[id]/page.tsx
 {
-  const handler = {} as typeof import("../../app/orders/[id]/page.js")
+  const handler = {} as typeof import("../app/orders/[id]/page.js")
   handler satisfies AppPageConfig<"/orders/[id]">
 }
 
-// Validate ../../app/page.tsx
+// Validate ../app/page.tsx
 {
-  const handler = {} as typeof import("../../app/page.js")
+  const handler = {} as typeof import("../app/page.js")
   handler satisfies AppPageConfig<"/">
 }
 
-// Validate ../../app/restaurant/[id]/dashboard/page.tsx
+// Validate ../app/restaurant/[id]/dashboard/page.tsx
 {
-  const handler = {} as typeof import("../../app/restaurant/[id]/dashboard/page.js")
+  const handler = {} as typeof import("../app/restaurant/[id]/dashboard/page.js")
   handler satisfies AppPageConfig<"/restaurant/[id]/dashboard">
 }
 
-// Validate ../../app/restaurant/[id]/dashboard/preview/page.tsx
+// Validate ../app/restaurant/[id]/dashboard/preview/page.tsx
 {
-  const handler = {} as typeof import("../../app/restaurant/[id]/dashboard/preview/page.js")
+  const handler = {} as typeof import("../app/restaurant/[id]/dashboard/preview/page.js")
   handler satisfies AppPageConfig<"/restaurant/[id]/dashboard/preview">
 }
 
-// Validate ../../app/restaurant/[id]/menu/page.tsx
+// Validate ../app/restaurant/[id]/menu/page.tsx
 {
-  const handler = {} as typeof import("../../app/restaurant/[id]/menu/page.js")
+  const handler = {} as typeof import("../app/restaurant/[id]/menu/page.js")
   handler satisfies AppPageConfig<"/restaurant/[id]/menu">
 }
 
-// Validate ../../app/restaurant/[id]/settings/page.tsx
+// Validate ../app/restaurant/[id]/settings/page.tsx
 {
-  const handler = {} as typeof import("../../app/restaurant/[id]/settings/page.js")
+  const handler = {} as typeof import("../app/restaurant/[id]/settings/page.js")
   handler satisfies AppPageConfig<"/restaurant/[id]/settings">
 }
 
-// Validate ../../app/restaurant/onboard/page.tsx
+// Validate ../app/restaurant/onboard/page.tsx
 {
-  const handler = {} as typeof import("../../app/restaurant/onboard/page.js")
+  const handler = {} as typeof import("../app/restaurant/onboard/page.js")
   handler satisfies AppPageConfig<"/restaurant/onboard">
 }
 
-// Validate ../../app/api/business-settings/route.ts
+// Validate ../app/api/business-settings/route.ts
 {
-  const handler = {} as typeof import("../../app/api/business-settings/route.js")
+  const handler = {} as typeof import("../app/api/business-settings/route.js")
   handler satisfies RouteHandlerConfig<"/api/business-settings">
 }
 
-// Validate ../../app/api/env-health/route.ts
+// Validate ../app/api/env-health/route.ts
 {
-  const handler = {} as typeof import("../../app/api/env-health/route.js")
+  const handler = {} as typeof import("../app/api/env-health/route.js")
   handler satisfies RouteHandlerConfig<"/api/env-health">
 }
 
-// Validate ../../pages/test-payment.tsx
+// Validate ../pages/test-payment.tsx
 {
-  const handler = {} as typeof import("../../pages/test-payment.js")
+  const handler = {} as typeof import("../pages/test-payment.js")
   handler satisfies PagesPageConfig
 }
 
-// Validate ../../pages/api/addresses/details.ts
+// Validate ../pages/api/addresses/details.ts
 {
-  const handler = {} as typeof import("../../pages/api/addresses/details.js")
+  const handler = {} as typeof import("../pages/api/addresses/details.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/addresses/validate.ts
+// Validate ../pages/api/addresses/validate.ts
 {
-  const handler = {} as typeof import("../../pages/api/addresses/validate.js")
+  const handler = {} as typeof import("../pages/api/addresses/validate.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/admin/import-legacy-menu.ts
+// Validate ../pages/api/admin/import-legacy-menu.ts
 {
-  const handler = {} as typeof import("../../pages/api/admin/import-legacy-menu.js")
+  const handler = {} as typeof import("../pages/api/admin/import-legacy-menu.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/admin/menu-imports.ts
+// Validate ../pages/api/admin/menu-imports.ts
 {
-  const handler = {} as typeof import("../../pages/api/admin/menu-imports.js")
+  const handler = {} as typeof import("../pages/api/admin/menu-imports.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/admin/menu-imports/[id].ts
+// Validate ../pages/api/admin/menu-imports/[id].ts
 {
-  const handler = {} as typeof import("../../pages/api/admin/menu-imports/[id].js")
+  const handler = {} as typeof import("../pages/api/admin/menu-imports/[id].js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/agents/create-run.ts
+// Validate ../pages/api/agents/create-run.ts
 {
-  const handler = {} as typeof import("../../pages/api/agents/create-run.js")
+  const handler = {} as typeof import("../pages/api/agents/create-run.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/debug-scraper.ts
+// Validate ../pages/api/debug-scraper.ts
 {
-  const handler = {} as typeof import("../../pages/api/debug-scraper.js")
+  const handler = {} as typeof import("../pages/api/debug-scraper.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/debug-tablet-order.ts
+// Validate ../pages/api/debug-tablet-order.ts
 {
-  const handler = {} as typeof import("../../pages/api/debug-tablet-order.js")
+  const handler = {} as typeof import("../pages/api/debug-tablet-order.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/inject-tablet-order.ts
+// Validate ../pages/api/inject-tablet-order.ts
 {
-  const handler = {} as typeof import("../../pages/api/inject-tablet-order.js")
+  const handler = {} as typeof import("../pages/api/inject-tablet-order.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/[id]/images.ts
+// Validate ../pages/api/restaurants/[id]/images.ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/[id]/images.js")
+  const handler = {} as typeof import("../pages/api/restaurants/[id]/images.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/[id]/import-status.ts
+// Validate ../pages/api/restaurants/[id]/import-status.ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/[id]/import-status.js")
+  const handler = {} as typeof import("../pages/api/restaurants/[id]/import-status.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/[id]/index.ts
+// Validate ../pages/api/restaurants/[id]/index.ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/[id]/index.js")
+  const handler = {} as typeof import("../pages/api/restaurants/[id]/index.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/[id]/menu.ts
+// Validate ../pages/api/restaurants/[id]/menu.ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/[id]/menu.js")
+  const handler = {} as typeof import("../pages/api/restaurants/[id]/menu.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/[id]/menu/categories/[categoryId].ts
+// Validate ../pages/api/restaurants/[id]/menu/categories/[categoryId].ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/[id]/menu/categories/[categoryId].js")
+  const handler = {} as typeof import("../pages/api/restaurants/[id]/menu/categories/[categoryId].js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/[id]/menu/items/[itemId].ts
+// Validate ../pages/api/restaurants/[id]/menu/items/[itemId].ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/[id]/menu/items/[itemId].js")
+  const handler = {} as typeof import("../pages/api/restaurants/[id]/menu/items/[itemId].js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/restaurants/onboard.ts
+// Validate ../pages/api/restaurants/onboard.ts
 {
-  const handler = {} as typeof import("../../pages/api/restaurants/onboard.js")
+  const handler = {} as typeof import("../pages/api/restaurants/onboard.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/stripe/create-checkout-session.ts
+// Validate ../pages/api/stripe/create-checkout-session.ts
 {
-  const handler = {} as typeof import("../../pages/api/stripe/create-checkout-session.js")
+  const handler = {} as typeof import("../pages/api/stripe/create-checkout-session.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/stripe/webhook.ts
+// Validate ../pages/api/stripe/webhook.ts
 {
-  const handler = {} as typeof import("../../pages/api/stripe/webhook.js")
+  const handler = {} as typeof import("../pages/api/stripe/webhook.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/tablet/accept.ts
+// Validate ../pages/api/tablet/accept.ts
 {
-  const handler = {} as typeof import("../../pages/api/tablet/accept.js")
+  const handler = {} as typeof import("../pages/api/tablet/accept.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/tablet/addOrder.ts
+// Validate ../pages/api/tablet/addOrder.ts
 {
-  const handler = {} as typeof import("../../pages/api/tablet/addOrder.js")
+  const handler = {} as typeof import("../pages/api/tablet/addOrder.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/tablet/getOrder.ts
+// Validate ../pages/api/tablet/getOrder.ts
 {
-  const handler = {} as typeof import("../../pages/api/tablet/getOrder.js")
+  const handler = {} as typeof import("../pages/api/tablet/getOrder.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/tablet/reject.ts
+// Validate ../pages/api/tablet/reject.ts
 {
-  const handler = {} as typeof import("../../pages/api/tablet/reject.js")
+  const handler = {} as typeof import("../pages/api/tablet/reject.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/test-db-connection.ts
+// Validate ../pages/api/test-db-connection.ts
 {
-  const handler = {} as typeof import("../../pages/api/test-db-connection.js")
+  const handler = {} as typeof import("../pages/api/test-db-connection.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/test-menu-insert.ts
+// Validate ../pages/api/test-menu-insert.ts
 {
-  const handler = {} as typeof import("../../pages/api/test-menu-insert.js")
+  const handler = {} as typeof import("../pages/api/test-menu-insert.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../pages/api/upload-image.ts
+// Validate ../pages/api/upload-image.ts
 {
-  const handler = {} as typeof import("../../pages/api/upload-image.js")
+  const handler = {} as typeof import("../pages/api/upload-image.js")
   handler satisfies ApiRouteConfig
 }
 
-// Validate ../../app/layout.tsx
+// Validate ../app/layout.tsx
 {
-  const handler = {} as typeof import("../../app/layout.js")
+  const handler = {} as typeof import("../app/layout.js")
   handler satisfies LayoutConfig<"/">
 }
