@@ -368,7 +368,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Tool 2: dynamic capture (Browserless REST first, then Playwright best-effort)
     let domHtml: string | null = null
     const enablePlaywright = process.env.PLAYWRIGHT_ENABLED === 'true' || !!process.env.BROWSERLESS_WS || !!process.env.BROWSERLESS_TOKEN
-    const rawBrowserless = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
+    const rawBrowserless = process.env.BROWSERLESS_WS || (process.env.BROWSERLESS_TOKEN ? `wss://production-sfo.browserless.io?token=${process.env.BROWSERLESS_TOKEN}` : '')
     const browserlessWs = rawBrowserless
       ? (/\/playwright(\?|$)/.test(rawBrowserless)
           ? rawBrowserless
@@ -381,7 +381,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (addonsEnabled && browserlessToken) {
       try {
         await logProgress({ event: 'browserless_content', message: 'Fetching dynamic HTML via Browserless REST' })
-        const restUrl = `https://chrome.browserless.io/content?token=${browserlessToken}`
+        const restUrl = `https://production-sfo.browserless.io/content?token=${browserlessToken}`
         const r = await fetch(restUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, gotoOptions: { waitUntil: 'networkidle' } }) })
         if (r.ok) {
           const text = await r.text()
@@ -1457,7 +1457,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (addonsEnabled && browserlessToken) {
       try {
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Browserless function', browserless: true })
-        const funcUrl = `https://chrome.browserless.io/function?token=${browserlessToken}`
+        const funcUrl = `https://production-sfo.browserless.io/function?token=${browserlessToken}`
         const code = `async ({ page, context }) => {
           const url = context.url;
           await page.goto(url, { waitUntil: 'networkidle' });
@@ -1570,8 +1570,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       } catch (e) {
         await logProgress({ event: 'addons_failed', error: (e as any)?.message || 'unknown' })
+        // Fall through to Playwright fallback when Browserless fails
       }
-    } else if (addonsEnabled && enablePlaywright) {
+    }
+    
+    // Fallback to Playwright if Browserless failed or wasn't available
+    if (addonsEnabled && enablePlaywright && !domHtml) {
       // Fallback: attempt with Playwright when Browserless token not available
       try {
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Playwright', browserless: Boolean(browserlessWs) })
