@@ -245,6 +245,15 @@ export default function MenuPage() {
       
       const menuData = await menuResponse.json()
       console.log(`✅ Loaded ${menuData.menu.length} menu items`)
+      console.log(`🔍 MENU API RESPONSE:`, {
+        success: menuData.success,
+        menuLength: menuData.menu?.length,
+        hasModifiers: menuData.menu?.some((item: any) => item.modifiers?.length > 0),
+        modifierCounts: menuData.menu?.map((item: any) => ({
+          name: item.name,
+          modifierCount: item.modifiers?.length || 0
+        })).filter((item: any) => item.modifierCount > 0).slice(0, 3)
+      })
       setMenu(menuData.menu)
       
     } catch (error) {
