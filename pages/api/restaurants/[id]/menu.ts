@@ -123,9 +123,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         `)
         .in('item_id', baseItemIds)
         .order('display_order', { ascending: true })
+      console.log(`🔧 Loading modifiers for ${baseItemIds.length} items`);
+      
       for (const row of (img || []) as any[]) {
         const arr = itemModifiers[row.item_id] || []
-        arr.push({
+        const modifierGroup = {
           id: row.modifier_groups.id,
           name: row.modifier_groups.name,
           min: row.min_selection ?? row.modifier_groups.min_selection,
@@ -141,26 +143,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             default_selected: !!o.default_selected,
             is_available: o.is_available !== false
           }))
-        })
-        itemModifiers[row.item_id] = arr
+        };
+        
+        arr.push(modifierGroup);
+        itemModifiers[row.item_id] = arr;
+        
+        console.log(`📝 Added modifier group "${modifierGroup.name}" with ${modifierGroup.options.length} options to item ${row.item_id}`);
       }
+      
+      console.log(`✅ Total modifier groups loaded: ${Object.keys(itemModifiers).length} items have modifiers`);
+      console.log(`📊 Modifier summary:`, Object.entries(itemModifiers).map(([itemId, groups]) => ({
+        itemId,
+        groupCount: groups.length,
+        groupNames: groups.map(g => g.name)
+      })).slice(0, 3));
     }
 
-    const transformedMenuItems = allMenuItems.map((item: any) => ({
-      id: item.id,
-      name: item.name_override ?? item.items?.base_name ?? '',
-      description: item.desc_override ?? item.items?.base_desc ?? '',
-      price: parseFloat(item.price_override ?? item.items?.base_price ?? 0) || 0,
-      category: (categories?.find(c => c.id === (item.menu_section_id))?.name) || 'Other',
-      dietary_tags: [],
-      prep_time: 15,
-      rating: 4.5,
-      is_popular: false,
-      image_url: item.image_url || null,
-      is_active: item.is_active ?? true,
-      category_id: item.menu_section_id,
-      modifiers: itemModifiers[item.items?.id] || []
-    }));
+    const transformedMenuItems = allMenuItems.map((item: any) => {
+      const baseItemId = item.items?.id;
+      const modifiersForItem = itemModifiers[baseItemId] || [];
+      
+      // Debug logging for modifier attachment
+      if (item.name_override?.toLowerCase().includes('margherita') || item.items?.base_name?.toLowerCase().includes('margherita')) {
+        console.log(`🍕 MARGHERITA DEBUG:`, {
+          name: item.name_override || item.items?.base_name,
+          baseItemId,
+          hasModifiers: modifiersForItem.length > 0,
+          modifierCount: modifiersForItem.length,
+          modifierGroups: modifiersForItem.map(m => m.name)
+        });
+      }
+      
+      return {
+        id: item.id,
+        name: item.name_override ?? item.items?.base_name ?? '',
+        description: item.desc_override ?? item.items?.base_desc ?? '',
+        price: parseFloat(item.price_override ?? item.items?.base_price ?? 0) || 0,
+        category: (categories?.find(c => c.id === (item.menu_section_id))?.name) || 'Other',
+        dietary_tags: [],
+        prep_time: 15,
+        rating: 4.5,
+        is_popular: false,
+        image_url: item.image_url || null,
+        is_active: item.is_active ?? true,
+        category_id: item.menu_section_id,
+        modifiers: modifiersForItem
+      };
+    });
 
     const categoryStats = (categories || []).map(cat => ({
       id: cat.id,
