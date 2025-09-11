@@ -1454,7 +1454,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch {}
 
     // Optional: capture add-on groups (crust, toppings, dips) via Browserless function or Playwright and map to items
-    if (browserlessToken) {
+    if (addonsEnabled && browserlessToken) {
       try {
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Browserless function', browserless: true })
         const funcUrl = `https://chrome.browserless.io/function?token=${browserlessToken}`
