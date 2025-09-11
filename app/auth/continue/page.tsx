@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-export default function AuthContinue() {
+function AuthContinueContent() {
   const params = useSearchParams()
   const router = useRouter()
 
@@ -30,9 +30,17 @@ export default function AuthContinue() {
       router.replace(`/menu/${rid}`)
     }
     else router.replace('/restaurant/onboard')
-  }, [])
+  }, [params, router])
 
   return null
+}
+
+export default function AuthContinue() {
+  return (
+    <Suspense fallback={null}>
+      <AuthContinueContent />
+    </Suspense>
+  )
 }
 
 

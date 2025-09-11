@@ -57,7 +57,7 @@ async function scrapeUniversalModifiers(url, maxItems = 5) {
         // Find the order link in this row
         const orderLink = await row.locator('a[href="#"]').last()
         
-        if (await orderLink.count() > 0) {
+        if ((await orderLink.count()) > 0) {
           console.log('Clicking order link...')
           await orderLink.click()
           await page.waitForTimeout(3000)
@@ -166,7 +166,7 @@ async function scrapeCustomizationSteps(page, itemName) {
       hasText: /next|continue|proceed|add to cart|customize/i 
     }).first()
     
-    if (await nextButton.count() > 0) {
+    if ((await nextButton.count()) > 0) {
       console.log('Clicking next/continue button...')
       await nextButton.click()
       await page.waitForTimeout(2000)
@@ -233,7 +233,7 @@ async function extractModifiersFromPage(page) {
       for (const input of [...radios, ...checkboxes]) {
         try {
           const label = await input.locator('xpath=following-sibling::label[1]').textContent().catch(() => '')
-          const value = await input.getAttribute('value') || ''
+          const value = (await input.getAttribute('value')) || ''
           const name = label || value || 'Option'
           const price = parsePrice(name)
           

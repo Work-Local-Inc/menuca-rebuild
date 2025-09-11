@@ -80,7 +80,7 @@ export default function AdminPage() {
           <div key={r.id} className="border rounded-lg p-4 flex items-center gap-3">
             {r.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={r.logo_url} alt={r.name} className="h-10 max-w-[160px] object-contain" />
+              (<img src={r.logo_url} alt={r.name} className="h-10 max-w-[160px] object-contain" />)
             ) : (
               <div className="h-10 min-w-[80px] bg-gray-100" />
             )}
@@ -104,7 +104,7 @@ export default function AdminPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 function RecentImports() {

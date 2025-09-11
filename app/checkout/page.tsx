@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ interface RestaurantMeta {
   longitude?: number | null
 }
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [rid, setRid] = useState<string | null>(null)
@@ -298,7 +298,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
@@ -602,7 +601,7 @@ export default function CheckoutPage() {
                   <div className="w-full h-16 md:h-20 rounded-lg overflow-hidden bg-white ring-1 ring-black/5 flex items-center justify-center p-2">
                     {restaurant?.logo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={restaurant.logo_url} alt="Restaurant Logo" className="max-h-full max-w-full object-contain" />
+                      (<img src={restaurant.logo_url} alt="Restaurant Logo" className="max-h-full max-w-full object-contain" />)
                     ) : (
                       <ChefHat className="h-8 w-8 text-gray-400" />
                     )}
@@ -638,5 +637,20 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading checkout...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutPageContent />
+    </Suspense>
   )
 }

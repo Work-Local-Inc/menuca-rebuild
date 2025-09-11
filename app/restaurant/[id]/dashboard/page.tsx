@@ -168,7 +168,7 @@ export default function RestaurantDashboard() {
             <div className="w-full h-40 md:h-56 rounded-xl overflow-hidden bg-gradient-to-br from-orange-400 to-red-500">
               {restaurant?.banner_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={restaurant.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                (<img src={restaurant.banner_url} alt="Banner" className="w-full h-full object-cover" />)
               ) : (
                 <div className="w-full h-full flex items-center justify-center"><ChefHat className="h-16 w-16 text-white/80" /></div>
               )}
@@ -176,11 +176,11 @@ export default function RestaurantDashboard() {
             <div className="absolute -bottom-6 left-4 z-10 rounded-lg bg-white px-3 py-2">
               {restaurant?.logo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                (<img
                   src={restaurant.logo_url}
                   alt="Logo"
                   className="object-contain max-h-14 md:max-h-20 max-w-[240px]"
-                />
+                />)
               ) : (
                 <div className="flex items-center justify-center h-14 md:h-20 min-w-[80px]">
                   <ChefHat className="h-8 w-8 text-gray-400" />
@@ -209,9 +209,7 @@ export default function RestaurantDashboard() {
           </div>
         </div>
       </div>
-
       {/* Old fixed-on-scroll nav removed in favor of shared Admin Toolbar */}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -406,5 +404,5 @@ export default function RestaurantDashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
