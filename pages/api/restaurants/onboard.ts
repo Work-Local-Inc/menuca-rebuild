@@ -73,9 +73,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         body: JSON.stringify({ url: legacy_url, restaurant_id: restaurantId })
       });
+      
+      console.log('🔍 AGENT API RESPONSE:', {
+        status: resp.status,
+        statusText: resp.statusText,
+        headers: Object.fromEntries(resp.headers.entries())
+      });
+      
+      if (!resp.ok) {
+        const errorText = await resp.text();
+        console.error('🚨 AGENT API ERROR:', errorText);
+        throw new Error(`Agent API failed: ${resp.status} ${resp.statusText} - ${errorText}`);
+      }
+      
       importResult = await resp.json();
     } catch (e) {
-      console.warn('⚠️ Agent import trigger failed; returning restaurant info only:', (e as any)?.message || e);
+      console.error('🚨 AGENT IMPORT FAILED:', {
+        error: (e as any)?.message || e,
+        stack: (e as any)?.stack,
+        url: legacy_url,
+        restaurantId,
+        origin: req.headers.origin || `https://${req.headers.host}`
+      });
     }
 
     return res.status(200).json({
