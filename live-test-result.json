@@ -1,0 +1,66 @@
+{
+  "success": true,
+  "restaurant": {
+    "id": "1b867e00-76e4-45be-b2fd-33d42def87cc",
+    "name": "Live Test After Deploy",
+    "status": "active",
+    "menu_url": "/menu/1b867e00-76e4-45be-b2fd-33d42def87cc",
+    "management_url": "/restaurant/1b867e00-76e4-45be-b2fd-33d42def87cc/dashboard"
+  },
+  "menu_import": {
+    "success": true,
+    "categories": 9,
+    "items": 202,
+    "restaurant_id": "1b867e00-76e4-45be-b2fd-33d42def87cc",
+    "menu_id": "7a4c11b5-4bc3-42df-94b4-8d6e72925c6b",
+    "preview": [
+      {
+        "name": "Appetizers",
+        "items": 40
+      },
+      {
+        "name": "Pizza",
+        "items": 24
+      },
+      {
+        "name": "Wings",
+        "items": 14
+      },
+      {
+        "name": "Poutine",
+        "items": 6
+      },
+      {
+        "name": "Pasta",
+        "items": 5
+      },
+      {
+        "name": "Subs & Sandwiches",
+        "items": 30
+      },
+      {
+        "name": "Salads",
+        "items": 5
+      },
+      {
+        "name": "Beverages",
+        "items": 19
+      },
+      {
+        "name": "Other Items",
+        "items": 59
+      }
+    ],
+    "agent": {
+      "provider": "openai",
+      "run_id": "19843b24-18c3-446b-84f0-a20c3e395dce",
+      "cost_usd": 0.000609
+    },
+    "elapsed_ms": 36116
+  },
+  "next_steps": [
+    "✅ Restaurant created successfully",
+    "✅ Imported 202 items",
+    "✅ Your restaurant is now LIVE and ready for orders!"
+  ]
+}
