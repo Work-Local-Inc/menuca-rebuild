@@ -102,8 +102,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Fetch modifier groups for all referenced base item ids
     const baseItemIds = Array.from(baseItemsMap.keys())
     let itemModifiers: Record<string, any[]> = {}
+    console.log(`🔍 RESTAURANT DEBUG: ${restaurantId}`);
+    console.log(`🔍 BASE ITEM IDS (${baseItemIds.length}):`, baseItemIds.slice(0, 5));
+    
     if (baseItemIds.length > 0) {
-      const { data: img } = await supabase
+      const { data: img, error: modifierError } = await supabase
         .from('item_modifier_groups')
         .select(`
           item_id,
@@ -123,7 +126,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         `)
         .in('item_id', baseItemIds)
         .order('display_order', { ascending: true })
+      
       console.log(`🔧 Loading modifiers for ${baseItemIds.length} items`);
+      console.log(`📊 Modifier query result:`, { 
+        success: !modifierError, 
+        error: modifierError?.message,
+        resultCount: img?.length || 0 
+      });
       
       for (const row of (img || []) as any[]) {
         const arr = itemModifiers[row.item_id] || []
