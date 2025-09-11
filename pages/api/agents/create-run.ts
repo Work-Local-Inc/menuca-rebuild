@@ -1454,6 +1454,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch {}
 
     // Optional: capture add-on groups (crust, toppings, dips) via Browserless function or Playwright and map to items
+    await logProgress({ 
+      event: 'addons_check', 
+      message: 'Checking addon conditions', 
+      addonsEnabled, 
+      hasBrowserlessToken: !!browserlessToken,
+      browserlessTokenLength: browserlessToken?.length || 0 
+    })
+    
     if (addonsEnabled && browserlessToken) {
       try {
         await logProgress({ event: 'addons_capture', message: 'Scraping add-ons via Browserless function', browserless: true })
@@ -1572,6 +1580,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await logProgress({ event: 'addons_failed', error: (e as any)?.message || 'unknown' })
         // Fall through to Playwright fallback when Browserless fails
       }
+    } else {
+      await logProgress({ 
+        event: 'addons_skipped_no_browserless', 
+        message: 'Skipping Browserless addon capture',
+        reason: !addonsEnabled ? 'addons_disabled' : 'no_browserless_token'
+      })
     }
     
     // Fallback to Playwright if Browserless failed or wasn't available
